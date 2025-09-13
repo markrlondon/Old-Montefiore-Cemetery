@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CSV Block → Row/Grave Sort</title>
+  <title>CSV Block Filter with Mixed Sorting</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     .controls { display: flex; gap: 12px; align-items: center; margin: 16px 0; flex-wrap: wrap; }
@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <h2>CSV viewer with Block filter + Row/Grave sort</h2>
+  <h2>CSV viewer — Block filter + mixed sorting</h2>
 
   <div class="controls">
     <input type="file" id="csvFile" accept=".csv" />
@@ -34,81 +34,62 @@
     const blockSelect = document.getElementById("blockSelect");
     const countsEl    = document.getElementById("counts");
 
-    let allRows = [];     // Array of row objects (header -> value)
-    let headers = [];     // Header names in order
-    let headerMap = {};   // lowercased header -> original header
+    let allRows = [];
+    let headers = [];
+    let headerMap = {};
 
-    // RFC4180-ish CSV parser: handles quoted fields, commas, and escaped quotes ("").
+    // --- CSV parser (handles quotes, commas, escaped quotes) ---
     function parseCSV(text) {
-      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // strip UTF-8 BOM
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const rows = [];
-      let row = [];
-      let field = "";
-      let inQuotes = false;
+      let row = [], field = "", inQuotes = false;
 
       for (let i = 0; i < text.length; i++) {
-        const char = text[i];
+        const ch = text[i];
         if (inQuotes) {
-          if (char === '"') {
+          if (ch === '"') {
             const next = text[i + 1];
             if (next === '"') { field += '"'; i++; } else { inQuotes = false; }
           } else {
-            field += char;
+            field += ch;
           }
         } else {
-          if (char === '"') {
-            inQuotes = true;
-          } else if (char === ",") {
-            row.push(field);
-            field = "";
-          } else if (char === "\r") {
-            // ignore, handle on \n
-          } else if (char === "\n") {
-            row.push(field);
-            rows.push(row);
-            row = [];
-            field = "";
-          } else {
-            field += char;
-          }
+          if (ch === '"') inQuotes = true;
+          else if (ch === ",") { row.push(field); field = ""; }
+          else if (ch === "\r") { /* ignore */ }
+          else if (ch === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+          else field += ch;
         }
       }
-      if (field.length > 0 || inQuotes || row.length > 0) {
-        row.push(field);
-        rows.push(row);
-      }
+      if (field.length > 0 || inQuotes || row.length > 0) { row.push(field); rows.push(row); }
       return rows.map(r => r.map(c => c.trim()));
     }
 
-    // Natural/numeric-aware comparator with empty values pushed to the end
+    // --- Comparators ---
     const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
     function cmpNatural(a, b) {
       const as = a == null ? "" : String(a).trim();
       const bs = b == null ? "" : String(b).trim();
-      const aEmpty = as === "";
-      const bEmpty = bs === "";
+      const aEmpty = as === "", bEmpty = bs === "";
       if (aEmpty && bEmpty) return 0;
-      if (aEmpty) return 1;   // push empties to end
+      if (aEmpty) return 1;        // push empties to end
       if (bEmpty) return -1;
       return collator.compare(as, bs);
     }
 
+    // --- Rendering ---
     function buildTable(rowsToShow) {
       if (!headers.length) return;
-
       let html = "<table><thead><tr>";
-      headers.forEach(h => html += `<th>${escapeHtml(h)}</th>`);
+      headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>`; });
       html += "</tr></thead><tbody>";
-
       rowsToShow.forEach(obj => {
         html += "<tr>";
-        headers.forEach(h => html += `<td>${escapeHtml(obj[h] ?? "")}</td>`);
+        headers.forEach(h => { html += `<td>${escapeHtml(obj[h] ?? "")}</td>`; });
         html += "</tr>";
       });
-
       html += "</tbody></table>";
       outputDiv.innerHTML = html;
-
       countsEl.textContent = `Showing ${rowsToShow.length.toLocaleString()} of ${allRows.length.toLocaleString()} rows`;
     }
 
@@ -121,12 +102,11 @@
         .replaceAll("'", "&#39;");
     }
 
+    // --- Header helpers (case-insensitive lookup) ---
     function mapHeaders(hdrs) {
       headerMap = {};
       hdrs.forEach(h => { headerMap[h.toLowerCase()] = h; });
-      return headerMap;
     }
-
     function getColName(...candidates) {
       for (const c of candidates) {
         const found = headerMap[c.toLowerCase()];
@@ -135,20 +115,16 @@
       return null;
     }
 
+    // --- UI ---
     function populateBlockDropdown(blockCol) {
-      const blockValues = new Set();
+      const uniq = new Set();
       let hasBlank = false;
-
-      for (const row of allRows) {
-        let v = row[blockCol];
-        if (v == null || String(v).trim() === "") {
-          hasBlank = true;
-          continue;
-        }
-        blockValues.add(String(v).trim());
+      for (const r of allRows) {
+        const v = r[blockCol];
+        if (v == null || String(v).trim() === "") { hasBlank = true; continue; }
+        uniq.add(String(v).trim());
       }
-
-      const sorted = Array.from(blockValues).sort((a,b) => collator.compare(a,b));
+      const sorted = Array.from(uniq).sort((a,b) => collator.compare(a,b));
       blockSelect.innerHTML = `<option value="__ALL__">All</option>`;
       if (hasBlank) blockSelect.innerHTML += `<option value="__BLANK__">(blank)</option>`;
       for (const v of sorted) {
@@ -158,14 +134,15 @@
     }
 
     function applyFilterAndSort() {
-      // Resolve column names (case-insensitive): Block, row, grave/grav
       const blockCol = getColName("Block", "block");
       const rowCol   = getColName("row", "Row");
-      const graveCol = getColName("grave", "grav", "Grave", "grav");
+      const graveCol = getColName("grave", "grav", "Grave", "Grav");
+      const secCol   = getColName("Sec.", "sec", "section", "Section");
 
       let subset = allRows;
       const selected = blockSelect.value;
 
+      // Filter by Block selection
       if (selected === "__BLANK__") {
         subset = allRows.filter(r => {
           const v = r[blockCol];
@@ -175,16 +152,55 @@
         subset = allRows.filter(r => String(r[blockCol] ?? "").trim() === selected);
       }
 
-      // Sort: primary by row, secondary by grave/grav
+      // Sorting logic:
+      // - If a specific Block is selected:
+      //     - If that Block == 84 and Sec. exists → sort by Sec. → Row → Grave
+      //     - Else → sort by Row → Grave
+      // - If "All" is selected:
+      //     - First sort by Block (so blocks are grouped)
+      //     - Inside Block 84: Sec. → Row → Grave
+      //     - Inside all other blocks: Row → Grave
       subset = subset.slice().sort((a, b) => {
-        const c1 = cmpNatural(rowCol ? a[rowCol] : "", rowCol ? b[rowCol] : "");
-        if (c1 !== 0) return c1;
-        return cmpNatural(graveCol ? a[graveCol] : "", graveCol ? b[graveCol] : "");
+        const aBlock = String(a[blockCol] ?? "").trim();
+        const bBlock = String(b[blockCol] ?? "").trim();
+
+        if (selected === "__ALL__") {
+          // group by Block first
+          const cBlock = cmpNatural(aBlock, bBlock);
+          if (cBlock !== 0) return cBlock;
+
+          const is84 = aBlock === "84";  // both have same block now
+          if (is84 && secCol) {
+            const c1 = cmpNatural(a[secCol], b[secCol]);
+            if (c1 !== 0) return c1;
+            const c2 = cmpNatural(a[rowCol], b[rowCol]);
+            if (c2 !== 0) return c2;
+            return cmpNatural(a[graveCol], b[graveCol]);
+          } else {
+            const c1 = cmpNatural(a[rowCol], b[rowCol]);
+            if (c1 !== 0) return c1;
+            return cmpNatural(a[graveCol], b[graveCol]);
+          }
+        } else {
+          // Specific block selected
+          if (selected === "84" && secCol) {
+            const c1 = cmpNatural(a[secCol], b[secCol]);
+            if (c1 !== 0) return c1;
+            const c2 = cmpNatural(a[rowCol], b[rowCol]);
+            if (c2 !== 0) return c2;
+            return cmpNatural(a[graveCol], b[graveCol]);
+          } else {
+            const c1 = cmpNatural(a[rowCol], b[rowCol]);
+            if (c1 !== 0) return c1;
+            return cmpNatural(a[graveCol], b[graveCol]);
+          }
+        }
       });
 
       buildTable(subset);
     }
 
+    // --- File load ---
     csvInput.addEventListener("change", e => {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -192,36 +208,15 @@
       const reader = new FileReader();
       reader.onload = event => {
         const text = event.target.result;
-        const csv = parseCSV(text).filter(r => r.length && r.some(c => c !== "")); // drop empty rows
-        if (csv.length === 0) {
-          outputDiv.textContent = "No data found in CSV.";
-          blockSelect.disabled = true;
-          countsEl.textContent = "";
-          return;
-        }
+        const csv = parseCSV(text).filter(r => r.length && r.some(c => c !== ""));
+        if (!csv.length) { outputDiv.textContent = "No data found in CSV."; blockSelect.disabled = true; countsEl.textContent = ""; return; }
 
         headers = csv[0];
         mapHeaders(headers);
 
-        // Figure out required columns; be flexible about casing/naming
         const blockCol = getColName("Block", "block");
-        const rowCol   = getColName("row", "Row");
-        const graveCol = getColName("grave", "grav", "Grave", "grav");
+        if (!blockCol) { outputDiv.textContent = 'The CSV does not have a "Block" column.'; blockSelect.disabled = true; countsEl.textContent = ""; return; }
 
-        if (!blockCol) {
-          outputDiv.textContent = 'The CSV does not have a column named "Block" (case-insensitive).';
-          blockSelect.disabled = true;
-          countsEl.textContent = "";
-          return;
-        }
-        if (!rowCol) {
-          console.warn('No "row"/"Row" column found—sorting by row will be skipped.');
-        }
-        if (!graveCol) {
-          console.warn('No "grave"/"grav" column found—secondary sort will be skipped.');
-        }
-
-        // Convert rows to objects
         allRows = csv.slice(1).map(row => {
           const obj = {};
           headers.forEach((h, i) => { obj[h] = row[i] ?? ""; });
