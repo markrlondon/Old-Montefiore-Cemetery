@@ -25,14 +25,13 @@
     <div id="blockFilterWrap" style="display:none;">
       <label for="blockSelect">Block:</label>
       <select id="blockSelect"></select>
-      <span class="note">(Choose a Block to display rows. Rows will be sorted by Gate → Row → Grave.)</span>
+      <span class="note">(Normal: Gate → Row → Grave. Block 84: Sec. → Row → Grave, Gate column hidden.)</span>
     </div>
   </div>
 
   <div id="output"></div>
 
   <script>
-    // --- Minimal CSV parser supporting quoted fields and commas inside quotes ---
     function parseCSV(text) {
       const rows = [];
       let row = [];
@@ -42,65 +41,25 @@
 
       while (i < text.length) {
         const char = text[i];
-
         if (inQuotes) {
           if (char === '"') {
-            if (text[i + 1] === '"') {  // Escaped quote
-              field += '"';
-              i += 2;
-              continue;
-            } else {
-              inQuotes = false;
-              i++;
-              continue;
-            }
-          } else {
-            field += char;
-            i++;
-            continue;
-          }
+            if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+            else { inQuotes = false; i++; continue; }
+          } else { field += char; i++; continue; }
         } else {
-          if (char === '"') {
-            inQuotes = true;
-            i++;
-            continue;
-          }
-          if (char === ',') {
-            row.push(field);
-            field = '';
-            i++;
-            continue;
-          }
-          if (char === '\r') { // handle CRLF
-            i++;
-            continue;
-          }
-          if (char === '\n') {
-            row.push(field);
-            rows.push(row);
-            row = [];
-            field = '';
-            i++;
-            continue;
-          }
-          field += char;
-          i++;
+          if (char === '"') { inQuotes = true; i++; continue; }
+          if (char === ',') { row.push(field); field = ''; i++; continue; }
+          if (char === '\r') { i++; continue; }
+          if (char === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+          field += char; i++;
         }
       }
-      // Last field
       row.push(field);
-      // Only push the last row if it's not a trailing empty line
-      if (!(row.length === 1 && row[0] === '' && rows.length > 0)) {
-        rows.push(row);
-      }
-      // Trim trailing empty rows
-      while (rows.length && rows[rows.length - 1].every(c => String(c).trim() === '')) {
-        rows.pop();
-      }
+      if (!(row.length === 1 && row[0] === '' && rows.length > 0)) rows.push(row);
+      while (rows.length && rows[rows.length - 1].every(c => String(c).trim() === '')) rows.pop();
       return rows;
     }
 
-    // Natural sort compare: compares strings with embedded numbers like "8L", "10", "378/N"
     function naturalCompare(a, b) {
       const ax = String(a ?? '').trim();
       const bx = String(b ?? '').trim();
@@ -128,7 +87,6 @@
       let html = '<table><thead><tr>';
       headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>`; });
       html += '</tr></thead><tbody>';
-
       for (const r of rows) {
         html += '<tr>';
         for (const h of headers) {
@@ -147,9 +105,8 @@
       }[c]));
     }
 
-    // Global state after loading CSV
-    let allRows = [];      // array of objects keyed by header
-    let headers = [];      // header names from CSV
+    let allRows = [];
+    let headers = [];
 
     const fileInput = document.getElementById('csvFile');
     const blockWrap = document.getElementById('blockFilterWrap');
@@ -159,42 +116,33 @@
     fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const text = await file.text();
       const data = parseCSV(text);
 
-      if (!data.length) {
-        output.innerHTML = '<p>No data found in file.</p>';
-        blockWrap.style.display = 'none';
-        return;
-      }
+      if (!data.length) { output.innerHTML = '<p>No data found.</p>'; blockWrap.style.display = 'none'; return; }
 
       headers = data[0].map(h => String(h).trim());
-      const required = ['Block', 'Gate', 'Row', 'Grave'];
+      const required = ['Block', 'Row', 'Grave'];
       const missing = required.filter(col => !headers.includes(col));
       if (missing.length) {
-        output.innerHTML = `<p style="color:#b00;">Missing required column(s): ${missing.join(', ')}</p>`;
+        output.innerHTML = `<p style="color:#b00;">Missing required: ${missing.join(', ')}</p>`;
         blockWrap.style.display = 'none';
         return;
       }
 
-      // Convert rows to objects; trim whitespace
       allRows = data.slice(1)
-        .filter(r => r.some(c => String(c).trim() !== '')) // drop completely empty lines
+        .filter(r => r.some(c => String(c).trim() !== ''))
         .map(r => {
           const obj = {};
           headers.forEach((h, i) => obj[h] = (r[i] ?? '').toString().trim());
           return obj;
         });
 
-      // Build Block dropdown (unique, sorted natural)
       const blockSet = new Set();
       for (const r of allRows) blockSet.add((r['Block'] ?? '').trim());
       const blockValues = Array.from(blockSet).filter(v => v !== '').sort(naturalCompare);
 
       blockSelect.innerHTML = '';
-      // If you want an "All" option, uncomment the next line:
-      // blockSelect.innerHTML = '<option value="">(All Blocks)</option>';
       for (const v of blockValues) {
         const opt = document.createElement('option');
         opt.value = v;
@@ -203,23 +151,38 @@
       }
 
       blockWrap.style.display = 'inline-block';
-      output.innerHTML = '<p class="note">Select a Block to display rows.</p>';
+      output.innerHTML = '<p class="note">Select a Block.</p>';
     });
 
     blockSelect.addEventListener('change', () => {
       const selected = blockSelect.value;
       const filtered = allRows.filter(r => (r['Block'] ?? '').trim() === selected);
 
-      // Sort by Gate → Row → Grave (natural sort each level)
-      filtered.sort((a, b) => {
-        const g = naturalCompare(a['Gate'], b['Gate']);
-        if (g !== 0) return g;
-        const r = naturalCompare(a['Row'], b['Row']);
-        if (r !== 0) return r;
-        return naturalCompare(a['Grave'], b['Grave']);
-      });
+      // ---- Sorting ----
+      if (selected === "84") {
+        filtered.sort((a, b) => {
+          const s = naturalCompare(a['Sec.'], b['Sec.']);
+          if (s !== 0) return s;
+          const r = naturalCompare(a['Row'], b['Row']);
+          if (r !== 0) return r;
+          return naturalCompare(a['Grave'], b['Grave']);
+        });
 
-      buildTable(output, headers, filtered);
+        // Hide Gate column if exists
+        const visibleHeaders = headers.filter(h => h !== 'Gate');
+        buildTable(output, visibleHeaders, filtered);
+
+      } else {
+        filtered.sort((a, b) => {
+          const g = naturalCompare(a['Gate'], b['Gate']);
+          if (g !== 0) return g;
+          const r = naturalCompare(a['Row'], b['Row']);
+          if (r !== 0) return r;
+          return naturalCompare(a['Grave'], b['Grave']);
+        });
+
+        buildTable(output, headers, filtered);
+      }
     });
   </script>
 </body>
