@@ -2,55 +2,207 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CSV Reader</title>
+  <title>CSV Block Filter</title>
   <style>
-    table {
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px 10px;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .controls { display: flex; gap: 12px; align-items: center; margin: 16px 0; }
+    label { font-weight: 600; }
+    select, input[type="file"] { padding: 6px 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; }
+    th { background: #f6f6f6; text-align: left; position: sticky; top: 0; }
+    .counts { margin-left: auto; color: #555; }
   </style>
 </head>
 <body>
-  <h2>Upload a CSV File</h2>
-  <input type="file" id="csvFile" accept=".csv" />
+  <h2>CSV viewer with Block filter</h2>
+
+  <div class="controls">
+    <input type="file" id="csvFile" accept=".csv" />
+    <label for="blockSelect">Block:</label>
+    <select id="blockSelect" disabled>
+      <option value="__ALL__">All</option>
+    </select>
+    <div class="counts" id="counts"></div>
+  </div>
+
   <div id="output"></div>
 
   <script>
-    document.getElementById("csvFile").addEventListener("change", function(e) {
-      const file = e.target.files[0];
+    const csvInput    = document.getElementById("csvFile");
+    const outputDiv   = document.getElementById("output");
+    const blockSelect = document.getElementById("blockSelect");
+    const countsEl    = document.getElementById("counts");
+
+    let allRows = [];     // Array of row objects (header -> value)
+    let headers = [];     // Header names in order
+
+    // RFC4180-ish CSV parser: handles quoted fields, commas, and escaped quotes ("").
+    function parseCSV(text) {
+      // Remove UTF-8 BOM if present
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+      const rows = [];
+      let row = [];
+      let field = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (inQuotes) {
+          if (char === '"') {
+            const next = text[i + 1];
+            if (next === '"') { // escaped quote
+              field += '"';
+              i++;
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            field += char;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === ",") {
+            row.push(field);
+            field = "";
+          } else if (char === "\r") {
+            // ignore, handle on \n
+          } else if (char === "\n") {
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = "";
+          } else {
+            field += char;
+          }
+        }
+      }
+      // Push last field/row if any
+      if (field.length > 0 || inQuotes || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+      }
+      // Trim surrounding whitespace for each cell
+      return rows.map(r => r.map(c => c.trim()));
+    }
+
+    function naturalSort(a, b) {
+      // Sort numbers numerically; otherwise case-insensitive string compare
+      const numA = Number(a), numB = Number(b);
+      const aIsNum = Number.isFinite(numA);
+      const bIsNum = Number.isFinite(numB);
+      if (aIsNum && bIsNum) return numA - numB;
+      return String(a).toLowerCase().localeCompare(String(b).toLowerCase(), undefined, { numeric: true });
+    }
+
+    function buildTable(rowsToShow) {
+      if (!headers.length) return;
+
+      let html = "<table><thead><tr>";
+      headers.forEach(h => html += `<th>${escapeHtml(h)}</th>`);
+      html += "</tr></thead><tbody>";
+
+      rowsToShow.forEach(obj => {
+        html += "<tr>";
+        headers.forEach(h => html += `<td>${escapeHtml(obj[h] ?? "")}</td>`);
+        html += "</tr>";
+      });
+
+      html += "</tbody></table>";
+      outputDiv.innerHTML = html;
+
+      countsEl.textContent = `Showing ${rowsToShow.length.toLocaleString()} of ${allRows.length.toLocaleString()} rows`;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function populateBlockDropdown() {
+      const blockValues = new Set();
+      // Keep track if some rows have blank/undefined Block
+      let hasBlank = false;
+
+      for (const row of allRows) {
+        let v = row["Block"];
+        if (v == null || String(v).trim() === "") {
+          hasBlank = true;
+          continue;
+        }
+        blockValues.add(String(v).trim());
+      }
+
+      const sorted = Array.from(blockValues).sort(naturalSort);
+      blockSelect.innerHTML = `<option value="__ALL__">All</option>`;
+      if (hasBlank) {
+        blockSelect.innerHTML += `<option value="__BLANK__">(blank)</option>`;
+      }
+      for (const v of sorted) {
+        blockSelect.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`;
+      }
+      blockSelect.disabled = false;
+    }
+
+    function applyFilter() {
+      const selected = blockSelect.value;
+      let subset = allRows;
+
+      if (selected === "__BLANK__") {
+        subset = allRows.filter(r => {
+          const v = r["Block"];
+          return v == null || String(v).trim() === "";
+        });
+      } else if (selected !== "__ALL__") {
+        subset = allRows.filter(r => String(r["Block"] ?? "").trim() === selected);
+      }
+      buildTable(subset);
+    }
+
+    csvInput.addEventListener("change", e => {
+      const file = e.target.files?.[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = event => {
         const text = event.target.result;
-        const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
-        let html = "<table>";
+        const csv = parseCSV(text).filter(r => r.length && r.some(c => c !== "")); // drop empty rows
+        if (csv.length === 0) {
+          outputDiv.textContent = "No data found in CSV.";
+          blockSelect.disabled = true;
+          return;
+        }
 
-        rows.forEach((row, index) => {
-          const cols = row.split(",");
-          html += "<tr>";
-          cols.forEach(col => {
-            if (index === 0) {
-              html += `<th>${col.trim()}</th>`;
-            } else {
-              html += `<td>${col.trim()}</td>`;
-            }
-          });
-          html += "</tr>";
+        headers = csv[0];
+        const blockIndex = headers.indexOf("Block");
+        if (blockIndex === -1) {
+          outputDiv.textContent = 'The CSV does not have a column named "Block".';
+          blockSelect.disabled = true;
+          countsEl.textContent = "";
+          return;
+        }
+
+        // Convert to array of objects
+        allRows = csv.slice(1).map(row => {
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = row[i] ?? ""; });
+          return obj;
         });
 
-        html += "</table>";
-        document.getElementById("output").innerHTML = html;
+        populateBlockDropdown();
+        blockSelect.value = "__ALL__";
+        applyFilter();
       };
       reader.readAsText(file);
     });
+
+    blockSelect.addEventListener("change", applyFilter);
   </script>
 </body>
 </html>
