@@ -166,7 +166,7 @@ function buildTable(container, headersToShow, rows) {
     const idx = sortState.findIndex(s => s.col === h);
     const prio = idx >= 0 ? (idx + 1) : '';
     const dir = idx >= 0 ? String(sortState[idx].dir) : '';
-    const cls = (h.toLowerCase() === 'datecreated' || h.toLowerCase() === 'Grave' || h.toLowerCase() === 'plot') ? ' class="right"' : '';
+    const cls = (h.toLowerCase() === 'datecreated' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
     html += `<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}${cls}>
               ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span>
             </th>`;
@@ -176,7 +176,7 @@ function buildTable(container, headersToShow, rows) {
     html += '<tr>';
     headersToShow.forEach(function(h){
       const cell = r[h];
-      const cls = (h.toLowerCase() === 'datecreated'|| h.toLowerCase() === 'Grave' || h.toLowerCase() === 'plot') ? ' class="right"' : '';
+      const cls = (h.toLowerCase() === 'datecreated'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
       html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
     });
     html += '</tr>';
