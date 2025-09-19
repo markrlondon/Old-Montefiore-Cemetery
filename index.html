@@ -7,7 +7,7 @@
   <style>
     body { font-family: system-ui, sans-serif; line-height: 1.35; padding: 18px; }
     label { font-weight: 600; }
-    select { margin-left: 6px; }
+    input[type="text"] { margin-left: 6px; padding: 4px 6px; }
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; }
     th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
@@ -41,12 +41,10 @@
   <h2>Requests CSV Viewer</h2>
 
   <div class="controls" id="blockFilterWrap" style="display:none;">
-    <label for="blockSelect">Block:</label>
-    <select id="blockSelect"></select>
-    <span class="note">
-      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)
-      <br>Click headers to sort; <b>Shift+Click</b> to add secondary/tertiary sort.
-    </span>
+    <label for="blockInput">Block:</label>
+    <input id="blockInput" type="text" list="blocksList" placeholder="Type a Block value…" />
+    <datalist id="blocksList"></datalist>
+    <span class="note" id="statusNote"></span>
   </div>
 
   <div id="output"></div>
@@ -101,49 +99,36 @@
       return 0;
     }
 
-    // robust-ish date parse; returns numeric ms or NaN
     function parseDateMs(s) {
       if (s == null) return NaN;
       s = String(s).trim();
       if (!s) return NaN;
-
-      // Try native Date.parse (handles ISO, RFC formats, yyyy-mm-dd, etc.)
       var t = Date.parse(s);
       if (!isNaN(t)) return t;
-
-      // Try common US/EU numeric formats: mm/dd/yyyy or dd/mm/yyyy (assume mm/dd/yyyy by default)
       var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
       if (m) {
         var mm = parseInt(m[1], 10)-1, dd = parseInt(m[2], 10), yy = parseInt(m[3], 10);
         if (yy < 100) yy += 2000;
-        var d = new Date(yy, mm, dd);
-        return d.getTime();
+        return new Date(yy, mm, dd).getTime();
       }
-
-      // Try dd Mon yyyy (e.g., 05 Jan 1937)
       var m2 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
       if (m2) {
         var day = parseInt(m2[1],10), monStr = m2[2].toLowerCase(), year = parseInt(m2[3],10);
         var months = {"jan":0,"january":0,"feb":1,"february":1,"mar":2,"march":2,"apr":3,"april":3,"may":4,"jun":5,"june":5,"jul":6,"july":6,"aug":7,"august":7,"sep":8,"sept":8,"september":8,"oct":9,"october":9,"nov":10,"november":10,"dec":11,"december":11};
-        if (months.hasOwnProperty(monStr)) {
-          return new Date(year, months[monStr], day).getTime();
-        }
+        if (months.hasOwnProperty(monStr)) return new Date(year, months[monStr], day).getTime();
       }
-
       return NaN;
     }
 
     function dateCompare(a, b) {
-      var ta = parseDateMs(a);
-      var tb = parseDateMs(b);
+      var ta = parseDateMs(a), tb = parseDateMs(b);
       var aNaN = isNaN(ta), bNaN = isNaN(tb);
       if (aNaN && bNaN) return 0;
-      if (aNaN) return 1;   // put empty/invalid last
+      if (aNaN) return 1;
       if (bNaN) return -1;
       return ta - tb;
     }
 
-    // choose comparator per column
     function comparatorForColumn(colName) {
       if (!colName) return naturalCompare;
       var lc = String(colName).toLowerCase();
@@ -192,11 +177,13 @@
 
     // Always hide (case-insensitive)
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
-    // Hide exact "plot" (lowercase only). Keep "Plot".
+    // Hide exact "plot" (lowercase); keep "Plot"
     var HIDE_EXACT = new Set(['plot']);
 
     var blockWrap = document.getElementById('blockFilterWrap');
-    var blockSelect = document.getElementById('blockSelect');
+    var blockInput = document.getElementById('blockInput');
+    var blocksList = document.getElementById('blocksList');
+    var statusNote = document.getElementById('statusNote');
     var output = document.getElementById('output');
 
     /* ===== Table render & multi-sort ===== */
@@ -291,18 +278,17 @@
 
         headers = data[0].map(function(h){ return String(h).trim(); });
 
-        // Resolve columns; Plot must be EXACT "Plot" (capital P) to keep; lowercase "plot" will be hidden.
+        // Resolve columns
         var COL = {
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
           Sec:   findHeader(['Sec.','Section','Sec']),
-          Plot:  findHeaderExact('Plot'),  // <-- exact match only
+          Plot:  findHeaderExact('Plot'),   // exact "Plot"
           Row:   findHeader(['Row']),
           Grave: findHeader(['Grave']),
-          DateCreated: findHeader(['dateCreated']) // still case-insensitive for finding, only sort logic cares about name
+          DateCreated: findHeader(['dateCreated'])
         };
 
-        // Minimal requirements
         var missing = [];
         if (!COL.Block) missing.push('Block');
         if (!COL.Row)   missing.push('Row');
@@ -313,6 +299,8 @@
           return;
         }
 
+        window.__COL = COL; // keep accessible
+
         allRows = data.slice(1)
           .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
           .map(function(r){
@@ -321,37 +309,43 @@
             return obj;
           });
 
-        // Build Block dropdown
+        // Build datalist of Blocks (unique, sorted)
         var blocksSet = {};
         for (var i=0;i<allRows.length;i++) {
           var bv = (allRows[i][COL.Block] || '').trim();
           if (bv) blocksSet[bv] = true;
         }
         var blocks = Object.keys(blocksSet).sort(naturalCompare);
-
-        blockSelect.innerHTML = blocks.map(function(v){
-          return '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
+        blocksList.innerHTML = blocks.map(function(v){
+          return '<option value="'+escapeHtml(v)+'"></option>';
         }).join('');
-        blockWrap.style.display = 'flex';
-        output.innerHTML = '<p class="note">Choose a Block to display rows.</p>';
 
-        blockSelect.dataset.cols = JSON.stringify(COL);
+        blockWrap.style.display = 'flex';
+        statusNote.textContent = '';
+
+        // Pre-fill with first block and render
+        if (blocks.length) {
+          blockInput.value = blocks[0];
+          renderForBlock(blockInput.value);
+        }
 
       } catch (err) {
         output.innerHTML = '<p class="error">Failed to load requests.csv: ' + escapeHtml(err.message) + '</p>';
       }
     }
 
-    blockSelect.addEventListener('change', function(){ renderForBlock(blockSelect.value); });
-
     function renderForBlock(selected) {
-      var COL = JSON.parse(blockSelect.dataset.cols || '{}');
+      var COL = window.__COL || {};
+      selected = String(selected || '').trim();
+
       var filtered = allRows.filter(function(r){
         var v = r[COL.Block];
         return (v == null ? '' : v).trim() === selected;
       });
 
-      // Initial sort per rules
+      statusNote.textContent = filtered.length ? '' : 'No rows for that Block.';
+
+      // Initial sort per rules (before user header clicks)
       if (selected === '84') {
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
@@ -371,7 +365,7 @@
       // Visible columns
       var visible = headers.filter(function(h){
         if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
-        if (HIDE_EXACT.has(h)) return false; // hide lowercase 'plot'
+        if (HIDE_EXACT.has(h)) return false; // hides exact lowercase "plot"
         return true;
       });
 
@@ -380,7 +374,6 @@
       var secHasData  = hasAnyData(filtered, COL.Sec);
       var plotHasData = hasAnyData(filtered, COL.Plot);
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
-      // Only consider exact "Plot" for conditional visibility (lowercase 'plot' is already hidden)
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
       // Reset user sort when Block changes
@@ -389,13 +382,22 @@
       buildTable(output, visible, filtered);
     }
 
-    document.addEventListener('DOMContentLoaded', async function(){
-      await loadCSV();
-      if (blockSelect.options.length) {
-        blockSelect.selectedIndex = 0;
-        renderForBlock(blockSelect.value);
+    // Change on typing (debounced) + Enter
+    var inputTimer = null;
+    blockInput.addEventListener('input', function(){
+      clearTimeout(inputTimer);
+      inputTimer = setTimeout(function(){
+        renderForBlock(blockInput.value);
+      }, 200);
+    });
+    blockInput.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        renderForBlock(blockInput.value);
       }
     });
+
+    document.addEventListener('DOMContentLoaded', loadCSV);
   </script>
 </body>
 </html>
