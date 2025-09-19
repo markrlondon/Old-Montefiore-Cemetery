@@ -105,7 +105,7 @@ Lena,Bromberg,1977,17-Apr-19,2,270/N,,020L,14
 Arthur,Morenberg,1952,15-May-20,2,270/S,,005L,6
 Jack,Krasnoff,1967,7-May-21,2,270/S,,005L,10
 Morris,Sachs,1996,24-Dec-20,2,270/S,,007L,9
-Irving,Kaye,unknown,27-Aug-25,2,271/NS,,003R,9
+Irving,Kaye,unk,27-Aug-25,2,271/NS,,003R,9
 Abraham,Schlowsky,1948,27-Sep-21,2,271/NS,,004L,13
 Nathan,Sherman,1948,18-Jun-24,2,271/NS,,005L,6
 Sarah,Bloch,1957,3-Jun-23,2,271/NS,,005R,3
@@ -141,10 +141,10 @@ Philip,Deutsch,1989,25-Oct-23,2,274/N,,017R,8
 Florence,Davidson,1920,4-Jun-25,2,276/N,,002L,6
 Gussie,Kantrow,1990,29-Aug-16,2,276/N,,4,8
 Ida,Golob,1924,6-Jun-23,2,276/N,,004L,3
-David,Forman,unknown,31-Jan-23,2,276/N,,004R,13&14
+David,Forman,unk,31-Jan-23,2,276/N,,004R,13&14
 Fannie,Faust,1929,8-Aug-23,2,276/N,,009L,6
 Mildred,Zaitshik,1927,30-Jun-23,2,276/N,,009R,2
-Arnold,Meltzer,unknown,31-Aug-25,2,276/N,,009R,17
+Arnold,Meltzer,unk,31-Aug-25,2,276/N,,009R,17
 Philip,Lieberman,1938,23-May-21,2,276/N,,010L,16
 Anita,Blake,1931,9-May-22,2,276/N,,010R,2
 Tillie,Lishinsky,1932,23-Nov-22,2,276/N,,011L,9
@@ -209,7 +209,7 @@ Harry,Portnoy,1975,18-Aug-24,2,574/S,,008R,4
 Alvin,Kalin,2000,5-Oct-22,2,574/S,,010L,3
 Clara,Kalin,1979,5-Oct-22,2,574/S,,011L,6
 Albert,Kalin,2002,5-Oct-22,2,574/S,,011R,5
-Robert,Pearlstein,unknown,31-Aug-25,2,584/S,,002R,17
+Robert,Pearlstein,unk,31-Aug-25,2,584/S,,002R,17
 Rose,Bass,1933,16-Jun-25,2,584/S,,007L,6
 Phafil,Bass,1940,4-Dec-24,2,584/S,,007L,7
 Mary,Messinger,1932,2-May-23,2,584/S,,010L,1
@@ -586,7 +586,7 @@ Sarah,Schwartz,1974,8-Feb-25,7,557/N,,004R,1
 Minnie,Coverman,1940,12-Oct-23,7,557/N,,007L,5
 Esther,Friedman,1947,4-May-25,7,557/N,,008L,4
 Morris,Abramson,1955,11-Nov-20,7,557/N,,008R,2
-Morris,Bromberg,unknown,29-Mar-13,88,200/S,,007L,2
+Morris,Bromberg,unk,29-Mar-13,88,200/S,,007L,2
 Frank,Steinberg,1930,13-Jan-22,7,557/N,,008R,5
 Samuel,Coverman,1963,12-Oct-23,7,557/N,,009R,6
 Ray,Coverman,1993,12-Oct-23,7,557/N,,012L,7
@@ -657,7 +657,7 @@ Harry,Asbyll,1935,29-Oct-21,8,290/N,,011R,1
 Morris,Katt,1942,10-Oct-21,8,290/N,,014R,2
 Hannah,Katt,1983,10-Oct-21,8,290/N,,014R,3
 Anna,Abell,1923,6-May-21,8,290/N,,019R,1
-Cynthia,Horell,unknown,27-Aug-25,8,293/N,,001R,7
+Cynthia,Horell,unk,27-Aug-25,8,293/N,,001R,7
 Hyman,Rappaport,1931,27-May-23,8,293/N,,007R,2
 Isaac,Ptashkin,1934,22-Feb-24,8,294/N,,011R,3
 Meyer,Sohn,1968,18-Jun-25,8,294/N,,018L,2
@@ -750,7 +750,7 @@ Isidore,Levy,1948,19-Aug-22,9,561/E,,005R,1
 Jacob,Skier,1978,1-Aug-25,10,314/W,,2,2
 Pauline,Skier,1988,1-Aug-25,10,314/W,,2,5
 Benjamin,Rothman,1940,9-Sep-24,10,314/W,,004R,2
-Maurice,Adler,unknown,2-Feb-24,10,314/W,,008R,3
+Maurice,Adler,unk,2-Feb-24,10,314/W,,008R,3
 Tillie,Rose,1927,30-Mar-25,10,314/W,,011L,2
 Sarah,Spearman,1932,28-Nov-24,10,315/E,,004L,3
 Florence,Dinetz,1994,27-Sep-22,10,315/E,,008L,4
@@ -831,7 +831,7 @@ Isidore,Wolf,1955,13-Nov-20,11,536/S,,012L,7
 Theodore,Sohn,1956,18-Jun-25,11,536/S,,013L,7
 Baby Girl,Feldstein,1929,15-May-23,11,539/S,,001L,7
 Eva,Sokolow,1949,24-Jun-23,11,539/S,,002L,6
-David,Hauptman,unknown,27-Aug-25,11,539/S,,002R,1
+David,Hauptman,unk,27-Aug-25,11,539/S,,002R,1
 Joseph,Pincus,1981,19-Oct-23,11,539/S,,007L,7
 Morris,Strutin,1952,23-Jan-25,11,539/S,,008L,6
 Lena,Bienstock,1965,11-Mar-25,11,539/S,,010R,1
@@ -894,7 +894,7 @@ Zelig,Greenberg,1918,9-Jun-25,12,331/N,,009L,12
 Bella,Berman,1919,6-Sep-25,12,331/N,,009R,1
 Beatrice,Grossman,1913,24-Nov-20,12,331/N,,10,17
 Abraham,Kirson,1913,4-May-25,12,331/N,,11,13
-Goldie,Ablein,unknown,25-Oct-21,12,331/N,,11,22
+Goldie,Ablein,unk,25-Oct-21,12,331/N,,11,22
 Emanuel,Shufrin,1972,25-Feb-15,12,331/N,,011R,11
 Issy,Fuchs,1913,22-Nov-22,12,331/N,,12,12
 Morris,Getor,1972,6-Jan-22,12,331/N,,012R,1
@@ -1167,7 +1167,7 @@ Lena,Rosenberg,1961,24-Jan-23,15,629/N,,011L,21
 Charles,Bernstein,1954,29-Jul-20,15,629/N,,012R,13
 Esther,Harris,1950,22-Mar-22,15,629/N,,012R,21
 Anna,Aronowich,1947,4-Oct-20,15,631/N,,003L,1
-Annie,Kandel,unknown,26-Aug-25,15,634/N,,001L,2
+Annie,Kandel,unk,26-Aug-25,15,634/N,,001L,2
 Jacob,Kolinsky,1952,1-Dec-23,15,634/N,,004R,6
 Fannie,Berman,1954,25-Jun-23,15,634/N,,007L,5
 Frances,Kastan,2001,23-Dec-21,15,634/N,,008L,2
@@ -1230,7 +1230,7 @@ Cesia,Hupert,2020,27-Jan-23,15,659A/W,,15R,2
 Ruth,Schauer,1947,26-May-23,15,660A/W,,001L,4
 Ida,Millstein,1950,10-Jul-25,15,660A/W,,006R,2
 Anna,Beizer,1951,21-Nov-20,15,660A/W,,007R,3
-Sophie,Hankin,unknown,27-Aug-25,15,660A/W,,010L,1
+Sophie,Hankin,unk,27-Aug-25,15,660A/W,,010L,1
 Joseph,Emil,1989,13-Sep-23,15,660A/W,,010R,6
 Yetta,Peller,1973,6-Jun-23,15,660A/W,,012L,2
 Cheryl,Strazza,2013,15-Jul-25,15,660A/W,,012R,6
@@ -1354,7 +1354,7 @@ Helen,Rosenholtz,1951,6-Oct-23,17,359/E,,012R,5
 Shirley,Hershkowitz,1923,18-Jul-23,17,360/E,,001L,8
 Anna,Schindler,1927,30-Mar-23,17,360/E,,003L,5
 Mollie,Salzman,1926,9-Sep-20,17,360/E,,006L,1
-Lena,Knee,unknown,27-Aug-25,17,360/E,,006R,2
+Lena,Knee,unk,27-Aug-25,17,360/E,,006R,2
 Joseph,Pollack,1931,13-Jan-20,17,360/E,,008R,1
 Harry,Hoffman,1942,10-May-20,17,360/E,,009L,2
 Yetta,Axelrod,1940,4-Oct-21,17,360/E,,009R,5
@@ -1582,14 +1582,14 @@ Alfred,Duke,1967,5-Jul-24,19,378/N,,057L,15
 Isidor,Golub,1944,24-Jan-25,19,378/N,,057L,15
 Clara,Buck,1945,17-Mar-23,19,378/N,,059L,5
 Jacob,Kursh,1943,13-Nov-21,19,378/N,,064L,16
-Chaya,Gingold,unknown,3-Dec-22,19,378/N,,17R,2
-Louis,Weinberger,unknown,5-Jan-25,19,378/N,,2,85
+Chaya,Gingold,unk,3-Dec-22,19,378/N,,17R,2
+Louis,Weinberger,unk,5-Jan-25,19,378/N,,2,85
 Rose,Pelter,1919,24-Aug-17,19,378/N,,38R,20
 Regina,Gottlieb,1919,20-Oct-21,19,378/N,,39,25R
 Rebecca Dora,Kirschenbaum,1918,28-Jun-23,19,378/N ,,7,54
 Infant,Lax,1923,2-Sep-25,19,378/N ,,8,44
 Infant,Lawner,1923,2-Sep-25,19,378/N ,,8,44
-Harry,Abramson,unknown,18-Mar-23,19,378/N ,,023R ,27
+Harry,Abramson,unk,18-Mar-23,19,378/N ,,023R ,27
 Jennie,Antovil,1921,19-Mar-25,19,,,025R,3
 Morris,Yellin,1917,26-Aug-21,19,,,037L,1
 Celia,Berger,1929,15-Oct-22,19,,,043R,14-2015
@@ -1674,10 +1674,10 @@ Morris,Feld,1929,19-Mar-20,20,403/W,,002L,4
 Lena,Rosen,1927,24-Jan-23,20,403/W,,002R,4
 Harry,Pell,1930,23-Apr-25,20,403/W,,003L,1
 Meyer,Bogin,1930,27-Apr-22,20,403/W,,003L,2
-Sarah,Igolus,unknown,27-Aug-25,20,403/W,,004R,1
+Sarah,Igolus,unk,27-Aug-25,20,403/W,,004R,1
 Anna,Slutzky,1966,28-Mar-24,20,406/W,,002L,6
 Bernard,Goldstein,1928,29-Apr-22,20,406/W,,002R,3
-Gertrude,Angull,unknown,1-Mar-25,20,406/W,,003L,8-Jul
+Gertrude,Angull,unk,1-Mar-25,20,406/W,,003L,8-Jul
 Sheine,Passkoff,1918,29-Jan-24,20,406/W,,003R,3
 Rachel,Markowitz,1938,13-Jun-20,20,406/W,,005R,1
 Fanny,Lifshitz,1929,27-Sep-22,20,406/W,,006R,7
@@ -1717,7 +1717,7 @@ Anna,Miller,1972,14-May-24,20,410/W,,010L,3
 Gussie,Perlman,1941,27-Apr-24,20,413/W,,003L,4
 Edwin,Zeiger,1932,26-Jan-21,21,394/W,,002R,5
 Jennie,Mitwell,1928,14-May-25,21,394/W,,009R,1
-Isadore,Milch,unknown,22-Apr-24,21,394/W ,,009L ,5
+Isadore,Milch,unk,22-Apr-24,21,394/W ,,009L ,5
 Jacob,Kass,1922,6-Apr-25,21,395/N,,002R,7
 Beatrice,White,1927,9-Aug-24,21,395/N,,005L,6
 Toby,Bobes,1940,23-Oct-24,21,395/N,,009L,8
@@ -1787,7 +1787,7 @@ Rosalie,Dreyfuss,1927,20-Jun-21,23,390/N,,1,3
 Dora,Keshin,1947,7-Nov-24,23,390/N,,1,1LC
 Johanna,Altman,1947,15-Sep-24,23,390/N,,1,1LC
 Leonard,Glantz,2008,9-Aug-21,23,390/N,,1,1R
-Ethel,Burger,unknown,26-Nov-22,23,390/N,,1,1RC
+Ethel,Burger,unk,26-Nov-22,23,390/N,,1,1RC
 Nathan,Abraham,1953,10-Oct-22,23,390/N,,1,1RC
 Joseph,Altman,1938,15-Sep-24,23,390/N,,1,1RC
 Henrietta,Milk,2000,4-Oct-24,23,390/N,,1,2L
@@ -2105,13 +2105,13 @@ Max,Gurstein,1934,26-Aug-23,32,626/S,,002R,6
 Celia,Wilner,1963,23-Jun-23,32,626/S,,010L,3
 Abraham,Wilner,1979,23-Jun-23,32,626/S,,010L,6
 David,Chernick,1944,24-Jun-25,32,626A/SW,,003L,9
-Jack,Cardell,unknown,31-Aug-25,32,626A/SW,,006L,11
+Jack,Cardell,unk,31-Aug-25,32,626A/SW,,006L,11
 Michael,Zabe,2015,12-Nov-22,32,626A/SW,,009L,6
 Minnie,Pearlman,1990,4-Mar-21,32,626A/SW,,009R,10
 Max,Bundman,1917,20-Dec-16,32,,,003R,1
 Sarah,Abelson,1920,2-Sep-15,32,,,005R,13
 Mary,Wendroff,1920,18-Apr-25,32,,,007L,3
-Gabriel,Abramowitz,unknown,25-Oct-21,33,537/N,,001R,5
+Gabriel,Abramowitz,unk,25-Oct-21,33,537/N,,001R,5
 David,Glanzer,1918,6-Aug-25,33,537/N,,001R,6
 Esther,Rona,1921,5-Aug-25,33,537/N,,002L,5
 Martha,Rosenthal,1929,20-Apr-22,33,537/N,,005L,1
@@ -2194,7 +2194,7 @@ Infant,Tower,1933,17-Jul-24,35,652/W,,003R,1
 Mary,Mendelsohn,1951,18-Apr-21,35,652/W,,005L,1
 Esther,Schwartzberg,1942,22-Feb-25,35,652/W,,005L,4
 Max,Herrscher,1928,20-Jun-22,35,652/W,,009L,1
-Infant,Kittay,unknown,14-May-25,35,652/W,,10,4-Mar
+Infant,Kittay,unk,14-May-25,35,652/W,,10,4-Mar
 Benjamin,Milim,1954,28-Dec-20,35,653/W,,002R,1
 Sophie,Gordon,1967,19-Jun-22,35,653/W,,005L,2
 Michael,Berry,1969,24-Jun-21,35,653/W,,010L,1
@@ -2206,7 +2206,7 @@ Michael,Hirschthal,1948,20-Aug-24,50,660B/E,,1,1RC
 Simon,Siegel,1946,3-May-25,50,660B/E,,1,CENTER
 Dora,Breitzer,2004,26-Jan-21,50,660B/E,,001L,2
 Alfred,Freeman,1928,26-Mar-25,50,660B/E,,001L,3
-Charles,Zaretsky,unknown,31-Aug-25,50,660B/E,,2,1L
+Charles,Zaretsky,unk,31-Aug-25,50,660B/E,,2,1L
 Betty,Pashkoff,2004,10-Aug-25,50,660B/E,,2,1L
 Hilda,Posner,2004,15-Oct-23,50,660B/E,,2,1R
 Edwin,Goddin,1953,31-May-23,50,660B/E,,2,CENTER
@@ -2239,12 +2239,12 @@ Harry,Gandel,2018,26-Feb-23,50,666/N,,5,3L
 Jeffrey,Plevan,2013,15-Apr-25,50,667/W,,004L,5
 Dolores,Yashina,2003,22-Apr-25,50,667/W,,004R,5
 Stella,Betsch,1927,2-Oct-20,50,668/W,,001R,2
-Harry,David,unknown,1-Sep-25,50,668/W,,001R,20
+Harry,David,unk,1-Sep-25,50,668/W,,001R,20
 Isidore,Abady,1952,19-Jul-25,50,668/W,,003L,25
 Moses,Dweck,1945,21-Aug-25,50,668/W,,4,5L
 Adele,Cohen,1930,4-Apr-20,50,668/W,,005R,2
-Louis,Abady,unknown,19-Jul-25,50,668/W,,006L,3
-Baby,Adgnin,unknown,14-Apr-24,50,668/W,,006L,6&7
+Louis,Abady,unk,19-Jul-25,50,668/W,,006L,3
+Baby,Adgnin,unk,14-Apr-24,50,668/W,,006L,6&7
 Meyer,Dweck,1928,29-Jan-21,50,668/W,,007L,3
 David,Cohen,1931,7-Nov-20,50,668/W,,007L,12
 Ida,Yaskin,1929,23-Mar-21,50,668/W,,008L,8
@@ -2292,7 +2292,7 @@ Rose,Rappaport,1991,12-Aug-23,51,675/N,,1,1L
 Anna,Bressler,1930,30-Aug-25,51,675/N,,004R,3
 Mendel,Bressler,1923,30-Aug-25,51,675/N,,005R,2
 Tevya,Schatzow,1947,19-Mar-23,51,675/N,,007R,7
-Marcia,Schatzow,unknown,19-Mar-23,51,675/N,,010L,1
+Marcia,Schatzow,unk,19-Mar-23,51,675/N,,010L,1
 Mor,Gruen,1960,27-Jun-23,51,675/N,,012R,1
 Fannie,Gruen,1982,27-Jun-23,51,675/N,,012R,2
 Louis,Stertzer,1936,9-Apr-25,51,675/N,,014R,3
@@ -2444,7 +2444,7 @@ Nathan,Abrahams,1935,9-Oct-22,54,447/W,,005R,11
 Morris,Klepper,1923,8-May-20,54,447/W,,007R,2
 Sadie,Abrahams,1930,9-Oct-22,54,447/W,,008L,2
 David,Grossman,1930,12-Aug-22,54,447/W,,008R,2
-Etta,Abraham,unknown,25-Oct-21,54,447/W,,009R,1
+Etta,Abraham,unk,25-Oct-21,54,447/W,,009R,1
 Louis,Abrahams,1962,26-Nov-22,54,447/W,,009R,5
 Marion,Abrahams,1955,10-Oct-22,54,447/W,,009R,6
 Bernice,Bodarsky,1974,9-Dec-22,54,447/W,,013L,8
@@ -2455,7 +2455,7 @@ Sarah,Horodas,1922,21-Dec-24,54,448/N,,002L,6
 Anna,Blonstein,1939,30-May-24,54,448/N,,002R,10
 Esther,Blonstein,1934,30-May-24,54,448/N,,003R,3
 Benjamin,Blonstein,1942,3-Jan-22,54,448/N,,003R,4
-Aaron,Levine,unknown,4-Apr-25,54,448/N,,003R,9
+Aaron,Levine,unk,4-Apr-25,54,448/N,,003R,9
 Ida,Blonstein,1960,1-Jan-22,54,448/N,,004L,9
 Elias,Harkavy,1936,17-Mar-16,54,448/N,,004R,6
 Irving,Alpert,1927,21-Apr-25,54,448/N,,5,4
@@ -2500,8 +2500,8 @@ Bernard,Brotman,1956,8-Aug-23,54,457/E,,008R,10
 Esther,Brotman,1927,7-Aug-23,54,457/E,,009L,1
 Yetta,Schwartz,1965,24-Oct-21,54,457/E,,009R,3
 Infant,Abramson,1942,18-Mar-23,55,418/S,,002L,1
-Infant,Abramson,unknown,18-Mar-23,55,418/S,,002L,3
-Infant,Rusek,unknown,21-Feb-21,55,418/S,,002L,8
+Infant,Abramson,unk,18-Mar-23,55,418/S,,002L,3
+Infant,Rusek,unk,21-Feb-21,55,418/S,,002L,8
 Bernard,Liberman,1928,3-Dec-20,55,418/S,,002R,7
 Rose,Abramson,1932,11-Nov-20,55,418/S,,003R,12
 Bella,Johnpoll,1959,12-Apr-22,55,418/S,,004L,1
@@ -2531,7 +2531,7 @@ Miriam,Samson,1966,2-Mar-22,55,418/S,,013R,15
 Mildred,Aylor,1968,25-Jul-24,55,418/S,,014L,6
 Sadie,Abramson,1976,15-Feb-25,55,418/S,,016L,15
 Benjamin,Abramson,1979,15-Feb-25,55,418/S,,016L,16
-Edmond,Laurie,unknown,27-Aug-25,55,419/S,,002L,1
+Edmond,Laurie,unk,27-Aug-25,55,419/S,,002L,1
 Adele,Kaplan,1942,8-May-20,55,419/S,,002L,1
 Fannie,Lehr,1941,8-Dec-16,55,420A/S,,012L,6
 Frieda,Goldberg,1936,1-Feb-21,55,420A/S,,013L,1
@@ -2746,10 +2746,10 @@ Eve,Davis,2017,18-Sep-23,55,431A/S,,1,21
 Frederica,Gold,2015,18-Sep-23,55,431A/S,,1,24
 Burton,Bellow,2021,18-Sep-23,55,431A/S,,2,23
 Helen,Kline,2016,8-Jan-18,55,431A/S,,2,32
-Sophie,Mogilevsky,unknown,3-Oct-23,55,528B/S,,10R,19
+Sophie,Mogilevsky,unk,3-Oct-23,55,528B/S,,10R,19
 Pearl,Fidler,1928,29-Oct-18,55,,,001R,1
 Jennie,Ash,1928,19-Jul-25,55,,,011L,1
-Hyman,Weissman,unknown,1-Apr-22,56,405/N,,001L,2
+Hyman,Weissman,unk,1-Apr-22,56,405/N,,001L,2
 Goldie,Zeldin,1916,6-Mar-20,56,405/N,,002L,2
 Bertha,Federman,1979,31-Jul-22,56,405/N,,003L,2
 Samuel,Sall,1958,9-Dec-21,56,405/N,,003R,3
@@ -2842,7 +2842,7 @@ Nettie,Anderman,1972,11-Nov-24,67,435/N,,1,4LC
 Morris,Meyrowitz,1986,27-Jul-23,67,435/N,,1,CENTER
 Sarah,Abelman,1937,13-Aug-23,67,435/N,,001LC,1
 Wallace,Kaufman,2014,12-Oct-21,67,435/N,,2,1L
-Jerome,Kaye,unknown,27-Aug-25,67,435/N,,2,1R
+Jerome,Kaye,unk,27-Aug-25,67,435/N,,2,1R
 Lee,Anderman,1983,11-Nov-24,67,435/N,,2,2LC
 Abraham,Block,1952,12-Jan-24,67,435/N,,2,CENTER
 Morris,Danilin,1957,3-Sep-25,67,435/N,,002R,3
@@ -2856,7 +2856,7 @@ Bertha,Stockman,1965,17-Jan-24,67,435/N,,003R,5
 Ray,Mitnick,1967,12-Mar-23,67,435/N,,003R,6
 Rose,Genzer,1926,8-Sep-22,67,435/N,,004L,2
 Fannie,Grover,1919,14-Sep-22,67,436/N,,1,1L
-William,Bernfeld,unknown,1-Sep-25,67,436/N,,001L,2
+William,Bernfeld,unk,1-Sep-25,67,436/N,,001L,2
 Samuel,Kanter,1930,18-Sep-20,67,437/N,,002L,7
 Yetta,Baxt,1951,24-Feb-24,67,437/N,,003R,4
 Lena,Schiff,1941,28-Sep-22,67,437/N,,003R,12
@@ -2896,7 +2896,7 @@ Morris,Warshawsky,1976,16-Feb-22,69,442/N,,013R,9
 Sadie,Warshawsky,1977,16-Feb-22,69,442/N,,013R,10
 Florence,Siegel-Lotker,2016,30-Dec-22,69,442/N,,7R,2
 Sylvia,Liberman,2001,5-Dec-20,69,443/N,,1,1R
-Samuel,Garber,unknown,24-Nov-22,69,443/N,,004R,CTR.
+Samuel,Garber,unk,24-Nov-22,69,443/N,,004R,CTR.
 Ben,Lederman,1988,12-Oct-22,69,443/N,,010R,3
 Moses,Amhowitz,1910,15-Aug-25,70,444/N,,1,2
 Goldie,Platzner,1912,13-Aug-25,70,444/N,,1,2-Jan
@@ -2920,7 +2920,7 @@ Lillian,Pure,1988,21-Jul-25,70,444/N,,10,9RC
 Lester,Fried,1984,26-Jun-18,70,444/N,,11,13RC
 Emanuel,Kessler,1934,7-Jun-23,70,444/N,,011R,1
 Jennie,Kessler,1961,7-Jun-23,70,444/N,,011RC,2
-Sally,Geyer,unknown,31-Aug-25,70,444/N,,011RC,22
+Sally,Geyer,unk,31-Aug-25,70,444/N,,011RC,22
 Zinaida,Grinberg,2014,10-Apr-25,75,,,4,67
 Albert,Solomonov,2014,12-Feb-18,75,,,10,12
 Ava,Abehsera,2022,10-Aug-23,75,,,10,31
@@ -3022,7 +3022,7 @@ Harry,Evans,1957,29-Aug-25,76,381/S,,009L,2
 Harry,Aronson,1955,26-Feb-23,76,381/S,,009L,3
 Morris,Kagan,1983,14-Jun-23,76,381/S,,013R,3
 Samuel,Singer,1941,28-Jan-22,76,388/S,,003L,10
-Mary,Lasher,unknown,31-Aug-25,76,388/S,,006L,11
+Mary,Lasher,unk,31-Aug-25,76,388/S,,006L,11
 Charles,Cohen,1923,5-Feb-22,76,388/S,,006R,7
 Max,Abramson,1924,19-Mar-23,76,388/S,,006R,8
 Fannie,Stoller,1955,3-Oct-22,76,388/S,,008L,9
@@ -3082,8 +3082,8 @@ Matthias,Radin,1957,24-Mar-21,77,346/S,,000LT,CRYPT 3
 Rita,Jacobs,1917,27-Aug-20,77,346/S,,1,2
 Sadie,Wolman,1939,22-Dec-24,77,346/S,,1,4
 Michael,Coston,1925,25-Jan-18,77,346/S,,1,20
-Howard,Marcus,unknown,15-Feb-20,77,346/S,,1,13L
-Allen,Gellender,unknown,27-Aug-25,77,346/S,,1,CENTER
+Howard,Marcus,unk,15-Feb-20,77,346/S,,1,13L
+Allen,Gellender,unk,27-Aug-25,77,346/S,,1,CENTER
 Shirley,Sterenfeld,1969,8-Aug-24,77,346/S,,1,CENTER
 Jules,Cohn,1983,20-Jul-24,77,346/S,,001L,1
 Louis,Wolman,1948,22-Dec-24,77,346/S,,001L,3
@@ -3109,7 +3109,7 @@ Bertha,Berkman,1974,22-Apr-25,77,346/S,,009L,10
 Yetta,Pomeranz,1950,3-Jun-25,77,346/S,,011L,7
 Samuel,Pomeranz,1957,3-Jun-25,77,346/S,,011L,8
 Kate,Yeselson,1964,16-Jun-24,77,346/S,,014L,8
-Bonnie,Komite,unknown,27-Aug-25,77,352/S,,001R,11
+Bonnie,Komite,unk,27-Aug-25,77,352/S,,001R,11
 Mary,Mann,1934,15-Jun-25,77,352/S,,004L,5
 Gussie,Art,1938,28-May-25,77,352/S,,005L,4
 Dina,Plafker,1940,15-Jun-23,77,352/S,,005L,7
@@ -3135,7 +3135,7 @@ George,Moskowitz,1936,9-Dec-23,77,353/S,,010R,2
 Hirsch,Cogan,1950,22-Jan-25,77,353/S,,012L,7
 Sarah,Levin,1932,2-Sep-25,77,353/S,,012R,3
 Samuel,Taube,1921,21-May-25,77,355/S,,005L,1
-Pearl,Isgrow,unknown,27-Aug-25,77,355/S,,008R,1
+Pearl,Isgrow,unk,27-Aug-25,77,355/S,,008R,1
 Max,Spatz,1945,19-Aug-25,77,355/S,,012L,3
 David,Spiess,1944,4-Apr-21,77,355/S,,013L,1
 Ray,Fahrer,1969,14-Oct-23,77,355/S,,022L,1
@@ -3239,7 +3239,7 @@ Benjamin,Birnbaum,1953,27-Nov-23,78,333/S,,007R,7
 Sarah,Schenker,1950,4-Sep-22,78,333/S,,010L,3
 Boruch,Kaplan,1997,26-Jul-23,78,333/S,,6L,11
 Lena,Comando,1923,3-Dec-21,78,335/S,,003L,4
-Infant,Flam,unknown,13-Mar-25,78,335/S,,005L,9-Aug
+Infant,Flam,unk,13-Mar-25,78,335/S,,005L,9-Aug
 Louis,Munchick,1929,5-May-25,78,335/S,,006L,5
 Hannah,Sigalove,1943,2-Jun-22,78,335/S,,006L,7
 Jennie,Felner,1947,21-Nov-22,78,335/S,,006R,6
@@ -3350,7 +3350,7 @@ Sarah,Bodner,1941,25-Aug-25,79,328/S,,009L,2
 Harvey,Liss,2005,25-Jan-25,79,328/S,,015L,4
 Gussie,Schissel,1966,8-Dec-23,79,328/S,,018R,3
 Morris,Schissel,1967,10-Apr-21,79,328/S,,018R,4
-Fanny,Drittler,unknown,27-Aug-25,79,329/SW,,011R,1
+Fanny,Drittler,unk,27-Aug-25,79,329/SW,,011R,1
 Fanny,Hochman,1933,15-Jun-25,80,235/W,,002R,3
 Fannie,Gruber,1941,8-May-25,12,527/W,,2R,5
 Sadie,Lederman,1974,6-Dec-24,80,235/W,,005R,4
@@ -3408,7 +3408,7 @@ Fira,Lantsman,1995,26-May-22,80,284/S,,013R,2
 Lyle,Federman,1998,24-Aug-25,80,284A/S,,016L,3
 Kasriel,Benjamin,2011,8-Feb-22,80,284A/S,,017L,5
 Tillie,Orloff,1930,9-Jan-25,80,286/S,,006L,3
-David,Arnoff,unknown,27-Aug-25,80,286/S,,007R,2
+David,Arnoff,unk,27-Aug-25,80,286/S,,007R,2
 Abraham,Orloff,1944,9-Jan-25,80,286/S,,011R,1
 Bessie,Orloff,1957,9-Jan-25,80,286/S,,012L,1
 Celia,Kostrinsky,1942,28-Aug-22,80,288/S,,003L,11
@@ -3650,14 +3650,14 @@ Bernard,Gold,1924,3-Mar-24,84,90/S,9,1,1
 Morris,Peckett,1925,1-Feb-25,84,90/S,9,1,5
 Bashiva,Woodman,1932,3-Nov-21,84,90/S,12,1,5
 Meyer,Goodman,1925,15-Apr-23,84,90/S,9,1,7
-Max,Tillman,unknown,31-Aug-25,84,90/S,16,1,7
+Max,Tillman,unk,31-Aug-25,84,90/S,16,1,7
 Moses,Charney,1924,15-May-20,84,90/S,5,1,7
-Millie,Weintraub,unknown,31-Aug-25,84,90/S,16,1,9
+Millie,Weintraub,unk,31-Aug-25,84,90/S,16,1,9
 Meyer,Kovigolsky,1930,22-Mar-25,84,90/S,5,1,11
 Yetta,Kunefsky,1932,14-Jun-21,84,90/S,14,1,20
-Harris,Zaretsky,unknown,31-Aug-25,84,90/S,14,1,23
-Jacob,Alterman,unknown,13-Jan-25,84,90/S,13,1,27
-Yetta,Sorcher,unknown,31-Aug-25,84,90/S,12,1,28
+Harris,Zaretsky,unk,31-Aug-25,84,90/S,14,1,23
+Jacob,Alterman,unk,13-Jan-25,84,90/S,13,1,27
+Yetta,Sorcher,unk,31-Aug-25,84,90/S,12,1,28
 Arnold,Mitnik,1931,12-Mar-23,84,90/S,9,1,34
 Edith,Abrams,1931,6-Aug-25,84,90/S,9,1,37
 Harry,Roseman,1931,17-Apr-16,84,90/S,9,1,41
@@ -3680,10 +3680,10 @@ Mollie,Billick,1939,13-Jun-24,84,90/S,5,2,35
 Kalman,Guthertz,1927,16-Mar-18,84,90/S,10,2,48
 Ida,Ventura,1924,16-May-25,84,90/S,6,3,3
 Alexandra,Walters,1933,6-May-20,84,90/S,12,3,4
-Bernice,Barnett,unknown,3-Sep-25,84,90/S,16,3,4
-Samuel,Warren,unknown,31-Aug-25,84,90/S,14,3,5
+Bernice,Barnett,unk,3-Sep-25,84,90/S,16,3,4
+Samuel,Warren,unk,31-Aug-25,84,90/S,14,3,5
 Samuel,Feinberg,1933,9-May-23,84,90/S,12,3,6
-Mollie,Lichtenberg,unknown,31-Aug-25,84,90/S,12,3,7
+Mollie,Lichtenberg,unk,31-Aug-25,84,90/S,12,3,7
 Michael,Keshin,1934,1-Oct-24,23,390/N,,1,1RC
 Eva,Ostroff,1941,18-May-25,84,90/S,11,3,9
 Max,Mirin,1933,23-Jul-24,27,496/N,,004L,7
@@ -3696,20 +3696,20 @@ Rebecca,Willner,1924,2-Oct-22,84,90/S,6,3,33
 Judith,Beckler,1934,26-Aug-25,84,90/S,12,3,33
 Joseph,Willner,1928,2-Oct-22,84,90/S,6,3,34
 Rhona,Berzinsky,1929,19-Nov-22,84,90/S,5,3,35
-Samuel,Adelman,unknown,3-Sep-25,84,90/S,7,4,2
+Samuel,Adelman,unk,3-Sep-25,84,90/S,7,4,2
 Abraham,Josephson,1924,11-Aug-25,84,90/S,5,4,7
 Sarah,Goodman,1925,14-Apr-22,84,90/S,6,4,16
 David,Redner,1934,19-Apr-23,84,90/S,13,4,16
 Israel,Krone,1934,13-Apr-25,84,90/S,11,4,19
-Sarah,Slabodsky,unknown,31-Aug-25,84,90/S,8,4,27
-Sosha,Kirschner,unknown,31-Aug-25,84,90/S,12,4,28
+Sarah,Slabodsky,unk,31-Aug-25,84,90/S,8,4,27
+Sosha,Kirschner,unk,31-Aug-25,84,90/S,12,4,28
 Eugene,Golub,1933,24-Jan-25,84,90/S,11,4,32
 Rubin,Kirschkowitz,1924,2-Jul-25,84,90/S,3,4,39
-Sonia,Friedman,unknown,30-Jul-24,84,90/S,12,4,39
+Sonia,Friedman,unk,30-Jul-24,84,90/S,12,4,39
 Jacob,Rubinstein,1925,13-Oct-20,84,90/S,5,5,4
-Joseph,Josephowitz,unknown,31-Aug-25,84,90/S,7,5,5
+Joseph,Josephowitz,unk,31-Aug-25,84,90/S,7,5,5
 Moses,Katz,1925,17-Jun-24,84,90/S,5,5,17
-Henry,Loewenberg,unknown,31-Aug-25,84,90/S,8,5,18
+Henry,Loewenberg,unk,31-Aug-25,84,90/S,8,5,18
 Beckie,Mandel,1952,9-Feb-23,84,90/S,11,5,21
 Dora,Abramovsky,1935,25-Oct-21,84,90/S,12,5,23
 Baruch,Levy,1925,21-Oct-21,84,90/S,5,5,24
@@ -3718,14 +3718,14 @@ Yetta,Werstein,1936,19-Jun-23,84,90/S,14,6,12
 Samuel,Zachs,1925,4-Jun-25,84,90/S,5,6,18
 Rose,Golub,1943,24-Jan-25,84,90/S,7,6,23
 Lena,Kaplan,1935,8-Sep-25,84,90/S,12,6,26
-Mendel,Charol,unknown,31-Aug-25,84,90/S,13,6,27
+Mendel,Charol,unk,31-Aug-25,84,90/S,13,6,27
 Frieda,Schneider,1935,26-Feb-25,84,90/S,12,6,35
 Rachel,Altman,1935,21-Jul-25,84,90/S,12,6,38
 Seidel,Gold,1956,2-Jun-25,84,90/S,14,7,6
 Julia,Hauptschein,1973,7-May-22,84,90/S,7,7,6
-Esther,Lubel,unknown,31-Aug-25,84,90/S,8,7,8
+Esther,Lubel,unk,31-Aug-25,84,90/S,8,7,8
 Morris,Spielman,1929,1-Nov-23,84,90/S,7,7,12
-Jacob,Siegel,unknown,31-Aug-25,84,90/S,7,7,13
+Jacob,Siegel,unk,31-Aug-25,84,90/S,7,7,13
 Goldie,Newman,1936,6-Nov-23,84,90/S,12,7,22
 Hannah,Babad,1935,20-Apr-25,84,90/S,14,7,28
 Celia,Grobstein,1935,13-Apr-24,84,90/S,12,7,29
@@ -3735,11 +3735,11 @@ Rose,Maskow,1963,18-Jun-25,84,90/S,14,8,4
 Isaac,Handelman,1926,4-Mar-25,84,90/S,5,8,5
 Morris,Freifeld,1936,11-Nov-20,84,90/S,11,8,7
 Meyer,Katz,1937,29-Nov-23,84,90/S,11,8,8
-Caroline,Nathan,unknown,31-Aug-25,84,90/S,12,8,11
+Caroline,Nathan,unk,31-Aug-25,84,90/S,12,8,11
 Jacob,Mandelowitz,1926,18-Jun-24,84,90/S,5,8,14
 Fannie,Mandelowitz,1960,18-Jun-24,84,90/S,5,8,15
 Esther,Ziegler,1969,20-Feb-21,84,90/S,13,8,22
-William,Kotcheck,unknown,27-Aug-25,84,90/S,7,9,1
+William,Kotcheck,unk,27-Aug-25,84,90/S,7,9,1
 Morris,Lapper,1927,30-Mar-22,84,90/S,5,9,2
 Harry,Smith,1960,28-Nov-24,84,90/S,13,9,3
 Philip,Adelman,1976,27-Nov-24,84,90/S,12,9,4
@@ -3749,15 +3749,15 @@ Simon,Levy,1939,17-Jul-24,84,90/S,8,9,28
 Jacob,Lusher,1941,31-May-24,84,90/S,12,9,40
 Abraham,Lang,1976,14-Mar-25,84,90/S,13,10,1
 Abraham,Gutkowsky,1931,25-Dec-22,84,90/S,7,10,3
-Mirel,Schultz,unknown,3-Sep-25,84,90/S,5,10,7
-Sam,Brown,unknown,31-Aug-25,84,90/S,7,10,7
+Mirel,Schultz,unk,3-Sep-25,84,90/S,5,10,7
+Sam,Brown,unk,31-Aug-25,84,90/S,7,10,7
 David,Kushelowitz,1931,19-Apr-21,84,90/S,7,10,10
 Rachel,Newman,1927,19-Sep-21,84,90/S,6,10,12
 Gussie,Bass,1968,26-Oct-22,84,90/S,13,10,14
 Morris,Kunefsky,1940,14-Jun-21,84,90/S,13,10,22
 Minnie,Zalkin,1965,5-Sep-22,84,90/S,13,10,25
 Hyman,Zalkin,1937,5-Sep-22,84,90/S,13,10,26
-Anna,Abramson,unknown,3-Sep-25,84,90/S,6,10,30
+Anna,Abramson,unk,3-Sep-25,84,90/S,6,10,30
 Shmuel,Hechtman,1927,26-Nov-23,84,90/S,,11,1
 Shmuel,Hechtman,1927,26-Nov-23,84,90/S,,11,1
 Shmuel,Hechtman,1927,26-Nov-23,84,90/S,,11,1
@@ -3768,33 +3768,33 @@ Shmuel,Hechtman,1927,26-Nov-23,84,90/S,,11,1
 Joseph,Bluestein,1942,12-May-24,84,90/S,,11,21
 Jennie,Friedman,1957,1-Jul-22,84,90/S,13,11,24
 Wolf,Feiner,1927,31-Mar-21,84,90/S,5,11,31
-David,Gaust,unknown,27-Aug-25,84,90/S,6,11,31
+David,Gaust,unk,27-Aug-25,84,90/S,6,11,31
 Jacob,Bressler,1942,9-Jun-25,84,90/S,12,11,34
-Solomon,Lerman,unknown,31-Aug-25,84,90/S,8,12,2
+Solomon,Lerman,unk,31-Aug-25,84,90/S,8,12,2
 Mordechai,Machlis,1948,15-Jun-24,84,90/S,12,12,7
-Helen,Abbatt,unknown,15-Jun-23,84,90/S,6,12,9
+Helen,Abbatt,unk,15-Jun-23,84,90/S,6,12,9
 Esther,Kutcher,1948,15-Feb-22,84,90/S,12,12,12
-Ida,Levine,unknown,31-Aug-25,84,90/S,7,12,13
+Ida,Levine,unk,31-Aug-25,84,90/S,7,12,13
 Ida,Grossman,1956,16-May-24,84,90/S,13,12,15
-Chana,Goldstein,unknown,31-Aug-25,84,90/S,12,12,15
+Chana,Goldstein,unk,31-Aug-25,84,90/S,12,12,15
 Sara,Pruzansky,1950,7-Dec-22,84,90/S,13,12,17
 Louis,Deutsch,1944,20-Feb-24,84,90/S,12,12,17
 Abraham,Blaustein,1929,2-Jun-25,84,90/S,6,12,32
 Matthew,Winter,1953,3-Oct-21,84,90/S,11,13,24
 Rachel,Saland,1946,10-Feb-25,84,90/S,11,13,27
 Aaron,Shapiro,1944,14-May-25,84,90/S,11,14,7
-Molly,Harrison,unknown,31-Aug-25,84,90/S,11,14,11
+Molly,Harrison,unk,31-Aug-25,84,90/S,11,14,11
 Samuel,Belsky,1955,12-Jan-22,84,90/S,11,14,17
-Breine,Rothman,unknown,31-Aug-25,84,90/S,6,14,25
+Breine,Rothman,unk,31-Aug-25,84,90/S,6,14,25
 Rae,Paulson,1950,24-Apr-25,84,90/S,12,14,29
-Zipe,Wise,unknown,31-Aug-25,84,90/S,6,14,34
+Zipe,Wise,unk,31-Aug-25,84,90/S,6,14,34
 Abe,Weiss,1930,10-Oct-21,84,90/S,6,14,35
-Barnet,Block,unknown,26-Mar-25,84,90/S,12,14,40
+Barnet,Block,unk,26-Mar-25,84,90/S,12,14,40
 Yetta,Zucker,1945,30-Aug-25,84,90/S,11,15,9
 Anna,Groll,1929,24-Oct-22,84,90/S,5,15,11
 Morris,Fogelhut,1970,3-Dec-23,84,90/S,12,15,17
-Dvorah,Siegel,unknown,31-Aug-25,84,90/S,6,15,23
-Cipy,Zery,unknown,31-Aug-25,84,90/S,6,15,24
+Dvorah,Siegel,unk,31-Aug-25,84,90/S,6,15,23
+Cipy,Zery,unk,31-Aug-25,84,90/S,6,15,24
 Sam,Zager,1945,4-Apr-23,84,90/S,11,16,3
 Jennie,Zager,1961,4-Apr-23,84,90/S,11,16,4
 Rachmil,Hechtman,1956,26-Nov-23,84,90/S,12,16,5
@@ -3804,13 +3804,13 @@ Bessie,Kaplan,1935,25-Nov-21,84,90/S,5,16,18
 Dina,Doctoroff,1929,17-Mar-22,84,90/S,6,16,29
 Gussie,Billick,1960,13-Jun-24,84,90/S,12,16,36
 Benjamin,Billick,1959,13-Jun-24,84,90/S,12,16,37
-Alexander,Schell,unknown,20-Apr-23,84,90/S,12,16,38
-Gussie,Tillman,unknown,31-Aug-25,84,90/S,5,17,4
+Alexander,Schell,unk,20-Apr-23,84,90/S,12,16,38
+Gussie,Tillman,unk,31-Aug-25,84,90/S,5,17,4
 Beckie,Schiff,1976,28-Sep-22,84,90/S,12,17,28
 Abraham,Newman,1947,19-Sep-21,84,90/S,12,17,36
-Hannah,Kaman,unknown,31-Aug-25,84,90/S,6,18,6
+Hannah,Kaman,unk,31-Aug-25,84,90/S,6,18,6
 Solomon,Ellman,1929,26-Oct-21,84,90/S,5,18,9
-Bessie,Katerginsky,unknown,31-Aug-25,84,90/S,6,18,17
+Bessie,Katerginsky,unk,31-Aug-25,84,90/S,6,18,17
 Chaim,Feinberg,1931,7-Dec-22,84,90/S,5,18,17
 Abraham,Brooks,1929,7-May-21,84,90/S,5,18,19
 Gussie,Begleibter,1960,29-Aug-25,84,90/S,12,18,35
@@ -3819,14 +3819,14 @@ Bertha,Pollyea,1962,14-Nov-24,84,90/S,12,19,7
 Moses,Wohl,1929,23-Aug-25,84,90/S,5,19,10
 Harry,Altman,1973,30-Jul-25,84,90/S,12,19,10
 Moses,Merl,1931,29-Jul-24,84,90/S,6,19,11
-Jacob,Bruckman,unknown,3-Sep-25,84,90/S,5,19,13
-Lena,Siegel,unknown,31-Aug-25,84,90/S,6,19,18
-Gittel,Siegel,unknown,31-Aug-25,84,90/S,6,19,20
+Jacob,Bruckman,unk,3-Sep-25,84,90/S,5,19,13
+Lena,Siegel,unk,31-Aug-25,84,90/S,6,19,18
+Gittel,Siegel,unk,31-Aug-25,84,90/S,6,19,20
 Chaika,Merl,1930,29-Jul-24,84,90/S,6,19,21
 Barnett,Resnick,1929,25-Apr-21,84,90/S,5,19,21
 Joe,Lakritz,1965,31-Aug-20,84,90/S,12,19,21
 Rachel,Kwait,1930,8-Apr-22,84,90/S,6,19,24
-David,Bochuck,unknown,31-Aug-25,84,90/S,5,20,16
+David,Bochuck,unk,31-Aug-25,84,90/S,5,20,16
 Moses,Machlis,1957,15-Jun-24,84,90/S,11,20,21
 Fannie,Machlis,1981,15-Jun-24,84,90/S,11,20,22
 Solomon,Smith,1930,1-Sep-25,84,90/S,5,20,26
@@ -3841,7 +3841,7 @@ Bella,Nigberg,1931,2-Apr-23,84,90/S,6,22,18
 Morris,Greenbaum,1927,10-Oct-23,84,90/S,5,11,19
 Philip,Hauser,1932,27-May-24,84,90/S,5,16,4
 Bella,Friedman,1934,15-Feb-20,84,90/S,12,2,14
-Rachel,Balgby,unknown,27-Aug-25,84,90/S,6,6,19
+Rachel,Balgby,unk,27-Aug-25,84,90/S,6,6,19
 Leah,Groll,1927,24-Oct-22,84,90/S,6,8,30
 Michael,Kaplan,1934,9-Feb-23,84,90/S ,11,5,22
 Abraham,Goldfein,1953,17-Nov-24,85,101/N,,006L,1
@@ -3964,7 +3964,7 @@ Fannie,Fishbein,1966,25-Mar-21,86,112/N,,008L,\5
 Stella,Arbital,1925,6-Oct-20,86,115/N,,005L,5
 Harry,Stein,1926,26-Sep-21,86,115/N,,005R,4
 Morris,Bordoff,1928,29-May-21,86,115/N,,006R,6
-Benjamin,Lisnow,unknown,31-Aug-25,86,115/N,,006R,7
+Benjamin,Lisnow,unk,31-Aug-25,86,115/N,,006R,7
 Sidney,Yaskin,1932,23-Mar-21,86,115/N,,007R,3
 Morris,Schackman,1936,18-Jun-25,86,115/N,,007R,6
 Philip,Blonder,1945,23-Jun-25,86,115/N,,008R,6
@@ -3974,7 +3974,7 @@ Jennie,Levine,1952,20-Sep-21,86,115/N,,011L,8
 Rose,Rikon,1934,19-Mar-22,86,116/N,,005L,1
 Max,Seltzer,1949,1-Dec-21,86,116/N,,009L,2
 Harry,Kessler,1956,7-Jun-23,86,117/N,,011L,2
-Fannie,Gornd,unknown,31-Aug-25,86,120/NW,,004L,25
+Fannie,Gornd,unk,31-Aug-25,86,120/NW,,004L,25
 Irving,Schneider,1997,1-Oct-22,86,120/NW,,005R,24
 Hyman,Hershenhouse,1947,1-Sep-22,86,120/NW,,013R,13
 Thelma,Sherman,2017,4-Apr-25,86,120/NW,,5L,24
@@ -4057,7 +4057,7 @@ Yetta,Brown,1976,6-Dec-22,87,128/N,,004L,2
 Elizabeth,Borenstein,1982,25-Mar-21,87,128/N,,009L,4
 Meyer,Fein,1919,1-Jun-21,87,131/S,,1,8
 Abraham,Seidman,1919,14-Apr-23,87,131/S,,001R,1
-Louis,Kugel,unknown,26-Nov-22,87,131/S,,001R,32
+Louis,Kugel,unk,26-Nov-22,87,131/S,,001R,32
 Wolf,Gray,1926,15-Apr-23,87,131/S,,001R,38
 Benjamin,Abramson,1920,13-Feb-25,87,131/S,,2,12
 Nathan,Steinberg,1923,7-Jun-23,87,131/S,,002L,5
@@ -4069,12 +4069,12 @@ Abraham,Rosenberg,1920,29-Dec-24,87,131/S,,004R,10
 Anna,Rosenberg,1935,29-Dec-24,87,131/S,,004R,11
 Esther,Cohen,1921,9-Sep-25,87,131/S,,5,12
 Isidore,Cohen,1942,17-Dec-19,87,131/S,,5,20
-Rubin,Burd,unknown,27-Aug-25,87,131/S,,5,30
+Rubin,Burd,unk,27-Aug-25,87,131/S,,5,30
 Hyman,Diamond,1923,19-Jul-21,87,131/S,,005L,19
 Cheva,Pollen,1922,7-Oct-24,87,131/S,,6,17
 Annie,Grodsky,1932,27-Jul-25,87,131/S,,006L,38
 Samuel/Simon,Shapiro,1920,23-Oct-24,87,131/S,,006R,6
-Joseph,Abbot,unknown,27-Aug-25,87,131/S,,006R,24
+Joseph,Abbot,unk,27-Aug-25,87,131/S,,006R,24
 Samuel,Ginsberg,1929,7-Oct-23,87,131/S,,007L,1
 Abraham,Drucker,1923,28-Jan-21,87,131/S,,007L,32
 Israel,Lewis,1923,2-Mar-24,87,131/S,,007L,34
@@ -4100,7 +4100,7 @@ Rose,Rabinowitz,1960,3-Oct-23,87,131/S,,019L,19
 Sarah,Rosenberg,1922,20-Nov-24,87,131/S,,019R,11
 Fannie,Orgel,1922,5-Jun-22,87,131/S,,019R,22
 Sophie,Adelman,1922,2-Mar-23,87,131/S,,020R,11
-Lifska,Balgby,unknown,27-Aug-25,87,131/S,,020R,30
+Lifska,Balgby,unk,27-Aug-25,87,131/S,,020R,30
 Rebecca,Wendroff,1923,18-Apr-25,87,131/S,,021R,37
 Jennie,Herzog,1938,22-Jun-24,87,131/S,,023L,25
 Hirsch,Gordon,1925,2-Sep-25,87,131/S,,023R,14
@@ -4113,7 +4113,7 @@ Rachel,Kushner,1936,5-Dec-24,87,209/S,,006L,5
 Pincus,Weissman,1923,25-Mar-22,87,209/S,,006R,3
 Morris,Yellin,1948,26-Jan-23,87,209/S,,006R,5
 Bessie,Weissman,1948,31-Mar-22,87,209/S,,008L,5
-Rose,Benjamin,unknown,21-Oct-20,87,209/S,,009L,1
+Rose,Benjamin,unk,21-Oct-20,87,209/S,,009L,1
 Israel,Feldman,1953,29-Jul-23,87,209/S,,010R,1
 Hyman,Dosik,1933,8-Jul-23,87,209/S,,010R,2
 Anna,Feldman,1989,29-Jul-23,87,209/S,,013R,5
@@ -4184,13 +4184,13 @@ Harry,Budovsky,1964,25-Jan-25,88,146/S,,009R,7
 Isidor,Fish,1914,18-Jun-24,88,148/N,,001L,10
 Isaac,Abramowitz,1911,25-Oct-21,88,148/N,,001R,3
 David,Benjaminson,1914,11-Jun-25,88,148/N,,002L,17
-Jacob,Abramson,unknown,18-Mar-23,88,148/N,,002L,19
-Mordchai,Abbot,unknown,27-Aug-25,88,148/N,,003L,2
+Jacob,Abramson,unk,18-Mar-23,88,148/N,,002L,19
+Mordchai,Abbot,unk,27-Aug-25,88,148/N,,003L,2
 Abraham,Schwiransky,1915,16-May-24,88,148/N,,003L,10
 Isaac,Kaplan,1912,20-Apr-22,88,148/N,,003R,9
 Moses,Cohen,1915,12-Mar-25,88,148/N,,004L,14
 Zoduck,Hoffstein,1913,28-Dec-23,88,148/N,,004R,10
-Bertha,Abramowitz,unknown,25-Oct-21,88,148/N,,005L,9
+Bertha,Abramowitz,unk,25-Oct-21,88,148/N,,005L,9
 Sarah,Rubin,1911,13-Oct-20,88,148/N,,005R,7
 Bessie,Kostrinsky,1915,31-Mar-23,88,148/N,,006L,1
 Chaye,Schaff,1915,6-Jan-24,88,148/N,,006L,4
@@ -4198,7 +4198,7 @@ Kaila,Stein,1913,28-Mar-22,88,148/N,,007R,15
 Esther,Zubkow,1913,27-Mar-24,88,148/N,,007R,20
 Yetta,Schneiderman,1913,20-May-20,88,148/N,,007R,21
 Sarah,Fogelhut,1916,3-Dec-23,88,148/N,,008L,20
-Eva,Barash,unknown,2-Dec-20,88,148/N,,010L,3
+Eva,Barash,unk,2-Dec-20,88,148/N,,010L,3
 Liebe,Adlivankin,1923,8-May-25,88,148/N,,012R,3
 Moses,Goldblum,1922,31-Mar-22,88,148/N,,013L,9
 Lena,Rothman,1915,9-Oct-23,88,148/N,,015R,3
@@ -4210,7 +4210,7 @@ Roger,Goodstein,1954,10-May-22,88,148/N,,021L,1
 Samuel,Sherman,1920,29-Apr-25,88,195/S,,001L,13
 Rachel,Kuperman,1947,1-Jan-22,88,195/S,,004L,3
 Gussie,Sherman,1933,23-Aug-24,88,195/S,,007L,6
-Murray,Celtrin,unknown,27-Aug-25,88,195/S,,008L,8
+Murray,Celtrin,unk,27-Aug-25,88,195/S,,008L,8
 Jacob,Zarofsky,1963,25-Jun-25,88,195/S,,011L,8
 David,Mittler,1953,3-Jul-25,88,195/S,,011R,3
 Hinda,Ginsburg,1931,3-Sep-20,88,199/S,,006L,1
@@ -4242,7 +4242,7 @@ Abraham,Kisch,2011,18-Apr-25,88,203/SE,,008R,2
 Barney,Kisch,1966,17-Apr-25,88,203/SE,,008R,4
 Esther,Tolka,1966,26-Jul-22,89,151/E,,001R,4
 Bessie,Ellis,1956,13-Jun-23,89,151/E,,003R,2
-Eva,Nass,unknown,1-Sep-25,89,152/E,,004R,3
+Eva,Nass,unk,1-Sep-25,89,152/E,,004R,3
 Moe,Greenblatt,1939,2-Nov-19,89,152/E,,007L,3
 Rachel,Salzman,1966,1-May-20,89,152/E,,009L,4
 Lawrence,Shulman,1995,12-Jul-25,89,152/E,,010L,5
@@ -4261,7 +4261,7 @@ Max,Davidowitz,1973,17-Jul-16,89,159/N,,008R,4
 Sarah,Davidowitz,1972,17-Jul-16,89,159/N,,008R,5
 Jennie,Itzkowitz,1951,4-Jun-24,89,159/N,,010L,4
 Isaac,Itzkowitz,1957,4-Jun-24,89,159/N,,010L,5
-Jacob,Knett,unknown,27-Aug-25,89,159/N,,015L,1
+Jacob,Knett,unk,27-Aug-25,89,159/N,,015L,1
 Lillian,Reitzer,1941,7-May-23,89,161/N,,002L,4
 David,Feierstein,1918,31-Mar-22,89,162/N,,001L,2
 Mollie,Tropper,1938,21-Nov-23,89,162/N,,002R,6
@@ -4282,7 +4282,7 @@ Sarah,Nadohl,1954,5-Nov-21,89,169/W,,001L,31
 Zelda,Brenner,1937,3-Jan-18,89,169/W,,001LC,24
 Hyman,Ulanofsky,1916,10-Jun-25,89,169/W,,001R,5
 Frieda,Raisen,1946,22-Apr-25,89,169/W,,001R,14
-Florence,Ducet,unknown,31-Aug-25,89,169/W,,002L,32
+Florence,Ducet,unk,31-Aug-25,89,169/W,,002L,32
 Yetta,Gold,1941,24-Oct-23,89,169/W,,002LC,19A
 Dora,Kaminsky,1946,2-Jun-23,89,169/W,,003R,28
 Benjamin,Kaminsky,1943,28-Aug-22,89,169/W,,003R,29
@@ -4294,7 +4294,7 @@ Esther,Kahn,1918,20-Dec-20,89,169/W,,007L,3-Feb
 Anna,Feinstein,1958,5-Aug-23,89,169/W,,008L,14
 Anne,Berman,1977,5-Sep-25,89,169/W,,008L,15
 Harry,Greenberg,1953,5-Aug-23,89,169/W ,,008L ,13
-Louis,Jenefsky,unknown,31-Aug-25,89,173/S,,004R,4
+Louis,Jenefsky,unk,31-Aug-25,89,173/S,,004R,4
 Philip,Wainzimer,1940,28-May-25,89,173/S,,007R,4
 Emma,Karlin,1928,17-Mar-23,89,173/S,,008L,2
 Anna,Galinsky,1956,27-Feb-21,89,173/S,,009L,6
@@ -4326,7 +4326,7 @@ Morris,Weinberger,1993,13-Jan-25,89,187/S,,2,3R
 Beatrice,Weinberger,1984,13-Jan-25,89,187/S,,002R,2
 Albert,Goldstein,1916,4-Feb-24,89,188/S,,2,3
 Audrey,Cohen,1928,25-Aug-22,89,188/S,,002L,
-Sophie,Peshkin,unknown,1-Sep-25,89,188/S,,004R,9
+Sophie,Peshkin,unk,1-Sep-25,89,188/S,,004R,9
 Julius,Altman,1946,16-Sep-24,89,188/S,,008R,8
 Minnie,Cohen,1970,23-Dec-22,89,188/S,,012R,8
 Samuel,Cohen,1975,23-Dec-22,89,188/S,,012R,9
@@ -4347,7 +4347,7 @@ Louis,Flaum,1978,20-Jan-25,90,15/E,,007R,9
 Tillie,Sternbach,1965,23-Nov-24,90,15/E,,007R,10
 Nathan,Byalick,1951,6-Jun-25,90,150/SE,,002R,8
 Solomon,Hochman,1967,16-Feb-20,90,150/SE,,004R,11
-Hyman,Dreschler,unknown,27-Aug-25,90,150/SE,,007R,4
+Hyman,Dreschler,unk,27-Aug-25,90,150/SE,,007R,4
 Adele,Fryshman,2020,3-Feb-23,90,150/SE,,2,6L
 Morton,Kniaz,1931,29-Nov-22,90,154/S,,001R,6
 Gertrude,Umansky,1924,28-Dec-24,90,154/S,,004L,8
@@ -4395,7 +4395,7 @@ Toby,Cohen,2023,10-Jun-24,90,168/SW,,10R,3
 Infant,Barshatsky,1939,2-Aug-15,90,168/SW,,2R,13
 Lena,Sohn,1951,18-Jun-25,90,2/NW,,003L,4
 Joseph,Forman,1956,8-Aug-25,90,2/NW,,003L,10
-Raymond,Bolgourt,unknown,27-Aug-25,90,2/NW,,003R,2
+Raymond,Bolgourt,unk,27-Aug-25,90,2/NW,,003R,2
 Goldie,Zweiler,1923,19-Nov-24,90,2/NW,,005L,2
 Jack,Zager,1924,4-Apr-23,90,2/NW,,005R,5
 Harry,Miller,1936,25-Mar-23,90,2/NW,,005R,8
@@ -4489,7 +4489,7 @@ Morris,Hans,1959,28-Nov-23,91,18/NW,,006R,10
 Helen,Hans,1969,28-Nov-23,91,18/NW,,007L,4
 Ruth,Ponger,1994,12-Jul-25,91,18/NW,,010L,4 (273)
 Israel,Lieber,1943,16-Jun-24,91,18/NW,,011R,12
-Samuel,Kalchman,unknown,27-Aug-25,91,20/N,,002R,5
+Samuel,Kalchman,unk,27-Aug-25,91,20/N,,002R,5
 Sarah,Cohen,1922,8-Feb-23,91,20/N,,004L,5
 Jacob,Kramer,1918,19-Mar-22,91,20/N,,005R,4
 Libby,Paborsky,1952,13-Feb-25,91,20/N,,006L,7
@@ -4532,7 +4532,7 @@ Joseph,Feld,1981,2-Feb-23,92,122A/S,,009R,8
 Anna,Muchnick,1968,12-Oct-24,92,122A/S,,012L,14
 Herbert,Bendowitz,1957,1-Sep-25,92,122A/S,,012R,4
 Sarah,Hirsch,1954,13-Oct-23,92,122A/S,,014L,4
-Infant,Ziegler,unknown,21-Feb-21,92,122A/S ,,5,5&6
+Infant,Ziegler,unk,21-Feb-21,92,122A/S ,,5,5&6
 Hyman,Kotler,1958,21-Jun-24,92,125/S,,002R,4
 Rubin,Passeroff,1953,4-Jun-25,92,125/S,,005R,4
 Sarah,Krasner,1939,24-Apr-21,92,125/S,,009L,4
@@ -4685,7 +4685,7 @@ Isaac,Lipsitz,1949,25-Dec-23,93,53/N,,006R,5
 Helen,Kerstein,1980,30-May-24,93,53/N,,007L,3
 Julius,Kerstein,1989,30-May-24,93,53/N,,007L,4
 Harvey,Abramowitz,1935,25-Oct-21,93,54/N,,002R,1
-Vera,Zuckerman,unknown,30-Aug-25,93,54/N,,004L,3
+Vera,Zuckerman,unk,30-Aug-25,93,54/N,,004L,3
 Goldie,Glassberg,1932,25-Aug-24,93,54/N,,006L,6
 Fannie,Siegel,1933,14-May-24,93,54/N,,007L,1
 Herman,Becker,1930,10-Mar-20,93,54/N,,007R,5
@@ -4699,7 +4699,7 @@ Hyman,Dolowich,1951,13-Nov-22,93,57/NE,,003R,5
 Oscar,Lippman,1998,8-Aug-20,93,57/NE,,006L,1
 Ida,Lippman,1978,8-Aug-20,93,57/NE,,009R,1
 Morris,Lippman,1977,8-Aug-20,93,57/NE,,009R,2
-Martin,Lotkin,unknown,19-Jan-24,93,,,004L,2
+Martin,Lotkin,unk,19-Jan-24,93,,,004L,2
 Yetta,Kanarek,1951,24-Jul-17,94,100/S,,002L,6
 Paul,Kanarek,1958,24-Jul-17,94,100/S,,003L,6
 Isidore,Resnick,1950,11-Dec-22,94,100/S,,003R,12
@@ -4743,7 +4743,7 @@ Rebecca,Steinfeld,1995,29-Oct-24,94,62/N,,008L,1
 Harry,Steinfeld,1983,29-Oct-24,94,62/N,,008L,2
 Louis,Kronfeld,1955,25-Apr-25,94,63/N,,002R,7
 Joseph,Forman,1961,31-Jan-23,94,63/N,,003R,1
-Joseph,Celtrin,unknown,27-Aug-25,94,63/N,,004L,1
+Joseph,Celtrin,unk,27-Aug-25,94,63/N,,004L,1
 Dora,Krasner,1926,18-Feb-24,94,63/N,,004L,2
 Bryna,Scheiner,1928,28-Jan-25,94,63/N,,004L,3
 Rose,Baker,1930,9-Sep-25,94,63/N,,004L,4
@@ -4824,7 +4824,7 @@ Richard,Epstein,2000,25-Sep-22,95,73/NW,,005R,7
 Betty,Epstein,1984,25-Sep-22,95,73/NW,,005R,9
 Gertrude,Forman,1999,27-May-21,95,73/NW,,006L,7
 Esther,Klinger,1988,21-Nov-22,95,74/N,,000;,2
-Pauline,Stein,unknown,29-Aug-25,95,74/N,,002L,5
+Pauline,Stein,unk,29-Aug-25,95,74/N,,002L,5
 Samuel,Baker,1945,12-Mar-25,95,74/N,,002R,4
 Samuel,Zitren,1954,7-Jun-14,95,74/N,,006R,4
 Joseph,Weiner,1965,6-Mar-20,95,74/N,,007L,2
@@ -4898,7 +4898,7 @@ Beth,Greenfield,1963,16-Sep-24,95,92/S,,002L,6
 Rudolph,Lorber,1945,11-Jul-23,95,92/S,,002R,6
 Isidore,Goldstein,1925,20-Sep-22,95,92/S,,005R,2
 Gerson,Kiss,1934,15-Aug-21,95,92/S,,006L,2
-Jake,Bernardo,unknown,6-May-21,95,92/S,,006R,1
+Jake,Bernardo,unk,6-May-21,95,92/S,,006R,1
 Abraham,Pava,1931,22-Sep-16,95,92/S,,7,10
 Leah,Bobrow,1936,1-Mar-25,95,92/S,,007L,7
 Mary,Keisman,1941,26-Sep-24,95,92/S,,007R,5
@@ -4955,44 +4955,44 @@ Samuel,Berger,1990,1-Sep-25,95,96/SW,,005R,5
 Moses,Langer,1964,3-Aug-21,95,96/SW,,008L,13
 Hedy,Tellerman,2021,25-Jun-25,95,96/SW,,8R,12
 Sarah,Cooperberg,1939,4-Feb-25,97,1/S OPP. 90,,001L,4
-Charles,Baker,unknown,6-Sep-25,97,1/S OPP. 90,,002L,9
+Charles,Baker,unk,6-Sep-25,97,1/S OPP. 90,,002L,9
 Chaim,Laks,1942,17-Jan-25,97,1/S OPP. 90,,002R,13
 Frieda,Laks,1956,17-Jan-25,97,1/S OPP. 90,,003L,16
 Feiga,Fishman,1924,5-Apr-25,97,1/S OPP. 90,,004L,7
 Benjamin,Cooperberg,1926,4-Feb-25,97,1/S OPP. 90,,004R,5
 Bella,Kupperblatt,1956,23-Jun-24,97,1/S OPP. 90,,006L,17
-Tillie,Drittler,unknown,27-Aug-25,97,1/S OPP. 90,,007L,2
+Tillie,Drittler,unk,27-Aug-25,97,1/S OPP. 90,,007L,2
 Morris,Geistman,1965,20-Jan-24,97,1/S OPP. 90,,007L,4
 Shiffra,Assenheim,1954,22-Jul-22,97,1/S OPP. 90,,008R,13&14
-Tillie,Weber,unknown,31-Aug-25,97,10/S OPP. 90,,003L,3
+Tillie,Weber,unk,31-Aug-25,97,10/S OPP. 90,,003L,3
 Israel,Reiner,1933,1-Apr-24,97,10/S OPP. 90,,003R,9
 Nathan,Kutcher,1941,15-Feb-22,97,10/S OPP. 90,,004R,3
 Yetta,Glassberg,1979,20-Jun-23,97,10/S OPP. 90,,008L,8
 Esther,Messer,1961,6-Aug-24,97,10/S OPP. 90,,009L,3
 Hannah,Linderman,1936,23-May-23,97,13/S OPP. 90,,006L,1
-Max,Sloan,unknown,6-Sep-25,97,13/S OPP. 90,,007R,3
+Max,Sloan,unk,6-Sep-25,97,13/S OPP. 90,,007R,3
 Adele,Linderman,1995,23-May-23,97,13/S OPP. 90,,009R,1
 Barney,Linderman,1973,23-May-23,97,13/S OPP. 90,,009R,2
 Esther,Resnick,1931,25-Apr-21,97,14/S OPP. 90,,004L,4
-Howard,Schultz,unknown,31-Aug-25,97,16/S OPP.90&91,,001L,7
-Stanley,Schwager,unknown,31-Aug-25,97,16/S OPP.90&91,,001R,12
+Howard,Schultz,unk,31-Aug-25,97,16/S OPP.90&91,,001L,7
+Stanley,Schwager,unk,31-Aug-25,97,16/S OPP.90&91,,001R,12
 Isidore,Krautman,1934,4-May-24,97,16/S OPP.90&91,,003R,4
 Zelda,Feldman,1940,15-Nov-22,97,16/S OPP.90&91,,004L,6
 Israel,Bloom,1928,8-Sep-25,97,16/S OPP.90&91,,004R,1
-Israel,Karns,unknown,31-Aug-25,97,16/S OPP.90&91,,005R,4
+Israel,Karns,unk,31-Aug-25,97,16/S OPP.90&91,,005R,4
 Sadie,Agata,1944,24-Apr-23,97,16/S OPP.90&91,,006L,5
 Berel,Terk,1923,21-May-25,97,16/S OPP.90&91,,009L,2
 Abraham,Polner,1952,13-Dec-23,97,17/S OPP. 91,,002R,1
 Frieda,Migdal,1960,2-Oct-23,97,21/S OPP. 91,,003R,4
 Sol,Seidman,1946,7-May-24,97,21/S OPP. 91,,005R,4
-Gussie,Finkelstein,unknown,6-Sep-25,97,21/S OPP. 91,,006L,2
+Gussie,Finkelstein,unk,6-Sep-25,97,21/S OPP. 91,,006L,2
 Joseph,Margoshes,1955,23-Sep-21,97,23/S OPP. 91,,005R,6
 Solomon,Tepfer,1956,22-Aug-17,97,23/S OPP. 91,,006L,6
 Isaac,Wind,1944,5-Jun-24,97,24/S,,006L,1
 Regina,Passel,1948,9-May-23,97,24/S,,006R,5
 Samuel,Passel,1942,9-May-23,97,24/S,,006R,6
 Bessie,Klinger,1998,1-Dec-21,97,31/S OPP. 91,,001L,8
-Pesha,Rothman,unknown,31-Aug-25,97,31/S OPP. 91,,001L,14
+Pesha,Rothman,unk,31-Aug-25,97,31/S OPP. 91,,001L,14
 Lena,Lichtman,1943,19-Nov-24,97,31/S OPP. 91,,001R,3&4
 Regina,Zolotsky,1952,27-Feb-24,97,31/S OPP. 91,,002L,8
 Hannah,Satnikow,1965,5-Jan-22,97,31/S OPP. 91,,004R,6
@@ -5001,14 +5001,14 @@ Sophia,Hoffman,1939,29-Feb-24,97,31/S OPP. 91,,008L,4
 Mollie,Gail,1975,17-May-21,97,31/S OPP. 91,,008R,2
 Bella,Roisman,1967,20-Apr-25,97,31/S OPP. 91,,009R,4
 William,Dichter,1929,22-Oct-20,97,33/S OPP. 91,,1,2R
-Samuel,Friedlander,unknown,6-Sep-25,97,33/S OPP. 91,,003R,10
+Samuel,Friedlander,unk,6-Sep-25,97,33/S OPP. 91,,003R,10
 Samuel,Finkler,1934,31-Oct-23,97,33/S OPP. 91,,003R,14
 Abraham,Golob,1953,10-Oct-22,97,33/S OPP. 91,,004R,1
-Jack,Reingold,unknown,31-Aug-25,97,33/S OPP. 91,,005R,12
+Jack,Reingold,unk,31-Aug-25,97,33/S OPP. 91,,005R,12
 Louis,Tesman,1963,18-Jun-25,97,33/S OPP. 91,,007R,7
 Minnie,Weiss,1984,21-Jul-24,97,33/S OPP. 91,,008L,9
 Jerry,Wexler,2012,29-Aug-24,97,33/S OPP. 91,,008R,11
-Rose,Foudiler,unknown,6-Sep-25,97,33/S OPP. 91,,008R,12
+Rose,Foudiler,unk,6-Sep-25,97,33/S OPP. 91,,008R,12
 Irving,Weiss,2005,21-Jul-24,97,33/S OPP. 91,,009R,9
 Sheldon,Kleinman,1978,22-Oct-23,97,34/S OPP. 92,,001L,1
 George,Kleinman,1979,17-Oct-23,97,34/S OPP. 92,,002L,1
@@ -5057,19 +5057,19 @@ Joseph,Weisman,1940,5-Feb-25,97,47B/S OPP. 92,,004R,8
 Jack,Kilminick,1957,10-Jan-22,97,47B/S OPP. 92,,005L,3
 Sol,Miller,1971,13-Jun-23,97,47B/S OPP. 92,,008L,3
 Sarah,Miller,1974,13-Jun-23,97,47B/S OPP. 92,,008L,4
-Esther,Nussbaum,unknown,6-Sep-25,97,48/S OPP.92&93,,001R,17
-Leib,Dardak,unknown,31-Aug-25,97,48/S OPP.92&93,,002L,6
+Esther,Nussbaum,unk,6-Sep-25,97,48/S OPP.92&93,,001R,17
+Leib,Dardak,unk,31-Aug-25,97,48/S OPP.92&93,,002L,6
 Sophie,Kukish,1956,16-Mar-22,97,48/S OPP.92&93,,003R,22
 David,Raisman,1937,2-Apr-25,97,48/S OPP.92&93,,004L,5
 Fannie,Heller,1959,23-Aug-20,97,48/S OPP.92&93,,004L,14
 Morris,Kukish,1963,16-Mar-22,97,48/S OPP.92&93,,004R,17
 Leah,Pollack,1980,23-Oct-23,97,48/S OPP.92&93,,004R,19
-Celia,Sloan,unknown,6-Sep-25,97,5/S OPP. 90,,001L,2
-Sheila,Kanis,unknown,31-Aug-25,97,5/S OPP. 90,,002L,8
+Celia,Sloan,unk,6-Sep-25,97,5/S OPP. 90,,001L,2
+Sheila,Kanis,unk,31-Aug-25,97,5/S OPP. 90,,002L,8
 Max,Lichtman,1946,19-Nov-24,97,5/S OPP. 90,,004R,1
 Beatrice,Schneider,1939,26-Feb-22,97,5/S OPP. 90,,005L,7
 Elka,Parmet,1965,19-Jun-21,97,5/S OPP. 90,,005R,3
-Lena,Nussbaum,unknown,6-Sep-25,97,51/S OPP. 93,,007L,1
+Lena,Nussbaum,unk,6-Sep-25,97,51/S OPP. 93,,007L,1
 Riva,Bondrov,1942,12-Nov-23,97,52/S,,002L,8
 Philip,Schoenberg,1930,23-Sep-23,2,584/S,,007R,5
 David,Treger,1932,25-May-25,97,52/S,,002R,7
@@ -5082,7 +5082,7 @@ Shine,Barshuk,1929,7-Jan-23,97,52/S,,004L,4
 Jacob,Bondrov,1943,12-Nov-23,97,52/S,,004R,9
 Herman,Kalina,1988,2-Mar-20,97,55/S OPP. 93,,002R,13
 David,Tresser,1998,28-Apr-20,97,55/S OPP. 93,,003R,7
-Sarah,Levinstein,unknown,6-Sep-25,97,55/S OPP. 93,,004L,1
+Sarah,Levinstein,unk,6-Sep-25,97,55/S OPP. 93,,004L,1
 Deena,Linzenberg,2018,25-Jun-25,97,55/S OPP. 93,,6R,11
 Saul,Rosenberg,2021,19-Jun-24,97,55/S OPP. 93,,7L,3
 Simon,Mintzes,1957,11-Oct-14,97,55A/S OPP. 93,,001R,4
@@ -5122,9 +5122,9 @@ Nettie,Glasberg,1997,10-Apr-21,97,64/S OPP. 94,,008L,11
 Lillie,Wechsler,2016,10-Apr-21,97,64/S OPP. 94,,8L,7
 Joseph,Gale,1996,2-Sep-25,97,67/S OPP. 94,,009L,3
 Goldie,Baker,1937,10-Jun-25,97,68/S OPP. 94,,006R,2
-Aron,Kaufman,unknown,31-Aug-25,97,68/S OPP. 94,,006R,8
-John,Zolin,unknown,6-Sep-25,97,68/S OPP. 94,,007R,1
-Alfred,Backer,unknown,31-Aug-25,97,68/S OPP. 94,,007R,2
+Aron,Kaufman,unk,31-Aug-25,97,68/S OPP. 94,,006R,8
+John,Zolin,unk,6-Sep-25,97,68/S OPP. 94,,007R,1
+Alfred,Backer,unk,31-Aug-25,97,68/S OPP. 94,,007R,2
 Max,Freifeld,1965,11-Nov-20,97,71/S OPP. 94,,006L,9
 Esther,Freifeld,1980,11-Nov-20,97,71/S OPP. 94,,006L,10
 Joseph,Krantz,1985,12-Jul-25,97,71/S OPP. 94,,007L,11
@@ -5137,10 +5137,10 @@ Hyman,Rothman,1970,31-May-22,97,72/S OPP. 95,,005R,6
 Clara,Rothman,1961,31-May-22,97,72/S OPP. 95,,006R,5
 Kenneth,Feder,1956,3-Mar-17,97,7A/S OPP. 90,,001L,1
 Solomon,Golder,1972,28-May-24,97,7A/S OPP. 90,,004L,4
-Isaac,Greenberg,unknown,27-Aug-25,97,7A/S OPP. 90,,006L,1
+Isaac,Greenberg,unk,27-Aug-25,97,7A/S OPP. 90,,006L,1
 Marcus,Buda,1950,3-Nov-21,97,7B/S,,000R,2
 Aviva,Friedman,1959,12-Jun-23,97,82/S OPP. 95,,001L,32
-Robert,Champayne,unknown,27-Aug-25,97,82/S OPP. 95,,001LC,26
+Robert,Champayne,unk,27-Aug-25,97,82/S OPP. 95,,001LC,26
 Robert,Rosen,1929,20-Apr-25,97,82/S OPP. 95,,001RC,25
 Infant,Duberstein,1947,19-Jul-25,97,82/S OPP. 95,,001RC,40
 Infant,Heyman,1942,17-Jul-25,97,82/S OPP. 95,,001RC,29B
@@ -5148,8 +5148,8 @@ Selma,Gandel,1974,27-Oct-22,97,82/S OPP. 95,,002L,1
 George,Gandel,1969,27-Oct-22,97,82/S OPP. 95,,002L,2
 Louis,Sack,1955,6-Aug-21,97,82/S OPP. 95,,002L,37
 Celia,Sack,1957,6-Aug-21,97,82/S OPP. 95,,002L,38
-Geraldine,Cohen,unknown,31-Aug-25,97,82/S OPP. 95,,002LC,26
-Harry,Charol,unknown,31-Aug-25,97,82/S OPP. 95,,002LC,35
+Geraldine,Cohen,unk,31-Aug-25,97,82/S OPP. 95,,002LC,26
+Harry,Charol,unk,31-Aug-25,97,82/S OPP. 95,,002LC,35
 Natalie,Steinberg,1941,16-Jun-24,97,82/S OPP. 95,,002LC,36
 Sally,Feinberg,1955,10-Apr-22,97,82/S OPP. 95,,002R,21
 Kenneth,Feinberg,1960,24-Feb-22,97,82/S OPP. 95,,002R,23
@@ -5163,40 +5163,40 @@ Rose,Sirkin,1940,21-Oct-22,97,82/S OPP. 95,,003R,7
 Louis,Wittman,1971,14-Nov-22,97,82/S OPP. 95,,003R,10
 Eva,Lichman,1980,3-Oct-21,97,82/S OPP. 95,,004L,31
 Beila,Koven,1925,6-Aug-21,97,82/S OPP. 95,,004L,72
-Charles,Drucker,unknown,31-Aug-25,97,82/S OPP. 95,,004R,54
+Charles,Drucker,unk,31-Aug-25,97,82/S OPP. 95,,004R,54
 Nathan,Freifeld,1926,11-Nov-20,97,82/S OPP. 95,,004R,57
 David,Cohen,1925,4-Jul-22,97,82/S OPP. 95,,004R,
-Lillie,Schiffman,unknown,31-Aug-25,97,82/S OPP. 95,,005LC,8
+Lillie,Schiffman,unk,31-Aug-25,97,82/S OPP. 95,,005LC,8
 Samuel,Engelberg,1928,19-Feb-21,97,82/S OPP. 95,,005R,23
 Anna,Weissman,1936,5-Feb-25,97,82/S OPP. 95,,006L,24
 Esther,Harris,1928,22-Mar-22,97,82/S OPP. 95,,006L,26
 Theresa,Stein,1968,2-Apr-24,97,82/S OPP. 95,,006L,33
-Roland,Ketner,unknown,27-Aug-25,97,82/S OPP. 95,,006R,15
+Roland,Ketner,unk,27-Aug-25,97,82/S OPP. 95,,006R,15
 Rubin,Milstein,1969,3-Aug-24,97,82/S OPP. 95,,006R,58
 Alex,Altman,1987,25-Apr-25,97,82/S OPP. 95,,006R,63
 Ida,Zelznick,1939,9-Aug-16,97,82/S OPP. 95,,007L,7
-Tessie,Koran,unknown,31-Aug-25,97,82/S OPP. 95,,007L,39
+Tessie,Koran,unk,31-Aug-25,97,82/S OPP. 95,,007L,39
 Minnie,Goldberg,1929,10-Aug-22,97,82/S OPP. 95,,007L,41
-Louis,Zolin,unknown,6-Sep-25,97,82/S OPP. 95,,007L,56
+Louis,Zolin,unk,6-Sep-25,97,82/S OPP. 95,,007L,56
 Eliot,Mahler,1969,2-Apr-25,97,82/S OPP. 95,,007R,46
-Joseph,Siegel,unknown,31-Aug-25,97,82/S OPP. 95,,007RC,62
-Pincus,Lisman,unknown,31-Aug-25,97,82/S OPP. 95,,007RC,73
+Joseph,Siegel,unk,31-Aug-25,97,82/S OPP. 95,,007RC,62
+Pincus,Lisman,unk,31-Aug-25,97,82/S OPP. 95,,007RC,73
 Bertha,Goldberg,1950,9-Jan-22,97,82/S OPP. 95,,008L,1
 Bella,Cohen,1973,27-Feb-21,97,82/S OPP. 95,,008L,42
 Daisy,Greenberg,1925,14-May-22,97,82/S OPP. 95,,008L,5-Apr
-Anna,Karns,unknown,31-Aug-25,97,82/S OPP. 95,,008R,15
+Anna,Karns,unk,31-Aug-25,97,82/S OPP. 95,,008R,15
 Benjamin,Cope,1928,3-Jul-24,97,82/S OPP. 95,,008R,19
 Joseph,Ambush,1928,17-Jun-25,97,82/S OPP. 95,,008R,27
 Philip,Kanners,1929,14-May-23,97,82/S OPP. 95,,008R,28
-Andrew,Zweifach,unknown,6-Sep-25,97,82/S OPP. 95,,008RC,25
-Joseph,Zweifach,unknown,6-Sep-25,97,82/S OPP. 95,,009RC,17
+Andrew,Zweifach,unk,6-Sep-25,97,82/S OPP. 95,,008RC,25
+Joseph,Zweifach,unk,6-Sep-25,97,82/S OPP. 95,,009RC,17
 Abraham,Einbinder,1928,3-Jun-23,97,82/S OPP. 95,,009RC,49
-Gezella,Cohen,unknown,31-Aug-25,97,82/S OPP. 95,,010RC,45-46
+Gezella,Cohen,unk,31-Aug-25,97,82/S OPP. 95,,010RC,45-46
 Jesse,Levinson,1988,13-Apr-21,97,85/S OPP. 95,,008L,3
 Frances,Helfman,1988,10-Feb-22,97,86/S OPP. 95,,006R,7
 Aaron,Buda,1970,3-Nov-21,97,,,000LC,3
 Sophia,Buda,1923,3-Nov-21,97,,,001L,2
-Gitel,Schwartz,unknown,27-Apr-20,97,,,002L,4
+Gitel,Schwartz,unk,27-Apr-20,97,,,002L,4
 Fanny,Polner,1919,13-Apr-22,97,,,002R,2
 Rebecca,Denenberg,1961,8-Jan-23,98,71/A,,6,10
 Jacob,Goodman,1983,27-Jun-17,98,71/S,,1,1
@@ -5310,7 +5310,7 @@ Rebecca,Waltman,1960,4-Apr-25,107,,,002R,1
 Moses,Lichtman,1939,4-Feb-22,108,,,1,1R
 Ida,Lichtman,1981,5-Feb-22,108,,,1,CENTER
 Louis,Getzoff,1925,24-Mar-24,108,,,1,CENTER
-Solomon,Lichtman,unknown,10-Feb-22,108,,,1,CTR
+Solomon,Lichtman,unk,10-Feb-22,108,,,1,CTR
 Bertha,Lichtman,1947,4-Feb-22,108,,,001L,1
 Bessie,Getzoff,1922,20-Jan-22,108,,,001L,1
 Anna,Preiss,1931,4-Apr-24,108,,,001L,2
@@ -5333,7 +5333,7 @@ David,Miller,1979,28-Aug-17,110,,,002L,2
 Gussie,Shagg,1979,29-Mar-25,111,1111/E,,2,1L
 Harold,Goldberg,2002,20-Sep-22,111,1111/W,,1,1R
 Dora,Steinglass,1993,18-Aug-21,111,,,1,3L
-Paul,Kamen,unknown,6-May-25,111,,,001L,1
+Paul,Kamen,unk,6-May-25,111,,,001L,1
 Bessie,Feldman,1945,3-Jul-22,111,,,001L,1
 Henrietta,Jacobson,1968,10-Aug-25,112,1214/W,,002L,1
 Sarah,Cutler,1956,27-Feb-24,112,,,2,2R
@@ -5648,7 +5648,7 @@ Herman,Goldfisher,1921,24-Feb-16,18&26,370/N,,010L,5
 Samuel,Rusek,1921,20-Feb-21,18&26,370/N,,010L,12
 Isidore,Yourman,1913,3-Apr-22,18&26,370/N,,011L,1
 Nathaniel,Duberstein,1913,19-Jul-25,18&26,370/N,,011L,6
-Nettie,Abel,unknown,25-Oct-21,18&26,370/N,,011L,7
+Nettie,Abel,unk,25-Oct-21,18&26,370/N,,011L,7
 Hyman,Goldberg,1922,30-Apr-23,18&26,370/N,,012L,12
 Yetta,Goldstein,1938,24-Dec-23,18&26,370/N,,012L,14
 Isidore,Berger,1913,24-May-21,18&26,370/N,,012R,4
@@ -5678,7 +5678,7 @@ Michael,Kaplan,1917,14-Apr-24,18&26,370/N,,038L,3
 Morris,Hochman,1917,12-Jun-25,18&26,370/N,,038L,6
 Morris,Atkin,1917,13-Jun-23,18&26,370/N,,038R,3
 Martin,Ehrenfeld,1917,8-Apr-19,18&26,370/N,,038R,4
-Charles,Abramowitz,unknown,25-Oct-21,18&26,464/W,,1,6
+Charles,Abramowitz,unk,25-Oct-21,18&26,464/W,,1,6
 Mollie,Weiss,1959,2-Mar-21,18&26,464/W,,003L,7
 Frida,Zlabinsky,1919,19-Jan-24,18&26,464/W,,7,2L
 Elsie,Elkin,1924,25-Apr-20,18&26,490/E,,001R,9
@@ -5692,7 +5692,7 @@ David,Schack,1914,6-Jul-22,27&28,489/W,,1,24
 Bruno,Baar,1911,20-Apr-25,27&28,489/W,,1,37
 Michael,Vinitzky,1911,7-May-21,27&28,489/W,,1,40
 Dora,Rubenstein,1935,3-Nov-23,27&28,489/W,,1,42
-Stanley,Kuchent,unknown,27-Aug-25,27&28,489/W,,1,64
+Stanley,Kuchent,unk,27-Aug-25,27&28,489/W,,1,64
 Jacob,Rosenblum,1915,19-Jul-22,27&28,489/W,,1,29-30
 Jacob,Rosenblum,1915,21-Mar-21,27&28,489/W,,1,29-30
 Clifford,Walmuth,1932,25-Nov-24,27&28,489/W,,001L,1
@@ -5713,7 +5713,7 @@ Ethel,Berger,1918,26-Nov-22,27&28,489/W,,4,28
 Rose,Gitlin,1943,15-Apr-25,27&28,489/W,,4,49
 Robert,Jacobson,1926,12-Dec-22,27&28,489/W,,4,49
 Bellalea,Cohen,1918,21-Dec-20,27&28,489/W,,4,
-David,Aaron,unknown,1-Sep-25,27&28,489/W,,004R,15
+David,Aaron,unk,1-Sep-25,27&28,489/W,,004R,15
 Sophie,Abramson,1918,21-Apr-22,27&28,489/W,,004R,24&25
 Edward,Rosenblum,1918,21-Mar-21,27&28,489/W,,5,2
 Mollie,Blitzer,1928,27-Nov-20,27&28,489/W,,5,4
@@ -5750,7 +5750,7 @@ Julius,Moroh,1918,30-Jan-24,55&56,416/E,,003R,33
 Zelda,Moroh,1932,2-Feb-24,55&56,416/E,,003R,34
 Adolph,Goldstein,1918,23-Jul-24,55&56,416/E,,003R,35
 Ray,Fine,1918,20-May-24,55&56,416/E,,004L,8
-Mollie,Dinerstein,unknown,29-Sep-23,55&56,416/E,,004R,4
+Mollie,Dinerstein,unk,29-Sep-23,55&56,416/E,,004R,4
 Sarah,Portny,1919,26-Jul-24,55&56,416/E,,005R,12
 Israel,Portny,1919,26-Jul-24,55&56,416/E,,005R,13
 Moses,Braunstein,1928,29-Apr-20,55&56,416/E,,006L,8
@@ -5812,7 +5812,7 @@ Adele,Rosenthal,1967,8-Sep-25,A,,,002L,1
 Leon,Rothman,1970,6-May-22,A,,,002L,3
 Louis,Blitzer,1966,18-Jan-24,A,,,002R,5
 Abraham,Tobin,1927,14-Aug-23,B,,,1,1L
-Rebecca,Cooperstein,unknown,3-Nov-20,B,,,001L,1
+Rebecca,Cooperstein,unk,3-Nov-20,B,,,001L,1
 Max,Bernstein,1959,30-Oct-20,B,,,2,1RC
 Nettie,Landes,1970,29-Jun-20,B,,,002L,2
 Louis,Kaver,1949,9-Jul-24,C,C/W,,001L,1
