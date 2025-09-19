@@ -237,73 +237,84 @@
     }
 
   function renderForFilters(){
-    const bv = blockInput.value.trim();
-    let filtered = allRows;
+    var bv = String(blockInput.value || '').trim();
+    var filtered = allRows.slice();
 
     // Block filter (skip if empty)
     if (bv) {
-      filtered = filtered.filter(r => String(r[COL.Block] || '').trim() === bv);
+      filtered = filtered.filter(function(r){
+        return String(r[COL.Block] || '').trim() === bv;
+      });
     }
 
     if (bv === '84') {
-      // Optional Section filter (Block 84)
-      if (secSelect.value !== 'All') {
-        filtered = filtered.filter(r => String(r[COL.Sec] || '').trim() === secSelect.value);
+      // Optional Section filter
+      var sVal = String(secSelect.value || 'All').trim();
+      if (sVal !== 'All' && sVal !== '') {
+        filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
       }
       // Initial sort for Block 84
-      filtered.sort((a,b)=>{
-        let s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-        let r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+      filtered.sort(function(a,b){
+        var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+        var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
         return naturalCompare(a[COL.Grave], b[COL.Grave]);
       });
 
     } else {
-      // Optional Gate filter (applies across all blocks if Block is empty)
-      if (gateSelect.value !== 'All') {
-        filtered = filtered.filter(r => String(r[COL.Gate] || '').trim() === gateSelect.value);
+      // Optional Gate filter (also applies when Block is empty)
+      var gVal = String(gateSelect.value || 'All').trim();
+      if (gVal !== 'All' && gVal !== '') {
+        filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
       }
 
       if (!bv) {
-        // ✅ Block field empty → default sort by Block first
-        filtered.sort((a,b)=>{
-          let B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-          let g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-          let s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
-          let p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-          let r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+        // Block empty → default sort by Block first
+        filtered.sort(function(a,b){
+          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+          var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
+          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
           return naturalCompare(a[COL.Grave],  b[COL.Grave]);
         });
       } else {
-        // Non-84 block selected → original sort
-        filtered.sort((a,b)=>{
-          let g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-          let s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-          let p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-          let r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+        // Non-84 block selected
+        filtered.sort(function(a,b){
+          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+          var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
           return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
       }
     }
 
     // Visible columns
-    let visible = headers.filter(h=>{
+    var visible = headers.filter(function(h){
       if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
       if (HIDE_EXACT.has(h)) return false; // hide lowercase 'plot', keep 'Plot'
       return true;
     });
-    if (bv === '84' && COL.Gate) visible = visible.filter(h => h !== COL.Gate);
+    if (bv === '84' && COL.Gate) {
+      visible = visible.filter(function(h){ return h !== COL.Gate; });
+    }
 
-    const secHasData  = hasAnyData(filtered, COL.Sec);
-    const plotHasData = hasAnyData(filtered, COL.Plot);
-    if (COL.Sec  && !secHasData)  visible = visible.filter(h => h !== COL.Sec);
-    if (COL.Plot && !plotHasData) visible = visible.filter(h => h !== COL.Plot);
+    // Inline "has any data" checks (no helper needed)
+    var secHasData  = COL.Sec  && filtered.some(function(row){
+      var v = row[COL.Sec];  return v != null && String(v).trim() !== '';
+    });
+    var plotHasData = COL.Plot && filtered.some(function(row){
+      var v = row[COL.Plot]; return v != null && String(v).trim() !== '';
+    });
+
+    if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
+    if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
     // Reset user sort whenever filters change
     sortState = [];
     allRowsFiltered = filtered;
     buildTable(output, visible, filtered);
   }
-
     /* ===== Load CSV ===== */
     document.addEventListener('DOMContentLoaded',async()=>{
       const res=await fetch('requests.csv',{cache:'no-store'});
