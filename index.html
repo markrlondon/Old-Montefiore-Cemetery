@@ -11,9 +11,9 @@
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; }
     th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
-    .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .note { color: #666; font-size: 0.9em; }
+    .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
     .error { color: #b00; }
+    .note { color: #666; font-size: 0.9em; }
 
     /* Sort indicators */
     th .sort-ind {
@@ -40,12 +40,27 @@
 <body>
   <h2>Requests CSV Viewer</h2>
 
-  <div class="controls" id="blockFilterWrap" style="display:none;">
+  <div class="controls" id="filterWrap" style="display:none;">
     <label for="blockInput">Block:</label>
-    <input id="blockInput" type="text" list="blocksList" placeholder="Type a Block value…" />
+    <input id="blockInput" type="text" list="blocksList" placeholder="Type a Block…" />
     <datalist id="blocksList"></datalist>
-    <span class="note" id="statusNote"></span>
+
+    <span id="gateWrap">
+      <label for="gateInput">Gate:</label>
+      <input id="gateInput" type="text" list="gatesList" placeholder="(optional) Gate…" />
+      <datalist id="gatesList"></datalist>
+    </span>
+
+    <span id="secWrap" style="display:none;">
+      <label for="secInput">Section:</label>
+      <input id="secInput" type="text" list="secsList" placeholder="(optional) Section…" />
+      <datalist id="secsList"></datalist>
+    </span>
   </div>
+
+  <span class="note">
+    Click headers to sort; <b>Shift+Click</b> to add multi-column sorting.
+  </span>
 
   <div id="output"></div>
 
@@ -142,7 +157,6 @@
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
       });
     }
-
     function findHeader(candidates) {
       for (var k=0;k<candidates.length;k++) {
         var c = candidates[k].toLowerCase();
@@ -158,7 +172,6 @@
       }
       return null;
     }
-
     function hasAnyData(rows, header) {
       if (!header) return false;
       for (var i=0;i<rows.length;i++) {
@@ -166,6 +179,14 @@
         if (v != null && String(v).trim() !== '') return true;
       }
       return false;
+    }
+    function uniqueSorted(values) {
+      var seen = {};
+      for (var i=0;i<values.length;i++) {
+        var v = (values[i] == null ? '' : String(values[i]).trim());
+        if (v) seen[v] = true;
+      }
+      return Object.keys(seen).sort(naturalCompare);
     }
 
     /* ===== State ===== */
@@ -177,13 +198,18 @@
 
     // Always hide (case-insensitive)
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
-    // Hide exact "plot" (lowercase); keep "Plot"
+    // Hide exact "plot" (lowercase) but keep "Plot"
     var HIDE_EXACT = new Set(['plot']);
 
-    var blockWrap = document.getElementById('blockFilterWrap');
+    var filterWrap = document.getElementById('filterWrap');
     var blockInput = document.getElementById('blockInput');
     var blocksList = document.getElementById('blocksList');
-    var statusNote = document.getElementById('statusNote');
+    var gateWrap = document.getElementById('gateWrap');
+    var gateInput = document.getElementById('gateInput');
+    var gatesList = document.getElementById('gatesList');
+    var secWrap = document.getElementById('secWrap');
+    var secInput = document.getElementById('secInput');
+    var secsList = document.getElementById('secsList');
     var output = document.getElementById('output');
 
     /* ===== Table render & multi-sort ===== */
@@ -250,19 +276,25 @@
       });
     }
 
+    function comparatorChain() {
+      // Build comparator array based on current sortState
+      return sortState.map(function(s){
+        return { key: s.col, dir: s.dir, cmp: comparatorForColumn(s.col) };
+      });
+    }
+
     function applyMultiSort() {
       if (!sortState.length) return;
+      var comps = comparatorChain();
       var decorated = currentRows.map(function(r, i){ return { r:r, i:i }; });
       decorated.sort(function(A, B){
         var a = A.r, b = B.r;
-        for (var k=0;k<sortState.length;k++) {
-          var key = sortState[k].col;
-          var dir = sortState[k].dir;
-          var cmpFn = comparatorForColumn(key);
-          var cmp = cmpFn(a[key], b[key]);
-          if (cmp !== 0) return cmp * dir;
+        for (var k=0;k<comps.length;k++) {
+          var c = comps[k];
+          var res = c.cmp(a[c.key], b[c.key]);
+          if (res !== 0) return res * c.dir;
         }
-        return A.i - B.i; // stable
+        return A.i - B.i;
       });
       currentRows = decorated.map(function(x){ return x.r; });
     }
@@ -288,6 +320,7 @@
           Grave: findHeader(['Grave']),
           DateCreated: findHeader(['dateCreated'])
         };
+        window.__COL = COL;
 
         var missing = [];
         if (!COL.Block) missing.push('Block');
@@ -299,8 +332,6 @@
           return;
         }
 
-        window.__COL = COL; // keep accessible
-
         allRows = data.slice(1)
           .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
           .map(function(r){
@@ -309,24 +340,18 @@
             return obj;
           });
 
-        // Build datalist of Blocks (unique, sorted)
-        var blocksSet = {};
-        for (var i=0;i<allRows.length;i++) {
-          var bv = (allRows[i][COL.Block] || '').trim();
-          if (bv) blocksSet[bv] = true;
-        }
-        var blocks = Object.keys(blocksSet).sort(naturalCompare);
-        blocksList.innerHTML = blocks.map(function(v){
-          return '<option value="'+escapeHtml(v)+'"></option>';
-        }).join('');
+        // Build Block datalist (unique sorted)
+        var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+        blocksList.innerHTML = blocks.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
 
-        blockWrap.style.display = 'flex';
-        statusNote.textContent = '';
+        filterWrap.style.display = 'flex';
 
         // Pre-fill with first block and render
         if (blocks.length) {
           blockInput.value = blocks[0];
-          renderForBlock(blockInput.value);
+          updateGateOrSectionUI(blockInput.value);
+          renderForFilters();
+          populateGateOrSectionDatalist();
         }
 
       } catch (err) {
@@ -334,25 +359,59 @@
       }
     }
 
-    function renderForBlock(selected) {
-      var COL = window.__COL || {};
-      selected = String(selected || '').trim();
+    function isBlock84() {
+      return String(blockInput.value || '').trim() === '84';
+    }
 
+    function updateGateOrSectionUI(blockVal) {
+      if (String(blockVal || '').trim() === '84') {
+        gateWrap.style.display = 'none';
+        secWrap.style.display = 'inline';
+      } else {
+        secWrap.style.display = 'none';
+        gateWrap.style.display = 'inline';
+      }
+    }
+
+    function populateGateOrSectionDatalist() {
+      var COL = window.__COL || {};
+      var bv = String(blockInput.value || '').trim();
+      var subset = allRows.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
+
+      if (isBlock84()) {
+        var secs = uniqueSorted(subset.map(function(r){ return r[COL.Sec]; }));
+        secsList.innerHTML = secs.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
+      } else {
+        var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
+        gatesList.innerHTML = gates.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
+      }
+    }
+
+    function renderForFilters() {
+      var COL = window.__COL || {};
+      var bval = String(blockInput.value || '').trim();
       var filtered = allRows.filter(function(r){
-        var v = r[COL.Block];
-        return (v == null ? '' : v).trim() === selected;
+        return String(r[COL.Block] || '').trim() === bval;
       });
 
-      statusNote.textContent = filtered.length ? '' : 'No rows for that Block.';
-
-      // Initial sort per rules (before user header clicks)
-      if (selected === '84') {
+      // Optional Gate/Section filter
+      if (isBlock84()) {
+        var sVal = String(secInput.value || '').trim();
+        if (sVal) {
+          filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
+        }
+        // Initial sort: Sec -> Row -> Grave
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
           var r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
           return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
       } else {
+        var gVal = String(gateInput.value || '').trim();
+        if (gVal) {
+          filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
+        }
+        // Initial sort: Gate -> Sec -> Plot -> Row -> Grave
         filtered.sort(function(a,b){
           var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
           var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
@@ -362,39 +421,44 @@
         });
       }
 
-      // Visible columns
+      // Visible columns: hide always-hidden, hide lowercase 'plot'
       var visible = headers.filter(function(h){
         if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
-        if (HIDE_EXACT.has(h)) return false; // hides exact lowercase "plot"
+        if (HIDE_EXACT.has(h)) return false;
         return true;
       });
+      // Hide Gate column when Block 84
+      if (isBlock84() && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
 
-      if (selected === '84' && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
-
+      // Only show Sec./Section and Plot if any data exists in the filtered set
       var secHasData  = hasAnyData(filtered, COL.Sec);
       var plotHasData = hasAnyData(filtered, COL.Plot);
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
-      // Reset user sort when Block changes
+      // Reset user sort whenever filters change
       sortState = [];
 
       buildTable(output, visible, filtered);
     }
 
-    // Change on typing (debounced) + Enter
-    var inputTimer = null;
+    // Debounced re-render on inputs
+    var t1=null, t2=null, t3=null;
     blockInput.addEventListener('input', function(){
-      clearTimeout(inputTimer);
-      inputTimer = setTimeout(function(){
-        renderForBlock(blockInput.value);
-      }, 200);
+      clearTimeout(t1);
+      t1 = setTimeout(function(){
+        updateGateOrSectionUI(blockInput.value);
+        populateGateOrSectionDatalist();
+        renderForFilters();
+      }, 150);
     });
-    blockInput.addEventListener('keydown', function(e){
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        renderForBlock(blockInput.value);
-      }
+    gateInput.addEventListener('input', function(){
+      clearTimeout(t2);
+      t2 = setTimeout(renderForFilters, 150);
+    });
+    secInput.addEventListener('input', function(){
+      clearTimeout(t3);
+      t3 = setTimeout(renderForFilters, 150);
     });
 
     document.addEventListener('DOMContentLoaded', loadCSV);
