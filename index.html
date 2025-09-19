@@ -10,12 +10,31 @@
     select { margin-left: 6px; }
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; }
-    th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; }
-    th.sort-asc::after { content: " ▲"; font-size: 0.8em; }
-    th.sort-desc::after { content: " ▼"; font-size: 0.8em; }
+    th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
     .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .note { color: #666; font-size: 0.9em; }
     .error { color: #b00; }
+
+    /* Sort indicators */
+    th .sort-ind {
+      font-size: 0.8em;
+      opacity: 0.8;
+      margin-left: 6px;
+      display: inline-block;
+      min-width: 1.2em;
+      text-align: center;
+    }
+    th[data-sort-dir="1"] .sort-ind::after  { content: "▲"; }
+    th[data-sort-dir="-1"] .sort-ind::after { content: "▼"; }
+    th[data-sort-priority] .sort-prio::before {
+      content: attr(data-sort-priority);
+      font-size: 0.75em;
+      border: 1px solid #aaa;
+      border-radius: 999px;
+      padding: 0 0.35em;
+      margin-right: 4px;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -25,14 +44,15 @@
     <label for="blockSelect">Block:</label>
     <select id="blockSelect"></select>
     <span class="note">
-      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)<br>
-      Click column headers to sort.
+      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)
+      <br>Click headers to sort; <b>Shift+Click</b> to add multi-column sorting.
     </span>
   </div>
 
   <div id="output"></div>
 
   <script>
+    /* ===== CSV parsing (quotes & commas in quotes) ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -57,6 +77,7 @@
       return rows;
     }
 
+    /* ===== Natural compare (handles 378/N, 8L, numbers, etc.) ===== */
     function naturalCompare(a, b) {
       var ax = String(a == null ? '' : a).trim();
       var bx = String(b == null ? '' : b).trim();
@@ -86,59 +107,13 @@
       });
     }
 
-    var currentRows = [];   // rows currently shown
-    var currentHeaders = []; // headers currently shown
-    var sortState = { col: null, dir: 1 }; // remember sort state
+    /* ===== State ===== */
+    var allRows = [];      // all data rows (objects)
+    var headers = [];      // all CSV headers (strings)
+    var currentRows = [];  // filtered rows for the selected Block
+    var currentHeaders = [];// visible headers after hiding logic
+    var sortState = [];    // array of {col, dir} — primary first (dir: 1=asc, -1=desc)
 
-    function buildTable(container, headers, rows) {
-      currentRows = rows.slice();   // copy
-      currentHeaders = headers.slice();
-      sortState = { col: null, dir: 1 };
-
-      var html = '<table><thead><tr>';
-      headers.forEach(function(h){ html += `<th data-col="${escapeHtml(h)}">${escapeHtml(h)}</th>`; });
-      html += '</tr></thead><tbody>';
-      rows.forEach(function(r){
-        html += '<tr>';
-        headers.forEach(function(h){
-          var cell = r[h];
-          html += `<td>${escapeHtml(cell == null ? '' : cell)}</td>`;
-        });
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-      container.innerHTML = html;
-
-      // attach click handlers for sorting
-      var ths = container.querySelectorAll("th");
-      ths.forEach(function(th){
-        th.addEventListener("click", function(){
-          var col = th.getAttribute("data-col");
-          if (sortState.col === col) {
-            sortState.dir = -sortState.dir; // toggle
-          } else {
-            sortState.col = col;
-            sortState.dir = 1;
-          }
-          ths.forEach(function(t){ t.classList.remove("sort-asc","sort-desc"); });
-          th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
-
-          currentRows.sort(function(a,b){
-            return naturalCompare(a[col], b[col]) * sortState.dir;
-          });
-          buildTable(container, headers, currentRows);
-          // reapply indicator
-          var newThs = container.querySelectorAll("th");
-          newThs.forEach(function(t){
-            if (t.getAttribute("data-col") === col)
-              t.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
-          });
-        });
-      });
-    }
-
-    var allRows = [];
-    var headers = [];
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
 
     var blockWrap = document.getElementById('blockFilterWrap');
@@ -164,6 +139,97 @@
       return false;
     }
 
+    /* ===== Build table with clickable (multi-sort) headers ===== */
+    function buildTable(container, headersToShow, rows) {
+      currentRows = rows.slice();
+      currentHeaders = headersToShow.slice();
+
+      var html = '<table><thead><tr>';
+      headersToShow.forEach(function(h){
+        // Add sort indicators: priority number + arrow; attributes used to restyle on refresh
+        var existing = sortState.findIndex(function(s){ return s.col === h; });
+        var prio = existing >= 0 ? (existing + 1) : '';
+        var dir = existing >= 0 ? String(sortState[existing].dir) : '';
+        html += '<th data-col="'+escapeHtml(h)+'"'
+             +  (dir ? ' data-sort-dir="'+dir+'"' : '')
+             +  (prio ? ' data-sort-priority="'+prio+'"' : '')
+             +  '>'
+             +  escapeHtml(h)
+             +  '<span class="sort-ind"><span class="sort-prio"></span></span>'
+             +  '</th>';
+      });
+      html += '</tr></thead><tbody>';
+      rows.forEach(function(r){
+        html += '<tr>';
+        headersToShow.forEach(function(h){
+          var cell = r[h];
+          html += '<td>'+escapeHtml(cell == null ? '' : cell)+'</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+
+      // Apply the displayed priority numbers (①,②,③… as plain digits)
+      var ths = container.querySelectorAll("th");
+      ths.forEach(function(th){
+        var pr = th.getAttribute("data-sort-priority");
+        if (pr) th.querySelector(".sort-prio").textContent = pr;
+      });
+
+      attachHeaderSortHandlers(container);
+    }
+
+    function attachHeaderSortHandlers(container) {
+      var ths = container.querySelectorAll("th");
+      ths.forEach(function(th){
+        th.addEventListener("click", function(e){
+          var col = th.getAttribute("data-col");
+          var idx = sortState.findIndex(function(s){ return s.col === col; });
+
+          if (e.shiftKey) {
+            // Shift+Click: add or toggle this column without clearing others
+            if (idx === -1) {
+              sortState.push({ col: col, dir: 1 });
+            } else {
+              sortState[idx].dir = -sortState[idx].dir;
+            }
+          } else {
+            // Normal click: make this the only key; if already primary, toggle
+            if (idx === 0 && sortState.length > 0) {
+              sortState[0].dir = -sortState[0].dir;
+            } else {
+              sortState = [{ col: col, dir: 1 }];
+            }
+          }
+
+          applyMultiSort();
+          // Rebuild table with preserved sort state indicators
+          buildTable(container, currentHeaders, currentRows);
+        });
+      });
+    }
+
+    function applyMultiSort() {
+      if (!sortState.length) return;
+
+      // Stable sort: decorate with original index, sort, undecorate
+      var decorated = currentRows.map(function(r, i){ return { r:r, i:i }; });
+      decorated.sort(function(A, B){
+        var a = A.r, b = B.r;
+        for (var k=0;k<sortState.length;k++) {
+          var key = sortState[k].col;
+          var dir = sortState[k].dir;
+          var cmp = naturalCompare(a[key], b[key]);
+          if (cmp !== 0) return cmp * dir;
+        }
+        // stable fallback
+        return A.i - B.i;
+      });
+      currentRows = decorated.map(function(x){ return x.r; });
+    }
+
+    /* ===== Load CSV and prepare UI ===== */
     async function loadCSV() {
       try {
         var res = await fetch('requests.csv', { cache: 'no-store' });
@@ -174,6 +240,7 @@
 
         headers = data[0].map(function(h){ return String(h).trim(); });
 
+        // Resolve logical columns (support both "Sec." and "Section")
         var COL = {
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
@@ -183,6 +250,17 @@
           Grave: findHeader(['Grave'])
         };
 
+        // Minimal requirements
+        var missing = [];
+        if (!COL.Block) missing.push('Block');
+        if (!COL.Row)   missing.push('Row');
+        if (!COL.Grave) missing.push('Grave');
+        if (!COL.Gate && !COL.Sec) missing.push('Gate (or Section/Sec.)');
+        if (missing.length) {
+          output.innerHTML = '<p class="error">Missing required column(s): ' + missing.join(', ') + '</p>';
+          return;
+        }
+
         allRows = data.slice(1)
           .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
           .map(function(r){
@@ -191,6 +269,7 @@
             return obj;
           });
 
+        // Build Block dropdown (unique, sorted)
         var blocksSet = {};
         for (var i=0;i<allRows.length;i++) {
           var bv = (allRows[i][COL.Block] || '').trim();
@@ -220,6 +299,7 @@
         return (v == null ? '' : v).trim() === selected;
       });
 
+      // Initial sort (per your rules), before user-click sorting
       if (selected === '84') {
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
@@ -236,6 +316,7 @@
         });
       }
 
+      // Visible columns: hide always-hidden; hide Gate for Block 84; show Sec/Plot only if present
       var visible = headers.filter(function(h){ return !ALWAYS_HIDE_LC.has(h.toLowerCase()); });
       if (selected === '84' && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
 
@@ -243,6 +324,9 @@
       var plotHasData = hasAnyData(filtered, COL.Plot);
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
+
+      // Reset sort state whenever Block changes (fresh multi-sort)
+      sortState = [];
 
       buildTable(output, visible, filtered);
     }
