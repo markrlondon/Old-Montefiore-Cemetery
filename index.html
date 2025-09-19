@@ -7,7 +7,7 @@
   <style>
     body { font-family: system-ui, sans-serif; line-height: 1.35; padding: 18px; }
     label { font-weight: 600; }
-    input[type="text"] { margin-left: 6px; padding: 4px 6px; }
+    input[type="text"], select { margin-left: 6px; padding: 4px 6px; }
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; }
     th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
@@ -15,6 +15,7 @@
     .error { color: #b00; }
     .note { color: #666; font-size: 0.9em; }
 
+    /* Sort indicators */
     th .sort-ind { font-size: 0.8em; opacity: 0.8; margin-left: 6px; display: inline-block; min-width: 1.2em; text-align: center; }
     th[data-sort-dir="1"] .sort-ind::after  { content: "▲"; }
     th[data-sort-dir="-1"] .sort-ind::after { content: "▼"; }
@@ -33,15 +34,13 @@
     <datalist id="blocksList"></datalist>
 
     <span id="gateWrap">
-      <label for="gateInput">Gate:</label>
-      <input id="gateInput" type="text" list="gatesList" placeholder="(optional) Gate…" />
-      <datalist id="gatesList"></datalist>
+      <label for="gateSelect">Gate:</label>
+      <select id="gateSelect"></select>
     </span>
 
     <span id="secWrap" style="display:none;">
-      <label for="secInput">Section:</label>
-      <input id="secInput" type="text" list="secsList" placeholder="(optional) Section…" />
-      <datalist id="secsList"></datalist>
+      <label for="secSelect">Section:</label>
+      <select id="secSelect"></select>
     </span>
   </div>
 
@@ -52,7 +51,7 @@
   <div id="output"></div>
 
   <script>
-    /* ===== CSV parsing / comparators / utilities — unchanged ===== */
+    /* ===== CSV parsing ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -77,6 +76,7 @@
       return rows;
     }
 
+    /* ===== Comparators ===== */
     function naturalCompare(a, b) {
       var ax = String(a == null ? '' : a).trim();
       var bx = String(b == null ? '' : b).trim();
@@ -135,6 +135,7 @@
       return naturalCompare;
     }
 
+    /* ===== Utilities ===== */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
@@ -175,7 +176,7 @@
     var headers = [];
     var currentRows = [];
     var currentHeaders = [];
-    var sortState = [];
+    var sortState = []; // [{col, dir}...]
 
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
     var HIDE_EXACT = new Set(['plot']); // hide lowercase 'plot' only
@@ -184,46 +185,12 @@
     var blockInput = document.getElementById('blockInput');
     var blocksList = document.getElementById('blocksList');
     var gateWrap = document.getElementById('gateWrap');
-    var gateInput = document.getElementById('gateInput');
-    var gatesList = document.getElementById('gatesList');
-    var secWrap = document.getElementById('secWrap');
-    var secInput = document.getElementById('secInput');
-    var secsList = document.getElementById('secsList');
+    var gateSelect = document.getElementById('gateSelect');
+    var secWrap  = document.getElementById('secWrap');
+    var secSelect = document.getElementById('secSelect');
     var output = document.getElementById('output');
 
-    /* === NEW: Make datalist show all options on click / down-arrow === */
-    function enableShowAllOnClick(inputEl) {
-      // Clicking the input (including the chevron) with a non-empty value:
-      // temporarily clear value so the datalist shows ALL options.
-      inputEl.addEventListener('mousedown', function() {
-        if (inputEl.value) {
-          inputEl.dataset.prev = inputEl.value;
-          inputEl.value = '';
-          inputEl.dataset.justCleared = '1';
-        }
-      });
-      // Pressing ArrowDown should also reveal all options.
-      inputEl.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowDown' && inputEl.value) {
-          inputEl.dataset.prev = inputEl.value;
-          inputEl.value = '';
-          inputEl.dataset.justCleared = '1';
-        }
-      });
-      // If user leaves the field without selecting anything, restore.
-      inputEl.addEventListener('blur', function() {
-        if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
-          inputEl.value = inputEl.dataset.prev || '';
-        }
-        inputEl.dataset.justCleared = '';
-      });
-      // If user types or selects an option, don't restore.
-      inputEl.addEventListener('input', function() {
-        inputEl.dataset.justCleared = '';
-      });
-    }
-
-    /* ===== Table render & multi-sort ===== */
+    /* ===== Table (multi-sort) ===== */
     function buildTable(container, headersToShow, rows) {
       currentRows = rows.slice();
       currentHeaders = headersToShow.slice();
@@ -322,7 +289,7 @@
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
           Sec:   findHeader(['Sec.','Section','Sec']),
-          Plot:  findHeaderExact('Plot'),
+          Plot:  findHeaderExact('Plot'),   // exact "Plot"
           Row:   findHeader(['Row']),
           Grave: findHeader(['Grave']),
           DateCreated: findHeader(['dateCreated'])
@@ -347,6 +314,7 @@
             return obj;
           });
 
+        // Build Block datalist
         var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
         blocksList.innerHTML = blocks.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
 
@@ -355,12 +323,8 @@
         if (blocks.length) {
           blockInput.value = blocks[0];
           updateGateOrSectionUI(blockInput.value);
-          populateGateOrSectionDatalist();
+          populateGateOrSectionDropdown(); // <-- fill selects with All + values
           renderForFilters();
-
-          // Enable the "show all on click/down-arrow" behavior
-          enableShowAllOnClick(gateInput);
-          enableShowAllOnClick(secInput);
         }
 
       } catch (err) {
@@ -382,22 +346,33 @@
       }
     }
 
-    function populateGateOrSectionDatalist() {
+    function setOptions(selectEl, values) {
+      var html = '<option value="All">All</option>';
+      for (var i=0;i<values.length;i++) {
+        var v = values[i];
+        html += '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
+      }
+      selectEl.innerHTML = html;
+      selectEl.value = 'All';
+    }
+
+    function populateGateOrSectionDropdown() {
       var COL = window.__COL || {};
       var bv = String(blockInput.value || '').trim();
       var subset = allRows.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
 
-      gatesList.innerHTML = '';
-      secsList.innerHTML = '';
-
-      if (!bv || subset.length === 0) return;
+      if (!bv || subset.length === 0) {
+        setOptions(gateSelect, []);
+        setOptions(secSelect, []);
+        return;
+      }
 
       if (isBlock84()) {
         var secs = uniqueSorted(subset.map(function(r){ return r[COL.Sec]; }));
-        secsList.innerHTML = secs.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
+        setOptions(secSelect, secs);
       } else {
         var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
-        gatesList.innerHTML = gates.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
+        setOptions(gateSelect, gates);
       }
     }
 
@@ -409,18 +384,22 @@
       });
 
       if (isBlock84()) {
-        var sVal = String(secInput.value || '').trim();
-        if (sVal) filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
-
+        var sVal = String(secSelect.value || 'All').trim();
+        if (sVal && sVal !== 'All') {
+          filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
+        }
+        // Initial sort: Sec -> Row -> Grave
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
           var r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
           return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
       } else {
-        var gVal = String(gateInput.value || '').trim();
-        if (gVal) filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-
+        var gVal = String(gateSelect.value || 'All').trim();
+        if (gVal && gVal !== 'All') {
+          filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
+        }
+        // Initial sort: Gate -> Sec -> Plot -> Row -> Grave
         filtered.sort(function(a,b){
           var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
           var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
@@ -430,9 +409,10 @@
         });
       }
 
+      // Visible columns: always/conditionally hidden
       var visible = headers.filter(function(h){
         if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
-        if (HIDE_EXACT.has(h)) return false;
+        if (HIDE_EXACT.has(h)) return false; // hide lowercase 'plot', keep 'Plot'
         return true;
       });
       if (isBlock84() && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
@@ -442,32 +422,25 @@
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
+      // Reset user sort when filters change
       sortState = [];
       buildTable(output, visible, filtered);
     }
 
-    // Debounced handlers
-    var t1=null, t2=null, t3=null;
+    // Debounced block input; on change, reset dropdowns to "All" and repopulate
+    var t1=null;
     blockInput.addEventListener('input', function(){
       clearTimeout(t1);
       t1 = setTimeout(function(){
         updateGateOrSectionUI(blockInput.value);
-
-        gateInput.value = '';
-        secInput.value  = '';
-
-        populateGateOrSectionDatalist();
-        renderForFilters();
+        populateGateOrSectionDropdown(); // refill with All + values for new Block
+        renderForFilters();               // show all rows for that Block
       }, 150);
     });
-    gateInput.addEventListener('input', function(){
-      clearTimeout(t2);
-      t2 = setTimeout(renderForFilters, 150);
-    });
-    secInput.addEventListener('input', function(){
-      clearTimeout(t3);
-      t3 = setTimeout(renderForFilters, 150);
-    });
+
+    // React to Gate/Section dropdown changes
+    gateSelect.addEventListener('change', renderForFilters);
+    secSelect.addEventListener('change', renderForFilters);
 
     document.addEventListener('DOMContentLoaded', loadCSV);
   </script>
