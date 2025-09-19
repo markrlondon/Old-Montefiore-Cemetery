@@ -235,7 +235,8 @@
         populateDropdown(gateSelect,gates);
       }
     }
- function renderForFilters(){
+
+  function renderForFilters(){
     const bv = blockInput.value.trim();
     let filtered = allRows;
 
@@ -302,7 +303,7 @@
     allRowsFiltered = filtered;
     buildTable(output, visible, filtered);
   }
-    
+
     /* ===== Load CSV ===== */
     document.addEventListener('DOMContentLoaded',async()=>{
       const res=await fetch('requests.csv',{cache:'no-store'});
