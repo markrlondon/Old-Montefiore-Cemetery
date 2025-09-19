@@ -22,6 +22,9 @@
       content: attr(data-sort-priority);
       font-size: 0.75em; border: 1px solid #aaa; border-radius: 999px; padding: 0 0.35em; margin-right: 4px; opacity: 0.8;
     }
+    .right {
+      text-align: right;
+    }
   </style>
 </head>
 <body>
@@ -152,24 +155,32 @@
     let COL={};
 
     /* ===== Table rendering ===== */
-    function buildTable(container, headersToShow, rows) {
-      let html='<table><thead><tr>';
-      headersToShow.forEach(h=>{
-        const idx=sortState.findIndex(s=>s.col===h);
-        const prio=idx>=0?idx+1:''; const dir=idx>=0?String(sortState[idx].dir):'';
-        html+=`<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}>
-                ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span></th>`;
-      });
-      html+='</tr></thead><tbody>';
-      rows.forEach(r=>{
-        html+='<tr>';
-        headersToShow.forEach(h=>{
-          html+=`<td>${escapeHtml(r[h])}</td>`;
-        });
-        html+='</tr>';
-      });
-      html+='</tbody></table>';
-      container.innerHTML=html;
+function buildTable(container, headersToShow, rows) {
+  currentRows = rows.slice();
+  currentHeaders = headersToShow.slice();
+
+  let html = '<table><thead><tr>';
+  headersToShow.forEach(function(h){
+    const idx = sortState.findIndex(s => s.col === h);
+    const prio = idx >= 0 ? (idx + 1) : '';
+    const dir = idx >= 0 ? String(sortState[idx].dir) : '';
+    const cls = (h.toLowerCase() === 'datecreated') ? ' class="right"' : '';
+    html += `<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}${cls}>
+              ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span>
+            </th>`;
+  });
+  html += '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    html += '<tr>';
+    headersToShow.forEach(function(h){
+      const cell = r[h];
+      const cls = (h.toLowerCase() === 'datecreated') ? ' class="right"' : '';
+      html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
       container.querySelectorAll("th").forEach(th=>{
         const pr=th.getAttribute("data-sort-priority");
         if(pr) th.querySelector(".sort-prio").textContent=pr;
