@@ -23,7 +23,7 @@
     <label for="blockSelect">Block:</label>
     <select id="blockSelect"></select>
     <span class="note">
-      Non-84: Gate → Section → Plot → Row → Grave • 84: Section → Row → Grave (Gate hidden)
+      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)
     </span>
   </div>
 
@@ -89,7 +89,7 @@
 
     function buildTable(container, headers, rows) {
       let html = '<table><thead><tr>';
-      headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>`; });
+      headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>'; });
       html += '</tr></thead><tbody>';
       for (const r of rows) {
         html += '<tr>';
@@ -104,13 +104,25 @@
     let allRows = [];
     let headers = [];
 
+    const ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']); // case-insensitive match
+
     const blockWrap = document.getElementById('blockFilterWrap');
     const blockSelect = document.getElementById('blockSelect');
     const output = document.getElementById('output');
 
+    const findHeader = (candidates) => {
+      for (const c of candidates) {
+        const h = headers.find(H => H.toLowerCase() === c.toLowerCase());
+        if (h) return h;
+      }
+      return null;
+    };
+
+    const hasAnyData = (rows, header) =>
+      !!header && rows.some(r => (r[header] ?? '').trim() !== '');
+
     async function loadCSV() {
       try {
-        // Fetch from same-origin path "requests.csv"
         const res = await fetch('requests.csv', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
@@ -122,10 +134,26 @@
         }
 
         headers = data[0].map(h => String(h).trim());
-        const required = ['Block', 'Gate', 'Section', 'Plot', 'Row', 'Grave'];
-        const missing = required.filter(c => !headers.includes(c));
-        if (missing.length) {
-          output.innerHTML = `<p class="error">Missing required column(s): ${missing.join(', ')}</p>`;
+        // Logical column resolution (supports both "Sec." and "Section")
+        const COL = {
+          Block: findHeader(['Block']),
+          Gate: findHeader(['Gate']),
+          Sec:  findHeader(['Sec.','Section','Sec']),
+          Plot: findHeader(['Plot']),
+          Row:  findHeader(['Row']),
+          Grave:findHeader(['Grave'])
+        };
+
+        // Basic requirements to function
+        const requiredMissing = [];
+        if (!COL.Block) requiredMissing.push('Block');
+        if (!COL.Row) requiredMissing.push('Row');
+        if (!COL.Grave) requiredMissing.push('Grave');
+        if (!COL.Gate && !COL.Sec) {
+          requiredMissing.push('Gate (or Section/Sec.)');
+        }
+        if (requiredMissing.length) {
+          output.innerHTML = `<p class="error">Missing required column(s): ${requiredMissing.join(', ')}</p>`;
           return;
         }
 
@@ -138,13 +166,16 @@
           });
 
         // Build Block dropdown (unique, sorted)
-        const blocks = Array.from(new Set(allRows.map(r => (r['Block'] ?? '').trim())))
+        const blocks = Array.from(new Set(allRows.map(r => (r[COL.Block] ?? '').trim())))
           .filter(v => v !== '')
           .sort(naturalCompare);
 
         blockSelect.innerHTML = blocks.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
         blockWrap.style.display = 'flex';
         output.innerHTML = '<p class="note">Choose a Block to display rows.</p>';
+
+        // Save resolved columns for later
+        blockSelect.dataset.cols = JSON.stringify(COL);
 
       } catch (err) {
         output.innerHTML = `<p class="error">Failed to load requests.csv: ${escapeHtml(err.message)}</p>`;
@@ -154,29 +185,44 @@
     blockSelect.addEventListener('change', () => renderForBlock(blockSelect.value));
 
     function renderForBlock(selected) {
-      const filtered = allRows.filter(r => (r['Block'] ?? '').trim() === selected);
+      const COL = JSON.parse(blockSelect.dataset.cols || '{}');
+      const filtered = allRows.filter(r => (r[COL.Block] ?? '').trim() === selected);
 
+      // --- Sorting ---
       if (selected === '84') {
-        // Sort: Sec. → Row → Grave
+        // Sec./Section -> Row -> Grave
         filtered.sort((a, b) => {
-          const s = naturalCompare(a['Section'], b['Section']); if (s) return s;
-          const r = naturalCompare(a['Row'], b['Row']); if (r) return r;
-          return naturalCompare(a['Grave'], b['Grave']);
+          const s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
+          const r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
+          return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
-        // Hide Gate for Block 84
-        const visibleHeaders = headers.filter(h => h !== 'Gate');
-        buildTable(output, visibleHeaders, filtered);
       } else {
-        // Sort: Gate → Sec. → Plot → Row → Grave
+        // Gate -> Sec./Section -> Plot -> Row -> Grave
         filtered.sort((a, b) => {
-          const g = naturalCompare(a['Gate'], b['Gate']); if (g) return g;
-          const s = naturalCompare(a['Section'], b['Section']); if (s) return s;
-          const p = naturalCompare(a['Plot'], b['Plot']); if (p) return p;
-          const r = naturalCompare(a['Row'], b['Row']); if (r) return r;
-          return naturalCompare(a['Grave'], b['Grave']);
+          const g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+          const s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
+          const p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+          const r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
+          return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
-        buildTable(output, headers, filtered);
       }
+
+      // --- Visible columns ---
+      // Start from all headers, drop always-hidden and, for Block 84, drop Gate.
+      let visible = headers.filter(h => !ALWAYS_HIDE_LC.has(h.toLowerCase()));
+      if (selected === '84' && COL.Gate) {
+        visible = visible.filter(h => h !== COL.Gate);
+      }
+
+      // Conditionally show Section/Sec. and Plot ONLY if any filtered row has data.
+      const secHasData  = hasAnyData(filtered, COL.Sec);
+      const plotHasData = hasAnyData(filtered, COL.Plot);
+
+      if (COL.Sec && !secHasData)  visible = visible.filter(h => h !== COL.Sec);
+      if (COL.Plot && !plotHasData) visible = visible.filter(h => h !== COL.Plot);
+
+      // Build table
+      buildTable(output, visible, filtered);
     }
 
     // Load CSV on page load; preselect first Block if present
