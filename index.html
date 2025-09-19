@@ -15,25 +15,12 @@
     .error { color: #b00; }
     .note { color: #666; font-size: 0.9em; }
 
-    /* Sort indicators */
-    th .sort-ind {
-      font-size: 0.8em;
-      opacity: 0.8;
-      margin-left: 6px;
-      display: inline-block;
-      min-width: 1.2em;
-      text-align: center;
-    }
+    th .sort-ind { font-size: 0.8em; opacity: 0.8; margin-left: 6px; display: inline-block; min-width: 1.2em; text-align: center; }
     th[data-sort-dir="1"] .sort-ind::after  { content: "▲"; }
     th[data-sort-dir="-1"] .sort-ind::after { content: "▼"; }
     th[data-sort-priority] .sort-prio::before {
       content: attr(data-sort-priority);
-      font-size: 0.75em;
-      border: 1px solid #aaa;
-      border-radius: 999px;
-      padding: 0 0.35em;
-      margin-right: 4px;
-      opacity: 0.8;
+      font-size: 0.75em; border: 1px solid #aaa; border-radius: 999px; padding: 0 0.35em; margin-right: 4px; opacity: 0.8;
     }
   </style>
 </head>
@@ -65,7 +52,6 @@
   <div id="output"></div>
 
   <script>
-    /* ===== CSV parsing ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -90,7 +76,6 @@
       return rows;
     }
 
-    /* ===== Comparators ===== */
     function naturalCompare(a, b) {
       var ax = String(a == null ? '' : a).trim();
       var bx = String(b == null ? '' : b).trim();
@@ -134,7 +119,6 @@
       }
       return NaN;
     }
-
     function dateCompare(a, b) {
       var ta = parseDateMs(a), tb = parseDateMs(b);
       var aNaN = isNaN(ta), bNaN = isNaN(tb);
@@ -143,7 +127,6 @@
       if (bNaN) return -1;
       return ta - tb;
     }
-
     function comparatorForColumn(colName) {
       if (!colName) return naturalCompare;
       var lc = String(colName).toLowerCase();
@@ -151,7 +134,6 @@
       return naturalCompare;
     }
 
-    /* ===== Utilities ===== */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
@@ -167,9 +149,7 @@
       return null;
     }
     function findHeaderExact(name) {
-      for (var i=0;i<headers.length;i++) {
-        if (headers[i] === name) return headers[i];
-      }
+      for (var i=0;i<headers.length;i++) if (headers[i] === name) return headers[i];
       return null;
     }
     function hasAnyData(rows, header) {
@@ -189,17 +169,14 @@
       return Object.keys(seen).sort(naturalCompare);
     }
 
-    /* ===== State ===== */
     var allRows = [];
     var headers = [];
     var currentRows = [];
     var currentHeaders = [];
     var sortState = []; // [{col, dir}...]
 
-    // Always hide (case-insensitive)
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
-    // Hide exact "plot" (lowercase) but keep "Plot"
-    var HIDE_EXACT = new Set(['plot']);
+    var HIDE_EXACT = new Set(['plot']); // hide lowercase 'plot' only
 
     var filterWrap = document.getElementById('filterWrap');
     var blockInput = document.getElementById('blockInput');
@@ -212,7 +189,6 @@
     var secsList = document.getElementById('secsList');
     var output = document.getElementById('output');
 
-    /* ===== Table render & multi-sort ===== */
     function buildTable(container, headersToShow, rows) {
       currentRows = rows.slice();
       currentHeaders = headersToShow.slice();
@@ -242,7 +218,6 @@
       html += '</tbody></table>';
       container.innerHTML = html;
 
-      // show priority numbers
       var ths = container.querySelectorAll("th");
       ths.forEach(function(th){
         var pr = th.getAttribute("data-sort-priority");
@@ -277,12 +252,10 @@
     }
 
     function comparatorChain() {
-      // Build comparator array based on current sortState
       return sortState.map(function(s){
         return { key: s.col, dir: s.dir, cmp: comparatorForColumn(s.col) };
       });
     }
-
     function applyMultiSort() {
       if (!sortState.length) return;
       var comps = comparatorChain();
@@ -299,7 +272,6 @@
       currentRows = decorated.map(function(x){ return x.r; });
     }
 
-    /* ===== Load CSV & UI ===== */
     async function loadCSV() {
       try {
         var res = await fetch('requests.csv', { cache: 'no-store' });
@@ -310,7 +282,6 @@
 
         headers = data[0].map(function(h){ return String(h).trim(); });
 
-        // Resolve columns
         var COL = {
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
@@ -340,18 +311,16 @@
             return obj;
           });
 
-        // Build Block datalist (unique sorted)
         var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
         blocksList.innerHTML = blocks.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
 
         filterWrap.style.display = 'flex';
 
-        // Pre-fill with first block and render
         if (blocks.length) {
           blockInput.value = blocks[0];
           updateGateOrSectionUI(blockInput.value);
+          populateGateOrSectionDatalist(); // initial fill
           renderForFilters();
-          populateGateOrSectionDatalist();
         }
 
       } catch (err) {
@@ -378,6 +347,12 @@
       var bv = String(blockInput.value || '').trim();
       var subset = allRows.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
 
+      // Empty both lists by default, then refill if Block is valid
+      gatesList.innerHTML = '';
+      secsList.innerHTML = '';
+
+      if (!bv || subset.length === 0) return;
+
       if (isBlock84()) {
         var secs = uniqueSorted(subset.map(function(r){ return r[COL.Sec]; }));
         secsList.innerHTML = secs.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
@@ -394,13 +369,10 @@
         return String(r[COL.Block] || '').trim() === bval;
       });
 
-      // Optional Gate/Section filter
       if (isBlock84()) {
         var sVal = String(secInput.value || '').trim();
-        if (sVal) {
-          filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
-        }
-        // Initial sort: Sec -> Row -> Grave
+        if (sVal) filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
+
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
           var r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
@@ -408,10 +380,8 @@
         });
       } else {
         var gVal = String(gateInput.value || '').trim();
-        if (gVal) {
-          filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-        }
-        // Initial sort: Gate -> Sec -> Plot -> Row -> Grave
+        if (gVal) filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
+
         filtered.sort(function(a,b){
           var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
           var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
@@ -421,37 +391,40 @@
         });
       }
 
-      // Visible columns: hide always-hidden, hide lowercase 'plot'
       var visible = headers.filter(function(h){
         if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
         if (HIDE_EXACT.has(h)) return false;
         return true;
       });
-      // Hide Gate column when Block 84
       if (isBlock84() && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
 
-      // Only show Sec./Section and Plot if any data exists in the filtered set
       var secHasData  = hasAnyData(filtered, COL.Sec);
       var plotHasData = hasAnyData(filtered, COL.Plot);
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
-      // Reset user sort whenever filters change
       sortState = [];
-
       buildTable(output, visible, filtered);
     }
 
-    // Debounced re-render on inputs
+    // --- Debounced handlers ---
     var t1=null, t2=null, t3=null;
+
+    // RESET on Block change: clear Gate/Section input & repopulate its datalist before rendering
     blockInput.addEventListener('input', function(){
       clearTimeout(t1);
       t1 = setTimeout(function(){
         updateGateOrSectionUI(blockInput.value);
-        populateGateOrSectionDatalist();
-        renderForFilters();
+
+        // Clear both inputs first so we reset the filter
+        gateInput.value = '';  // reset for new Block
+        secInput.value  = '';  // reset for new Block
+
+        populateGateOrSectionDatalist(); // refill list for the new Block
+        renderForFilters();              // show all rows for that Block
       }, 150);
     });
+
     gateInput.addEventListener('input', function(){
       clearTimeout(t2);
       t2 = setTimeout(renderForFilters, 150);
