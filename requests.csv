@@ -1,4 +1,4 @@
-firstName,lastName,deathDate,dateCreated,Block,Gate,Section,Row,Grave
+firstName,lastName,Year,dateCreated,Block,Gate,Section,Row,Grave
 Julius,Raisen,1965,30-Mar-25,1,264/W,,001L,1
 Rae,Blum,1959,25-Jan-25,1,264/W,,002R,17
 Rebecca,Steckler,1957,10-Sep-22,1,264/W,,003L,10
@@ -141,7 +141,7 @@ Philip,Deutsch,1989,25-Oct-23,2,274/N,,017R,8
 Florence,Davidson,1920,4-Jun-25,2,276/N,,002L,6
 Gussie,Kantrow,1990,29-Aug-16,2,276/N,,4,8
 Ida,Golob,1924,6-Jun-23,2,276/N,,004L,3
-David,Forman,unknown,31-Jan-23,2,276/N,,004R,13&amp;14
+David,Forman,unknown,31-Jan-23,2,276/N,,004R,13&14
 Fannie,Faust,1929,8-Aug-23,2,276/N,,009L,6
 Mildred,Zaitshik,1927,30-Jun-23,2,276/N,,009R,2
 Arnold,Meltzer,unknown,31-Aug-25,2,276/N,,009R,17
@@ -501,7 +501,6 @@ Meyer,Eliasoph,1959,3-Sep-24,5,570/N,,1,CENTER
 Abraham,Michnick,1960,10-Oct-24,5,570/N,,1,CENTER
 Sidney,Baach,1974,20-Apr-25,5,570/N,,001L,1
 Lena,Lippiner,1972,26-Jun-25,5,570/N,,001L,1
-Roslyn,Maharam,1956,22-May-24,5,570/N,,001L,DISINTERRED
 Louis,Maharam,1941,22-May-24,5,570/N,,001R,2
 Rose,Eliasoph,1960,3-Sep-24,5,570/N,,001R,2
 Irving,Chodos,1988,7-Jan-18,5,570/N,,2,1R
@@ -858,7 +857,7 @@ Irving,Antell,1975,9-Mar-25,12,331/N,,002R,6
 Augusta,Scholl,1978,28-Jun-24,12,331/N,,002R,8
 Osias,Schwartz,1910,25-Apr-25,12,331/N,,3,13
 Bernard,Lichtenstein,1910,26-Feb-17,12,331/N,,3,21
-Infant,Abis,1923,25-Oct-21,12,331/N,,3,2&amp;3
+Infant,Abis,1923,25-Oct-21,12,331/N,,3,2&3
 Frida,Feinberg,1911,21-Aug-25,12,331/N,,3,34-35
 Bessie,Grossberg,1915,23-Dec-20,12,331/N,,003R,14
 Isidor,Lichman,1919,28-Apr-20,12,331/N,,003R,
@@ -956,7 +955,6 @@ Rose,Frisch,1950,23-Mar-24,13,337/N,,001L,3
 Benjamin,Schwartzman,1934,28-Feb-24,13,337/N,,001R,1
 Abraham,Frisch,1955,23-Mar-24,13,337/N,,001R,3
 Norma,Pimsler,2020,19-Dec-22,13,337/N,,1,1R
-Julius,Oestreicher,2023,16-Jun-25,13,337/N,,1,DISINTERRED
 Fannie,Tarter,1919,21-Apr-19,13,338/N,,2,1L
 Harriet,Tarter,1937,21-Apr-19,13,338/N,,002L,2
 Kate,Axelrod,1935,12-Apr-25,13,338/N,,003L,1
@@ -4116,7 +4114,6 @@ Pincus,Weissman,1923,25-Mar-22,87,209/S,,006R,3
 Morris,Yellin,1948,26-Jan-23,87,209/S,,006R,5
 Bessie,Weissman,1948,31-Mar-22,87,209/S,,008L,5
 Rose,Benjamin,unknown,21-Oct-20,87,209/S,,009L,1
-Goldie,Goldfarb,1940,29-Nov-23,87,209/S,,010L,DISINTERRED
 Israel,Feldman,1953,29-Jul-23,87,209/S,,010R,1
 Hyman,Dosik,1933,8-Jul-23,87,209/S,,010R,2
 Anna,Feldman,1989,29-Jul-23,87,209/S,,013R,5
