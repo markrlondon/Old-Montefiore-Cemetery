@@ -30,13 +30,10 @@
   <div id="output"></div>
 
   <script>
-    // --- CSV parser (handles quotes and embedded commas) ---
     function parseCSV(text) {
-      const rows = [];
-      let row = [], field = '', i = 0, inQuotes = false;
-
+      var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
-        const ch = text[i];
+        var ch = text[i];
         if (inQuotes) {
           if (ch === '"') {
             if (text[i+1] === '"') { field += '"'; i += 2; continue; }
@@ -45,34 +42,33 @@
           field += ch; i++; continue;
         } else {
           if (ch === '"') { inQuotes = true; i++; continue; }
-          if (ch === ',') { row.push(field); field = ''; i++; continue; }
+          if (ch === ',') { rows.length || row.length; row.push(field); field=''; i++; continue; }
           if (ch === '\r') { i++; continue; }
-          if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+          if (ch === '\n') { row.push(field); rows.push(row); row=[]; field=''; i++; continue; }
           field += ch; i++;
         }
       }
       row.push(field);
       if (!(row.length === 1 && row[0] === '' && rows.length > 0)) rows.push(row);
-      while (rows.length && rows[rows.length - 1].every(c => String(c).trim() === '')) rows.pop();
+      while (rows.length && rows[rows.length-1].every(function(c){return String(c).trim()==='';})) rows.pop();
       return rows;
     }
 
-    // Natural sort for values like "378/N", "90/S", "8L", numbers, etc.
     function naturalCompare(a, b) {
-      const ax = String(a ?? '').trim();
-      const bx = String(b ?? '').trim();
+      var ax = String(a == null ? '' : a).trim();
+      var bx = String(b == null ? '' : b).trim();
       if (ax === bx) return 0;
-      const re = /(\d+|\D+)/g;
-      const ta = ax.match(re) || [];
-      const tb = bx.match(re) || [];
-      const len = Math.max(ta.length, tb.length);
-      for (let i = 0; i < len; i++) {
-        const na = ta[i] ?? '';
-        const nb = tb[i] ?? '';
-        const ia = /^\d+$/.test(na);
-        const ib = /^\d+$/.test(nb);
+      var re = /(\d+|\D+)/g;
+      var ta = ax.match(re) || [];
+      var tb = bx.match(re) || [];
+      var len = Math.max(ta.length, tb.length);
+      for (var i = 0; i < len; i++) {
+        var na = ta[i] != null ? ta[i] : '';
+        var nb = tb[i] != null ? tb[i] : '';
+        var ia = /^\d+$/.test(na);
+        var ib = /^\d+$/.test(nb);
         if (ia && ib) {
-          const da = parseInt(na, 10), db = parseInt(nb, 10);
+          var da = parseInt(na, 10), db = parseInt(nb, 10);
           if (da !== db) return da - db;
         } else {
           if (na !== nb) return na.localeCompare(nb);
@@ -82,151 +78,152 @@
     }
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[c]));
+      return String(s).replace(/[&<>"']/g, function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+      });
     }
 
     function buildTable(container, headers, rows) {
-      let html = '<table><thead><tr>';
-      headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>'; });
+      var html = '<table><thead><tr>';
+      headers.forEach(function(h){ html += `<th>${escapeHtml(h)}</th>`; });  // ✅ backtick closed correctly
       html += '</tr></thead><tbody>';
-      for (const r of rows) {
+      for (var i=0;i<rows.length;i++) {
+        var r = rows[i];
         html += '<tr>';
-        for (const h of headers) html += `<td>${escapeHtml(r[h] ?? '')}</td>`;
+        for (var j=0;j<headers.length;j++) {
+          var h = headers[j];
+          var cell = r[h];
+          html += `<td>${escapeHtml(cell == null ? '' : cell)}</td>`;        // ✅ no "??"
+        }
         html += '</tr>';
       }
       html += '</tbody></table>';
       container.innerHTML = html;
     }
 
-    // Globals
-    let allRows = [];
-    let headers = [];
+    var allRows = [];
+    var headers = [];
 
-    const ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']); // case-insensitive match
+    var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
 
-    const blockWrap = document.getElementById('blockFilterWrap');
-    const blockSelect = document.getElementById('blockSelect');
-    const output = document.getElementById('output');
+    var blockWrap = document.getElementById('blockFilterWrap');
+    var blockSelect = document.getElementById('blockSelect');
+    var output = document.getElementById('output');
 
-    const findHeader = (candidates) => {
-      for (const c of candidates) {
-        const h = headers.find(H => H.toLowerCase() === c.toLowerCase());
-        if (h) return h;
+    function findHeader(candidates) {
+      for (var k=0;k<candidates.length;k++) {
+        var c = candidates[k].toLowerCase();
+        for (var i=0;i<headers.length;i++) {
+          if (headers[i].toLowerCase() === c) return headers[i];
+        }
       }
       return null;
-    };
+    }
 
-    const hasAnyData = (rows, header) =>
-      !!header && rows.some(r => (r[header] ?? '').trim() !== '');
+    function hasAnyData(rows, header) {
+      if (!header) return false;
+      for (var i=0;i<rows.length;i++) {
+        var v = rows[i][header];
+        if (v != null && String(v).trim() !== '') return true;
+      }
+      return false;
+    }
 
     async function loadCSV() {
       try {
-        const res = await fetch('requests.csv', { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
+        var res = await fetch('requests.csv', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var text = await res.text();
 
-        const data = parseCSV(text);
-        if (!data.length) {
-          output.innerHTML = '<p class="error">No data found in requests.csv.</p>';
-          return;
-        }
+        var data = parseCSV(text);
+        if (!data.length) { output.innerHTML = '<p class="error">No data found in requests.csv.</p>'; return; }
 
-        headers = data[0].map(h => String(h).trim());
-        // Logical column resolution (supports both "Sec." and "Section")
-        const COL = {
+        headers = data[0].map(function(h){ return String(h).trim(); });
+
+        var COL = {
           Block: findHeader(['Block']),
-          Gate: findHeader(['Gate']),
-          Sec:  findHeader(['Sec.','Section','Sec']),
-          Plot: findHeader(['Plot']),
-          Row:  findHeader(['Row']),
-          Grave:findHeader(['Grave'])
+          Gate:  findHeader(['Gate']),
+          Sec:   findHeader(['Sec.','Section','Sec']),
+          Plot:  findHeader(['Plot']),
+          Row:   findHeader(['Row']),
+          Grave: findHeader(['Grave'])
         };
 
-        // Basic requirements to function
-        const requiredMissing = [];
+        var requiredMissing = [];
         if (!COL.Block) requiredMissing.push('Block');
         if (!COL.Row) requiredMissing.push('Row');
         if (!COL.Grave) requiredMissing.push('Grave');
-        if (!COL.Gate && !COL.Sec) {
-          requiredMissing.push('Gate (or Section/Sec.)');
-        }
+        if (!COL.Gate && !COL.Sec) requiredMissing.push('Gate (or Section/Sec.)');
         if (requiredMissing.length) {
-          output.innerHTML = `<p class="error">Missing required column(s): ${requiredMissing.join(', ')}</p>`;
+          output.innerHTML = '<p class="error">Missing required column(s): ' + requiredMissing.join(', ') + '</p>';
           return;
         }
 
         allRows = data.slice(1)
-          .filter(r => r.some(c => String(c).trim() !== ''))
-          .map(r => {
-            const obj = {};
-            headers.forEach((h, i) => obj[h] = (r[i] ?? '').toString().trim());
+          .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
+          .map(function(r){
+            var obj = {};
+            headers.forEach(function(h, i){ obj[h] = (r[i] == null ? '' : String(r[i]).trim()); });
             return obj;
           });
 
-        // Build Block dropdown (unique, sorted)
-        const blocks = Array.from(new Set(allRows.map(r => (r[COL.Block] ?? '').trim())))
-          .filter(v => v !== '')
-          .sort(naturalCompare);
+        var blocksSet = {};
+        for (var i=0;i<allRows.length;i++) {
+          var bv = (allRows[i][COL.Block] == null ? '' : allRows[i][COL.Block]).trim();
+          if (bv) blocksSet[bv] = true;
+        }
+        var blocks = Object.keys(blocksSet).sort(naturalCompare);
 
-        blockSelect.innerHTML = blocks.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+        blockSelect.innerHTML = blocks.map(function(v){
+          return '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
+        }).join('');
         blockWrap.style.display = 'flex';
         output.innerHTML = '<p class="note">Choose a Block to display rows.</p>';
 
-        // Save resolved columns for later
         blockSelect.dataset.cols = JSON.stringify(COL);
 
       } catch (err) {
-        output.innerHTML = `<p class="error">Failed to load requests.csv: ${escapeHtml(err.message)}</p>`;
+        output.innerHTML = '<p class="error">Failed to load requests.csv: ' + escapeHtml(err.message) + '</p>';
       }
     }
 
-    blockSelect.addEventListener('change', () => renderForBlock(blockSelect.value));
+    blockSelect.addEventListener('change', function(){ renderForBlock(blockSelect.value); });
 
     function renderForBlock(selected) {
-      const COL = JSON.parse(blockSelect.dataset.cols || '{}');
-      const filtered = allRows.filter(r => (r[COL.Block] ?? '').trim() === selected);
+      var COL = JSON.parse(blockSelect.dataset.cols || '{}');
+      var filtered = allRows.filter(function(r){
+        var v = r[COL.Block];
+        return (v == null ? '' : v).trim() === selected;
+      });
 
-      // --- Sorting ---
       if (selected === '84') {
-        // Sec./Section -> Row -> Grave
-        filtered.sort((a, b) => {
-          const s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
-          const r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
+        filtered.sort(function(a,b){
+          var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
+          var r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
           return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
       } else {
-        // Gate -> Sec./Section -> Plot -> Row -> Grave
-        filtered.sort((a, b) => {
-          const g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-          const s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
-          const p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-          const r = naturalCompare(a[COL.Row], b[COL.Row]); if (r) return r;
+        filtered.sort(function(a,b){
+          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+          var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
           return naturalCompare(a[COL.Grave], b[COL.Grave]);
         });
       }
 
-      // --- Visible columns ---
-      // Start from all headers, drop always-hidden and, for Block 84, drop Gate.
-      let visible = headers.filter(h => !ALWAYS_HIDE_LC.has(h.toLowerCase()));
-      if (selected === '84' && COL.Gate) {
-        visible = visible.filter(h => h !== COL.Gate);
-      }
+      var visible = headers.filter(function(h){ return !ALWAYS_HIDE_LC.has(h.toLowerCase()); });
+      if (selected === '84' && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
 
-      // Conditionally show Section/Sec. and Plot ONLY if any filtered row has data.
-      const secHasData  = hasAnyData(filtered, COL.Sec);
-      const plotHasData = hasAnyData(filtered, COL.Plot);
+      var secHasData  = hasAnyData(filtered, COL.Sec);
+      var plotHasData = hasAnyData(filtered, COL.Plot);
+      if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
+      if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
-      if (COL.Sec && !secHasData)  visible = visible.filter(h => h !== COL.Sec);
-      if (COL.Plot && !plotHasData) visible = visible.filter(h => h !== COL.Plot);
-
-      // Build table
       buildTable(output, visible, filtered);
     }
 
-    // Load CSV on page load; preselect first Block if present
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async function(){
       await loadCSV();
       if (blockSelect.options.length) {
         blockSelect.selectedIndex = 0;
