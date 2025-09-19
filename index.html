@@ -350,6 +350,38 @@
     });
     gateSelect.addEventListener('change',renderForFilters);
     secSelect.addEventListener('change',renderForFilters);
+      function enableShowAllOnClick(inputEl) {
+    // When clicking or pressing ↓, temporarily clear the value so datalist opens fully
+    inputEl.addEventListener('mousedown', function() {
+      if (inputEl.value) {
+        inputEl.dataset.prev = inputEl.value;
+        inputEl.value = '';
+        inputEl.dataset.justCleared = '1';
+      }
+    });
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown' && inputEl.value) {
+        inputEl.dataset.prev = inputEl.value;
+        inputEl.value = '';
+        inputEl.dataset.justCleared = '1';
+      }
+    });
+    // If user leaves without picking anything, restore
+    inputEl.addEventListener('blur', function() {
+      if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
+        inputEl.value = inputEl.dataset.prev || '';
+      }
+      inputEl.dataset.justCleared = '';
+    });
+    // If they type/select something, don’t restore
+    inputEl.addEventListener('input', function() {
+      inputEl.dataset.justCleared = '';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    enableShowAllOnClick(document.getElementById('blockInput'));
+  });
   </script>
 </body>
 </html>
