@@ -10,7 +10,9 @@
     select { margin-left: 6px; }
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 6px 8px; }
-    th { background: #f6f6f6; position: sticky; top: 0; }
+    th { background: #f6f6f6; position: sticky; top: 0; cursor: pointer; }
+    th.sort-asc::after { content: " ▲"; font-size: 0.8em; }
+    th.sort-desc::after { content: " ▼"; font-size: 0.8em; }
     .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .note { color: #666; font-size: 0.9em; }
     .error { color: #b00; }
@@ -23,7 +25,8 @@
     <label for="blockSelect">Block:</label>
     <select id="blockSelect"></select>
     <span class="note">
-      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)
+      Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)<br>
+      Click column headers to sort.
     </span>
   </div>
 
@@ -42,7 +45,7 @@
           field += ch; i++; continue;
         } else {
           if (ch === '"') { inQuotes = true; i++; continue; }
-          if (ch === ',') { rows.length || row.length; row.push(field); field=''; i++; continue; }
+          if (ch === ',') { row.push(field); field=''; i++; continue; }
           if (ch === '\r') { i++; continue; }
           if (ch === '\n') { row.push(field); rows.push(row); row=[]; field=''; i++; continue; }
           field += ch; i++;
@@ -83,27 +86,59 @@
       });
     }
 
+    var currentRows = [];   // rows currently shown
+    var currentHeaders = []; // headers currently shown
+    var sortState = { col: null, dir: 1 }; // remember sort state
+
     function buildTable(container, headers, rows) {
+      currentRows = rows.slice();   // copy
+      currentHeaders = headers.slice();
+      sortState = { col: null, dir: 1 };
+
       var html = '<table><thead><tr>';
-      headers.forEach(function(h){ html += `<th>${escapeHtml(h)}</th>`; });  // ✅ backtick closed correctly
+      headers.forEach(function(h){ html += `<th data-col="${escapeHtml(h)}">${escapeHtml(h)}</th>`; });
       html += '</tr></thead><tbody>';
-      for (var i=0;i<rows.length;i++) {
-        var r = rows[i];
+      rows.forEach(function(r){
         html += '<tr>';
-        for (var j=0;j<headers.length;j++) {
-          var h = headers[j];
+        headers.forEach(function(h){
           var cell = r[h];
-          html += `<td>${escapeHtml(cell == null ? '' : cell)}</td>`;        // ✅ no "??"
-        }
+          html += `<td>${escapeHtml(cell == null ? '' : cell)}</td>`;
+        });
         html += '</tr>';
-      }
+      });
       html += '</tbody></table>';
       container.innerHTML = html;
+
+      // attach click handlers for sorting
+      var ths = container.querySelectorAll("th");
+      ths.forEach(function(th){
+        th.addEventListener("click", function(){
+          var col = th.getAttribute("data-col");
+          if (sortState.col === col) {
+            sortState.dir = -sortState.dir; // toggle
+          } else {
+            sortState.col = col;
+            sortState.dir = 1;
+          }
+          ths.forEach(function(t){ t.classList.remove("sort-asc","sort-desc"); });
+          th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
+
+          currentRows.sort(function(a,b){
+            return naturalCompare(a[col], b[col]) * sortState.dir;
+          });
+          buildTable(container, headers, currentRows);
+          // reapply indicator
+          var newThs = container.querySelectorAll("th");
+          newThs.forEach(function(t){
+            if (t.getAttribute("data-col") === col)
+              t.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
+          });
+        });
+      });
     }
 
     var allRows = [];
     var headers = [];
-
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
 
     var blockWrap = document.getElementById('blockFilterWrap');
@@ -134,7 +169,6 @@
         var res = await fetch('requests.csv', { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var text = await res.text();
-
         var data = parseCSV(text);
         if (!data.length) { output.innerHTML = '<p class="error">No data found in requests.csv.</p>'; return; }
 
@@ -149,16 +183,6 @@
           Grave: findHeader(['Grave'])
         };
 
-        var requiredMissing = [];
-        if (!COL.Block) requiredMissing.push('Block');
-        if (!COL.Row) requiredMissing.push('Row');
-        if (!COL.Grave) requiredMissing.push('Grave');
-        if (!COL.Gate && !COL.Sec) requiredMissing.push('Gate (or Section/Sec.)');
-        if (requiredMissing.length) {
-          output.innerHTML = '<p class="error">Missing required column(s): ' + requiredMissing.join(', ') + '</p>';
-          return;
-        }
-
         allRows = data.slice(1)
           .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
           .map(function(r){
@@ -169,7 +193,7 @@
 
         var blocksSet = {};
         for (var i=0;i<allRows.length;i++) {
-          var bv = (allRows[i][COL.Block] == null ? '' : allRows[i][COL.Block]).trim();
+          var bv = (allRows[i][COL.Block] || '').trim();
           if (bv) blocksSet[bv] = true;
         }
         var blocks = Object.keys(blocksSet).sort(naturalCompare);
