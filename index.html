@@ -52,6 +52,7 @@
   <div id="output"></div>
 
   <script>
+    /* ===== CSV parsing / comparators / utilities — unchanged ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -169,11 +170,12 @@
       return Object.keys(seen).sort(naturalCompare);
     }
 
+    /* ===== State ===== */
     var allRows = [];
     var headers = [];
     var currentRows = [];
     var currentHeaders = [];
-    var sortState = []; // [{col, dir}...]
+    var sortState = [];
 
     var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
     var HIDE_EXACT = new Set(['plot']); // hide lowercase 'plot' only
@@ -189,6 +191,39 @@
     var secsList = document.getElementById('secsList');
     var output = document.getElementById('output');
 
+    /* === NEW: Make datalist show all options on click / down-arrow === */
+    function enableShowAllOnClick(inputEl) {
+      // Clicking the input (including the chevron) with a non-empty value:
+      // temporarily clear value so the datalist shows ALL options.
+      inputEl.addEventListener('mousedown', function() {
+        if (inputEl.value) {
+          inputEl.dataset.prev = inputEl.value;
+          inputEl.value = '';
+          inputEl.dataset.justCleared = '1';
+        }
+      });
+      // Pressing ArrowDown should also reveal all options.
+      inputEl.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' && inputEl.value) {
+          inputEl.dataset.prev = inputEl.value;
+          inputEl.value = '';
+          inputEl.dataset.justCleared = '1';
+        }
+      });
+      // If user leaves the field without selecting anything, restore.
+      inputEl.addEventListener('blur', function() {
+        if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
+          inputEl.value = inputEl.dataset.prev || '';
+        }
+        inputEl.dataset.justCleared = '';
+      });
+      // If user types or selects an option, don't restore.
+      inputEl.addEventListener('input', function() {
+        inputEl.dataset.justCleared = '';
+      });
+    }
+
+    /* ===== Table render & multi-sort ===== */
     function buildTable(container, headersToShow, rows) {
       currentRows = rows.slice();
       currentHeaders = headersToShow.slice();
@@ -272,6 +307,7 @@
       currentRows = decorated.map(function(x){ return x.r; });
     }
 
+    /* ===== Load CSV & UI ===== */
     async function loadCSV() {
       try {
         var res = await fetch('requests.csv', { cache: 'no-store' });
@@ -286,7 +322,7 @@
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
           Sec:   findHeader(['Sec.','Section','Sec']),
-          Plot:  findHeaderExact('Plot'),   // exact "Plot"
+          Plot:  findHeaderExact('Plot'),
           Row:   findHeader(['Row']),
           Grave: findHeader(['Grave']),
           DateCreated: findHeader(['dateCreated'])
@@ -319,8 +355,12 @@
         if (blocks.length) {
           blockInput.value = blocks[0];
           updateGateOrSectionUI(blockInput.value);
-          populateGateOrSectionDatalist(); // initial fill
+          populateGateOrSectionDatalist();
           renderForFilters();
+
+          // Enable the "show all on click/down-arrow" behavior
+          enableShowAllOnClick(gateInput);
+          enableShowAllOnClick(secInput);
         }
 
       } catch (err) {
@@ -347,7 +387,6 @@
       var bv = String(blockInput.value || '').trim();
       var subset = allRows.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
 
-      // Empty both lists by default, then refill if Block is valid
       gatesList.innerHTML = '';
       secsList.innerHTML = '';
 
@@ -407,24 +446,20 @@
       buildTable(output, visible, filtered);
     }
 
-    // --- Debounced handlers ---
+    // Debounced handlers
     var t1=null, t2=null, t3=null;
-
-    // RESET on Block change: clear Gate/Section input & repopulate its datalist before rendering
     blockInput.addEventListener('input', function(){
       clearTimeout(t1);
       t1 = setTimeout(function(){
         updateGateOrSectionUI(blockInput.value);
 
-        // Clear both inputs first so we reset the filter
-        gateInput.value = '';  // reset for new Block
-        secInput.value  = '';  // reset for new Block
+        gateInput.value = '';
+        secInput.value  = '';
 
-        populateGateOrSectionDatalist(); // refill list for the new Block
-        renderForFilters();              // show all rows for that Block
+        populateGateOrSectionDatalist();
+        renderForFilters();
       }, 150);
     });
-
     gateInput.addEventListener('input', function(){
       clearTimeout(t2);
       t2 = setTimeout(renderForFilters, 150);
