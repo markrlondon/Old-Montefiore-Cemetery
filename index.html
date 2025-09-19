@@ -45,14 +45,14 @@
     <select id="blockSelect"></select>
     <span class="note">
       Non-84: Gate → Sec./Section → Plot → Row → Grave • 84: Sec./Section → Row → Grave (Gate hidden)
-      <br>Click headers to sort; <b>Shift+Click</b> to add multi-column sorting.
+      <br>Click headers to sort; <b>Shift+Click</b> to add secondary/tertiary sort.
     </span>
   </div>
 
   <div id="output"></div>
 
   <script>
-    /* ===== CSV parsing (quotes & commas in quotes) ===== */
+    /* ===== CSV parsing ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -77,7 +77,7 @@
       return rows;
     }
 
-    /* ===== Natural compare (handles 378/N, 8L, numbers, etc.) ===== */
+    /* ===== Comparators ===== */
     function naturalCompare(a, b) {
       var ax = String(a == null ? '' : a).trim();
       var bx = String(b == null ? '' : b).trim();
@@ -101,24 +101,62 @@
       return 0;
     }
 
+    // robust-ish date parse; returns numeric ms or NaN
+    function parseDateMs(s) {
+      if (s == null) return NaN;
+      s = String(s).trim();
+      if (!s) return NaN;
+
+      // Try native Date.parse (handles ISO, RFC formats, yyyy-mm-dd, etc.)
+      var t = Date.parse(s);
+      if (!isNaN(t)) return t;
+
+      // Try common US/EU numeric formats: mm/dd/yyyy or dd/mm/yyyy (assume mm/dd/yyyy by default)
+      var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+      if (m) {
+        var mm = parseInt(m[1], 10)-1, dd = parseInt(m[2], 10), yy = parseInt(m[3], 10);
+        if (yy < 100) yy += 2000;
+        var d = new Date(yy, mm, dd);
+        return d.getTime();
+      }
+
+      // Try dd Mon yyyy (e.g., 05 Jan 1937)
+      var m2 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+      if (m2) {
+        var day = parseInt(m2[1],10), monStr = m2[2].toLowerCase(), year = parseInt(m2[3],10);
+        var months = {"jan":0,"january":0,"feb":1,"february":1,"mar":2,"march":2,"apr":3,"april":3,"may":4,"jun":5,"june":5,"jul":6,"july":6,"aug":7,"august":7,"sep":8,"sept":8,"september":8,"oct":9,"october":9,"nov":10,"november":10,"dec":11,"december":11};
+        if (months.hasOwnProperty(monStr)) {
+          return new Date(year, months[monStr], day).getTime();
+        }
+      }
+
+      return NaN;
+    }
+
+    function dateCompare(a, b) {
+      var ta = parseDateMs(a);
+      var tb = parseDateMs(b);
+      var aNaN = isNaN(ta), bNaN = isNaN(tb);
+      if (aNaN && bNaN) return 0;
+      if (aNaN) return 1;   // put empty/invalid last
+      if (bNaN) return -1;
+      return ta - tb;
+    }
+
+    // choose comparator per column
+    function comparatorForColumn(colName) {
+      if (!colName) return naturalCompare;
+      var lc = String(colName).toLowerCase();
+      if (lc === 'datecreated') return dateCompare;
+      return naturalCompare;
+    }
+
+    /* ===== Utilities ===== */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
       });
     }
-
-    /* ===== State ===== */
-    var allRows = [];      // all data rows (objects)
-    var headers = [];      // all CSV headers (strings)
-    var currentRows = [];  // filtered rows for the selected Block
-    var currentHeaders = [];// visible headers after hiding logic
-    var sortState = [];    // array of {col, dir} — primary first (dir: 1=asc, -1=desc)
-
-    var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
-
-    var blockWrap = document.getElementById('blockFilterWrap');
-    var blockSelect = document.getElementById('blockSelect');
-    var output = document.getElementById('output');
 
     function findHeader(candidates) {
       for (var k=0;k<candidates.length;k++) {
@@ -126,6 +164,12 @@
         for (var i=0;i<headers.length;i++) {
           if (headers[i].toLowerCase() === c) return headers[i];
         }
+      }
+      return null;
+    }
+    function findHeaderExact(name) {
+      for (var i=0;i<headers.length;i++) {
+        if (headers[i] === name) return headers[i];
       }
       return null;
     }
@@ -139,17 +183,32 @@
       return false;
     }
 
-    /* ===== Build table with clickable (multi-sort) headers ===== */
+    /* ===== State ===== */
+    var allRows = [];
+    var headers = [];
+    var currentRows = [];
+    var currentHeaders = [];
+    var sortState = []; // [{col, dir}...]
+
+    // Always hide (case-insensitive)
+    var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid']);
+    // Hide exact "plot" (lowercase only). Keep "Plot".
+    var HIDE_EXACT = new Set(['plot']);
+
+    var blockWrap = document.getElementById('blockFilterWrap');
+    var blockSelect = document.getElementById('blockSelect');
+    var output = document.getElementById('output');
+
+    /* ===== Table render & multi-sort ===== */
     function buildTable(container, headersToShow, rows) {
       currentRows = rows.slice();
       currentHeaders = headersToShow.slice();
 
       var html = '<table><thead><tr>';
       headersToShow.forEach(function(h){
-        // Add sort indicators: priority number + arrow; attributes used to restyle on refresh
-        var existing = sortState.findIndex(function(s){ return s.col === h; });
-        var prio = existing >= 0 ? (existing + 1) : '';
-        var dir = existing >= 0 ? String(sortState[existing].dir) : '';
+        var idx = sortState.findIndex(function(s){ return s.col === h; });
+        var prio = idx >= 0 ? (idx + 1) : '';
+        var dir = idx >= 0 ? String(sortState[idx].dir) : '';
         html += '<th data-col="'+escapeHtml(h)+'"'
              +  (dir ? ' data-sort-dir="'+dir+'"' : '')
              +  (prio ? ' data-sort-priority="'+prio+'"' : '')
@@ -170,7 +229,7 @@
       html += '</tbody></table>';
       container.innerHTML = html;
 
-      // Apply the displayed priority numbers (①,②,③… as plain digits)
+      // show priority numbers
       var ths = container.querySelectorAll("th");
       ths.forEach(function(th){
         var pr = th.getAttribute("data-sort-priority");
@@ -188,14 +247,9 @@
           var idx = sortState.findIndex(function(s){ return s.col === col; });
 
           if (e.shiftKey) {
-            // Shift+Click: add or toggle this column without clearing others
-            if (idx === -1) {
-              sortState.push({ col: col, dir: 1 });
-            } else {
-              sortState[idx].dir = -sortState[idx].dir;
-            }
+            if (idx === -1) sortState.push({ col: col, dir: 1 });
+            else sortState[idx].dir = -sortState[idx].dir;
           } else {
-            // Normal click: make this the only key; if already primary, toggle
             if (idx === 0 && sortState.length > 0) {
               sortState[0].dir = -sortState[0].dir;
             } else {
@@ -204,7 +258,6 @@
           }
 
           applyMultiSort();
-          // Rebuild table with preserved sort state indicators
           buildTable(container, currentHeaders, currentRows);
         });
       });
@@ -212,24 +265,22 @@
 
     function applyMultiSort() {
       if (!sortState.length) return;
-
-      // Stable sort: decorate with original index, sort, undecorate
       var decorated = currentRows.map(function(r, i){ return { r:r, i:i }; });
       decorated.sort(function(A, B){
         var a = A.r, b = B.r;
         for (var k=0;k<sortState.length;k++) {
           var key = sortState[k].col;
           var dir = sortState[k].dir;
-          var cmp = naturalCompare(a[key], b[key]);
+          var cmpFn = comparatorForColumn(key);
+          var cmp = cmpFn(a[key], b[key]);
           if (cmp !== 0) return cmp * dir;
         }
-        // stable fallback
-        return A.i - B.i;
+        return A.i - B.i; // stable
       });
       currentRows = decorated.map(function(x){ return x.r; });
     }
 
-    /* ===== Load CSV and prepare UI ===== */
+    /* ===== Load CSV & UI ===== */
     async function loadCSV() {
       try {
         var res = await fetch('requests.csv', { cache: 'no-store' });
@@ -240,14 +291,15 @@
 
         headers = data[0].map(function(h){ return String(h).trim(); });
 
-        // Resolve logical columns (support both "Sec." and "Section")
+        // Resolve columns; Plot must be EXACT "Plot" (capital P) to keep; lowercase "plot" will be hidden.
         var COL = {
           Block: findHeader(['Block']),
           Gate:  findHeader(['Gate']),
           Sec:   findHeader(['Sec.','Section','Sec']),
-          Plot:  findHeader(['Plot']),
+          Plot:  findHeaderExact('Plot'),  // <-- exact match only
           Row:   findHeader(['Row']),
-          Grave: findHeader(['Grave'])
+          Grave: findHeader(['Grave']),
+          DateCreated: findHeader(['dateCreated']) // still case-insensitive for finding, only sort logic cares about name
         };
 
         // Minimal requirements
@@ -269,7 +321,7 @@
             return obj;
           });
 
-        // Build Block dropdown (unique, sorted)
+        // Build Block dropdown
         var blocksSet = {};
         for (var i=0;i<allRows.length;i++) {
           var bv = (allRows[i][COL.Block] || '').trim();
@@ -299,7 +351,7 @@
         return (v == null ? '' : v).trim() === selected;
       });
 
-      // Initial sort (per your rules), before user-click sorting
+      // Initial sort per rules
       if (selected === '84') {
         filtered.sort(function(a,b){
           var s = naturalCompare(a[COL.Sec], b[COL.Sec]); if (s) return s;
@@ -316,16 +368,22 @@
         });
       }
 
-      // Visible columns: hide always-hidden; hide Gate for Block 84; show Sec/Plot only if present
-      var visible = headers.filter(function(h){ return !ALWAYS_HIDE_LC.has(h.toLowerCase()); });
+      // Visible columns
+      var visible = headers.filter(function(h){
+        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
+        if (HIDE_EXACT.has(h)) return false; // hide lowercase 'plot'
+        return true;
+      });
+
       if (selected === '84' && COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
 
       var secHasData  = hasAnyData(filtered, COL.Sec);
       var plotHasData = hasAnyData(filtered, COL.Plot);
       if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
+      // Only consider exact "Plot" for conditional visibility (lowercase 'plot' is already hidden)
       if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
 
-      // Reset sort state whenever Block changes (fresh multi-sort)
+      // Reset user sort when Block changes
       sortState = [];
 
       buildTable(output, visible, filtered);
