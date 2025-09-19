@@ -122,7 +122,7 @@
     }
 
     function comparatorForColumn(col) {
-      return (col && col.toLowerCase() === 'datecreated') ? dateCompare : naturalCompare;
+      return (col && col.toLowerCase() === 'created') ? dateCompare : naturalCompare;
     }
 
     function escapeHtml(s) {
@@ -163,7 +163,7 @@ function buildTable(container, headersToShow, rows) {
     const idx = sortState.findIndex(s => s.col === h);
     const prio = idx >= 0 ? (idx + 1) : '';
     const dir = idx >= 0 ? String(sortState[idx].dir) : '';
-    const cls = (h.toLowerCase() === 'datecreated' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
+    const cls = (h.toLowerCase() === 'created' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
     html += `<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}${cls}>
               ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span>
             </th>`;
@@ -173,7 +173,7 @@ function buildTable(container, headersToShow, rows) {
     html += '<tr>';
     headersToShow.forEach(function(h){
       const cell = r[h];
-      const cls = (h.toLowerCase() === 'datecreated'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
+      const cls = (h.toLowerCase() === 'created'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'row') ? ' class="right"' : '';
       html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
     });
     html += '</tr>';
@@ -338,7 +338,7 @@ function buildTable(container, headersToShow, rows) {
         Plot: headers.find(h=>h==='Plot'),
         Row:  headers.find(h=>h.toLowerCase()==='row'),
         Grave:headers.find(h=>h.toLowerCase()==='grave'),
-        DateCreated:headers.find(h=>h.toLowerCase()==='datecreated')
+        DateCreated:headers.find(h=>h.toLowerCase()==='created')
       };
       allRows=data.slice(1).map(r=>{
         const obj={}; headers.forEach((h,i)=>obj[h]=r[i]??''); return obj;
