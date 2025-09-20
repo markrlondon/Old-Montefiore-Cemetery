@@ -408,6 +408,19 @@ function buildTable(container, headersToShow, rows) {
     inputEl.addEventListener('input', function() {
       inputEl.dataset.justCleared = '';
     });
+        
+   // Pressing Enter should hide menu
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = inputEl.value;
+        inputEl.blur();
+        setTimeout(() => {
+          inputEl.focus();
+          inputEl.value = val;
+        }, 0);
+      }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', function() {
