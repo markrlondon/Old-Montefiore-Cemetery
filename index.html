@@ -381,37 +381,52 @@ function buildTable(container, headersToShow, rows) {
     });
     gateSelect.addEventListener('change',renderForFilters);
     secSelect.addEventListener('change',renderForFilters);
-    function enableShowAllOnClick(inputEl) {
-  // Approximate width of the native datalist arrow area (in CSS px)
+
+function enableShowAllOnClick(inputEl) {
   var ARROW_W = 28;
+  var originalListId = inputEl.getAttribute('list') || '';
 
   function isArrowClick(e) {
-    // Only left-clicks should count
-    if (e.button !== 0) return false;
+    if (e.button !== 0) return false; // left click only
     var rect = inputEl.getBoundingClientRect();
-    // Click is within the rightmost ARROW_W pixels of the input
     return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
-           e.clientY >= rect.top && e.clientY <= rect.bottom;
+           e.clientY >= rect.top &&  e.clientY <= rect.bottom;
   }
 
-  // Only clear the value when the ARROW area is clicked
+  // Programmatically "close" datalist by temporarily detaching it
+  function closeDatalist() {
+    if (!originalListId) return;
+    // Remove and restore the list attribute to force the popup to close
+    inputEl.removeAttribute('list');
+    // Force reflow so browsers register the change
+    void inputEl.offsetWidth; 
+    inputEl.setAttribute('list', originalListId);
+  }
+
+  // Arrow-only: only clear to show full list when arrow is clicked
   inputEl.addEventListener('mousedown', function(e) {
     if (!isArrowClick(e)) {
-      // Not the arrow: DO NOT clear; let it behave like a normal text field
+      // Not the arrow: do nothing special (don’t open full list)
       return;
     }
     if (inputEl.value) {
       inputEl.dataset.prev = inputEl.value;
-      inputEl.value = '';                 // clearing forces full list to show
+      inputEl.value = '';                 // force full list
       inputEl.dataset.justCleared = '1';
-      // Don’t preventDefault; allow the native arrow to open the menu
+      // allow native menu to open
     }
   });
 
-  // Do NOT open the menu on ArrowDown anymore (arrow-only rule)
+  // If user starts typing, immediately close the datalist popup
   inputEl.addEventListener('keydown', function(e) {
+    // Close on typing keys (characters), Backspace, or Delete
+    var isTyping = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
+    if (isTyping) {
+      closeDatalist();
+    }
+
+    // Enter should also close the menu
     if (e.key === 'Enter') {
-      // Close the menu on Enter (if open)
       e.preventDefault();
       var val = inputEl.value;
       inputEl.blur();
@@ -422,7 +437,7 @@ function buildTable(container, headersToShow, rows) {
     }
   });
 
-  // If user leaves without picking anything, restore
+  // If user leaves without picking anything, restore value cleared by arrow-click logic
   inputEl.addEventListener('blur', function() {
     if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
       inputEl.value = inputEl.dataset.prev || '';
@@ -430,11 +445,12 @@ function buildTable(container, headersToShow, rows) {
     inputEl.dataset.justCleared = '';
   });
 
-  // If they type/select something, don’t restore
+  // If they type/select something, don’t auto-restore
   inputEl.addEventListener('input', function() {
     inputEl.dataset.justCleared = '';
   });
 }
+
   document.addEventListener('DOMContentLoaded', function() {
     enableShowAllOnClick(document.getElementById('blockInput'));
   });
