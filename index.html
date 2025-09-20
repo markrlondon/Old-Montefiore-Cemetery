@@ -248,85 +248,212 @@ function buildTable(container, headersToShow, rows) {
       }
     }
 
-  function renderForFilters(){
-    var bv = String(blockInput.value || '').trim();
-    var filtered = allRows.slice();
+  function renderForFilters() {
+  var bv = String(blockInput.value || '').trim();   // current Block input
+  var filtered = allRows.slice();
 
-    // Block filter (skip if empty)
-    if (bv) {
-      filtered = filtered.filter(function(r){
-        return String(r[COL.Block] || '').trim() === bv;
-      });
+  // 1) Filter by Block (skip if empty = show all)
+  if (bv) {
+    filtered = filtered.filter(function(r){
+      return String(r[COL.Block] || '').trim() === bv;
+    });
+  }
+
+  // 2) Optional secondary filter (Section for 84, Gate otherwise — also when Block is empty)
+  if (bv === '84') {
+    var sVal = String((secSelect && secSelect.value) || 'All').trim();
+    if (sVal && sVal !== 'All') {
+      filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
+    }
+    // Initial sort for 84: Sec -> Row -> Grave
+    filtered.sort(function(a,b){
+      var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+      var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+      return naturalCompare(a[COL.Grave], b[COL.Grave]);
+    });
+
+  } else {
+    var gVal = String((gateSelect && gateSelect.value) || 'All').trim();
+    if (gVal && gVal !== 'All') {
+      filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
     }
 
-    if (bv === '84') {
-      // Optional Section filter
-      var sVal = String(secSelect.value || 'All').trim();
-      if (sVal !== 'All' && sVal !== '') {
-        filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
-      }
-      // Initial sort for Block 84
+    if (!bv) {
+      // Block empty → default sort starts with Block
       filtered.sort(function(a,b){
+        var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+        var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+        var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
+        var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+        var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+        return naturalCompare(a[COL.Grave],  b[COL.Grave]);
+      });
+    } else {
+      // Non-84 block selected: Gate -> Sec -> Plot -> Row -> Grave
+      filtered.sort(function(a,b){
+        var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
         var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+        var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
         var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
         return naturalCompare(a[COL.Grave], b[COL.Grave]);
       });
-
-    } else {
-      // Optional Gate filter (also applies when Block is empty)
-      var gVal = String(gateSelect.value || 'All').trim();
-      if (gVal !== 'All' && gVal !== '') {
-        filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-      }
-
-      if (!bv) {
-        // Block empty → default sort by Block first
-        filtered.sort(function(a,b){
-          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-          var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
-          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
-          return naturalCompare(a[COL.Grave],  b[COL.Grave]);
-        });
-      } else {
-        // Non-84 block selected
-        filtered.sort(function(a,b){
-          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-          var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-          return naturalCompare(a[COL.Grave], b[COL.Grave]);
-        });
-      }
     }
-
-    // Visible columns
-    var visible = headers.filter(function(h){
-      if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
-      if (HIDE_EXACT.has(h)) return false; // hide lowercase 'plot', keep 'Plot'
-      return true;
-    });
-    if (bv === '84' && COL.Gate) {
-      visible = visible.filter(function(h){ return h !== COL.Gate; });
-    }
-
-    // Inline "has any data" checks (no helper needed)
-    var secHasData  = COL.Sec  && filtered.some(function(row){
-      var v = row[COL.Sec];  return v != null && String(v).trim() !== '';
-    });
-    var plotHasData = COL.Plot && filtered.some(function(row){
-      var v = row[COL.Plot]; return v != null && String(v).trim() !== '';
-    });
-
-    if (COL.Sec  && !secHasData)  visible = visible.filter(function(h){ return h !== COL.Sec; });
-    if (COL.Plot && !plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
-
-    // Reset user sort whenever filters change
-    sortState = [];
-    allRowsFiltered = filtered;
-    buildTable(output, visible, filtered);
   }
+
+  // 3) Compute visible columns from scratch every time (prevents Section/Gate popping in on sort)
+  var visible = headers.filter(function(h){
+    if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false; // birthDate, notes, problems, memorialId
+    if (HIDE_EXACT.has(h)) return false;                   // exact lowercase 'plot'
+    return true;
+  });
+
+  // Enforce Gate/Section rule strictly:
+  if (bv === '84') {
+    // Hide Gate
+    if (COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
+    // Ensure Section is visible (even if empty)
+    if (COL.Sec && !visible.includes(COL.Sec) && headers.includes(COL.Sec)) {
+      // Reinsert Section at its natural position based on original headers order
+      var out = [];
+      for (var i=0;i<headers.length;i++) {
+        var h = headers[i];
+        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) continue;
+        if (HIDE_EXACT.has(h)) continue;
+        if (h === COL.Gate) continue; // keep Gate hidden for 84
+        if (visible.includes(h) || h === COL.Sec) out.push(h);
+      }
+      visible = out;
+    }
+  } else {
+    // Non-84 (including empty): hide Section, keep Gate
+    if (COL.Sec) visible = visible.filter(function(h){ return h !== COL.Sec; });
+  }
+
+  // Keep Plot conditional: only show if any data in the current filtered set
+  if (COL.Plot) {
+    var plotHasData = filtered.some(function(row){
+      var v = row[COL.Plot];
+      return v != null && String(v).trim() !== '';
+    });
+    if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
+  }
+
+  // 4) Reset user sort when filters change; header clicks will reapply user sort
+  sortState = [];
+  allRowsFiltered = filtered;
+
+  // 5) Build table with the freshly computed visible set
+  buildTable(output, visible, filtered);
+
+  // 6) (Optional) keep Gate/Section controls in sync with Block rule, if helper exists
+  if (typeof syncFilterControlsVisibility === 'function') {
+    syncFilterControlsVisibility();
+  }
+}
+
+ function renderForFilters() {
+  var bv = String(blockInput.value || '').trim();   // current Block input
+  var filtered = allRows.slice();
+
+  // 1) Filter by Block (skip if empty = show all)
+  if (bv) {
+    filtered = filtered.filter(function(r){
+      return String(r[COL.Block] || '').trim() === bv;
+    });
+  }
+
+  // 2) Optional secondary filter (Section for 84, Gate otherwise — also when Block is empty)
+  if (bv === '84') {
+    var sVal = String((secSelect && secSelect.value) || 'All').trim();
+    if (sVal && sVal !== 'All') {
+      filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
+    }
+    // Initial sort for 84: Sec -> Row -> Grave
+    filtered.sort(function(a,b){
+      var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+      var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+      return naturalCompare(a[COL.Grave], b[COL.Grave]);
+    });
+
+  } else {
+    var gVal = String((gateSelect && gateSelect.value) || 'All').trim();
+    if (gVal && gVal !== 'All') {
+      filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
+    }
+
+    if (!bv) {
+      // Block empty → default sort starts with Block
+      filtered.sort(function(a,b){
+        var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+        var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+        var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
+        var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+        var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+        return naturalCompare(a[COL.Grave],  b[COL.Grave]);
+      });
+    } else {
+      // Non-84 block selected: Gate -> Sec -> Plot -> Row -> Grave
+      filtered.sort(function(a,b){
+        var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+        var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
+        var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+        var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+        return naturalCompare(a[COL.Grave], b[COL.Grave]);
+      });
+    }
+  }
+
+  // 3) Compute visible columns from scratch every time (prevents Section/Gate popping in on sort)
+  var visible = headers.filter(function(h){
+    if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false; // birthDate, notes, problems, memorialId
+    if (HIDE_EXACT.has(h)) return false;                   // exact lowercase 'plot'
+    return true;
+  });
+
+  // Enforce Gate/Section rule strictly:
+  if (bv === '84') {
+    // Hide Gate
+    if (COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
+    // Ensure Section is visible (even if empty)
+    if (COL.Sec && !visible.includes(COL.Sec) && headers.includes(COL.Sec)) {
+      // Reinsert Section at its natural position based on original headers order
+      var out = [];
+      for (var i=0;i<headers.length;i++) {
+        var h = headers[i];
+        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) continue;
+        if (HIDE_EXACT.has(h)) continue;
+        if (h === COL.Gate) continue; // keep Gate hidden for 84
+        if (visible.includes(h) || h === COL.Sec) out.push(h);
+      }
+      visible = out;
+    }
+  } else {
+    // Non-84 (including empty): hide Section, keep Gate
+    if (COL.Sec) visible = visible.filter(function(h){ return h !== COL.Sec; });
+  }
+
+  // Keep Plot conditional: only show if any data in the current filtered set
+  if (COL.Plot) {
+    var plotHasData = filtered.some(function(row){
+      var v = row[COL.Plot];
+      return v != null && String(v).trim() !== '';
+    });
+    if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
+  }
+
+  // 4) Reset user sort when filters change; header clicks will reapply user sort
+  sortState = [];
+  allRowsFiltered = filtered;
+
+  // 5) Build table with the freshly computed visible set
+  buildTable(output, visible, filtered);
+
+  // 6) (Optional) keep Gate/Section controls in sync with Block rule, if helper exists
+  if (typeof syncFilterControlsVisibility === 'function') {
+    syncFilterControlsVisibility();
+  }
+}
+
 
     /* ===== Load CSV ===== */
     document.addEventListener('DOMContentLoaded',async()=>{
