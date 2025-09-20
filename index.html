@@ -173,7 +173,7 @@ function buildTable(container, headersToShow, rows) {
     html += '<tr>';
     headersToShow.forEach(function(h){
       const cell = r[h];
-      const cls = (h.toLowerCase() === 'created'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'row' ) ||  ? ' class="right"' : '';
+      const cls = (h.toLowerCase() === 'created'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'row' ) ? ' class="right"' : '';
       html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
     });
     html += '</tr>';
