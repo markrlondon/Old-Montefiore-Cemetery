@@ -381,55 +381,57 @@ function buildTable(container, headersToShow, rows) {
     });
     gateSelect.addEventListener('change',renderForFilters);
     secSelect.addEventListener('change',renderForFilters);
-
 function enableShowAllOnClick(inputEl) {
   var ARROW_W = 28;
-  var originalListId = inputEl.getAttribute('list') || '';
+  var realListId = inputEl.getAttribute('list') || '';
+  var emptyListId = realListId ? realListId + '__empty' : '';
+
+  // Create an empty datalist once
+  if (realListId && !document.getElementById(emptyListId)) {
+    var dl = document.createElement('datalist');
+    dl.id = emptyListId;
+    document.body.appendChild(dl);
+  }
 
   function isArrowClick(e) {
-    if (e.button !== 0) return false; // left click only
+    if (e.button !== 0) return false; // left click
     var rect = inputEl.getBoundingClientRect();
     return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
            e.clientY >= rect.top &&  e.clientY <= rect.bottom;
   }
 
-  // Programmatically "close" datalist by temporarily detaching it
+  // Switch to empty datalist (keeps arrow visible but menu has no items)
   function closeDatalist() {
-    if (!originalListId) return;
-    // Remove and restore the list attribute to force the popup to close
-    inputEl.removeAttribute('list');
-    // Force reflow so browsers register the change
-    void inputEl.offsetWidth;
-    inputEl.setAttribute('list', originalListId);
+    if (!realListId) return;
+    inputEl.setAttribute('list', emptyListId);
+  }
+  // Restore the real datalist (for arrow use)
+  function openableDatalist() {
+    if (!realListId) return;
+    inputEl.setAttribute('list', realListId);
   }
 
-  // Arrow-only: only clear to show full list when arrow is clicked
+  // Arrow-only opening: restore real list and clear to show all options
   inputEl.addEventListener('mousedown', function(e) {
-    if (!isArrowClick(e)) {
-      // Not the arrow: do nothing special (don’t open full list)
-      return;
-    }
+    if (!isArrowClick(e)) return;
+    openableDatalist();                     // ensure real list is attached
     if (inputEl.value) {
-      inputEl.dataset.prev = inputEl.value;
-      inputEl.value = '';                 // force full list
+      inputEl.dataset.prev = inputEl.value; // remember prior value
+      inputEl.value = '';                   // clearing forces full list
       inputEl.dataset.justCleared = '1';
-      // allow native menu to open
     }
+    // let native menu open
   });
 
-  // If user starts typing, immediately close the datalist popup
+  // Typing closes the menu immediately (and keeps arrow)
   inputEl.addEventListener('keydown', function(e) {
-    // Close on typing keys (characters), Backspace, or Delete
-    var isTyping = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
-    if (isTyping) {
-      closeDatalist();
-    }
+    var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
+    if (typing) closeDatalist();
 
-    // Enter should also close the menu
     if (e.key === 'Enter') {
       e.preventDefault();
       var val = inputEl.value;
-      inputEl.blur();
+      inputEl.blur();                       // close if still open
       setTimeout(function() {
         inputEl.focus();
         inputEl.value = val;
@@ -437,20 +439,21 @@ function enableShowAllOnClick(inputEl) {
     }
   });
 
-  // If user leaves without picking anything, restore value cleared by arrow-click logic
+  // If user leaves without picking anything, restore previous value;
+  // also restore real list so arrow opens options next time.
   inputEl.addEventListener('blur', function() {
     if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
       inputEl.value = inputEl.dataset.prev || '';
     }
     inputEl.dataset.justCleared = '';
+    openableDatalist();
   });
 
-  // If they type/select something, don’t auto-restore
+  // Any actual change cancels the justCleared state
   inputEl.addEventListener('input', function() {
     inputEl.dataset.justCleared = '';
   });
 }
-
   document.addEventListener('DOMContentLoaded', function() {
     enableShowAllOnClick(document.getElementById('blockInput'));
   });
