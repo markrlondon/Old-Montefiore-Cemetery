@@ -436,6 +436,7 @@ function enableShowAllOnClick(inputEl) {
   inputEl.addEventListener('mousedown', function(e) {
     // We’ll take control of the first post-typing click so the popup opens now.
     if (justTyped) {
+      alert("just");
       e.preventDefault(); // stop the default (which wouldn't open it)
       // Switch back to the real list and force a tiny "re-attach" cycle
       // so the browser recomputes datalist availability before we refocus.
