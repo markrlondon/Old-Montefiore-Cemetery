@@ -27,6 +27,28 @@
     /* dateCreated column: right align + padding + monospace */
     .right { text-align: right; }
     .center { text-align: center; }
+
+    .cb { position: relative; display: inline-flex; align-items: stretch; }
+.cb input { padding-right: 2em; }
+.cb .cb-toggle {
+  position: absolute; right: 0; top: 0; height: 100%;
+  border: 0; background: transparent; padding: 0 6px; cursor: pointer;
+  font-size: 1rem; line-height: 1; color: #333;
+}
+.cb .cb-list {
+  position: absolute; z-index: 10; left: 0; right: 0; top: calc(100% + 2px);
+  list-style: none; margin: 0; padding: 4px 0; max-height: 240px; overflow: auto;
+  background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  display: none;
+}
+.cb .cb-list.open { display: block; }
+.cb .cb-option {
+  padding: 6px 10px; cursor: pointer; white-space: nowrap;
+}
+.cb .cb-option:hover, .cb .cb-option[aria-selected="true"] {
+  background: #eef3ff;
+}
+
   </style>
 </head>
 <body>
@@ -34,10 +56,17 @@
 
   <div class="controls" id="filterWrap" style="display:none;">
     <label for="blockInput">Block:</label>
-    <input id="blockInput" type="text" list="blocksList"
-           autocomplete="off" />
-    <datalist id="blocksList"></datalist>
-
+   <div class="cb" id="blockCombo">
+  <input id="blockInput"
+         type="text"
+         placeholder="Leave empty to show all Blocks…"
+         autocomplete="off"
+         aria-haspopup="listbox"
+         aria-expanded="false"
+         aria-controls="blockListbox" />
+  <button type="button" class="cb-toggle" aria-label="Open menu" tabindex="-1">▾</button>
+  <ul id="blockListbox" class="cb-list" role="listbox"></ul>
+</div>
     <span id="gateWrap">
       <label for="gateSelect">Gate:</label>
       <select id="gateSelect"></select>
@@ -51,6 +80,140 @@
   <div id="output"></div>
 
   <script>
+    function initBlockCombo(blockValues) {
+  var root = document.getElementById('blockCombo');
+  var input = document.getElementById('blockInput');
+  var list  = document.getElementById('blockListbox');
+  var toggle = root.querySelector('.cb-toggle');
+  var all = (blockValues || []).slice();
+  var activeIndex = -1;
+
+  function naturalCompare(a, b) {
+    // use your existing naturalCompare if in scope, otherwise a fallback:
+    try { return window.naturalCompare(a,b); } catch(_){ return String(a).localeCompare(String(b)); }
+  }
+
+  all.sort(naturalCompare);
+
+  function buildList(items) {
+    list.innerHTML = '';
+    items.forEach(function(v, i){
+      var li = document.createElement('li');
+      li.className = 'cb-option';
+      li.role = 'option';
+      li.textContent = v;
+      li.dataset.value = v;
+      li.addEventListener('mousedown', function(e){
+        // use mousedown so selection works before blur hides the list
+        e.preventDefault();
+        selectValue(v);
+      });
+      list.appendChild(li);
+    });
+    activeIndex = -1;
+  }
+
+  function openList(showAll) {
+    if (showAll) {
+      buildList(all);
+    } else {
+      filterList(input.value);
+    }
+    list.classList.add('open');
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeList() {
+    list.classList.remove('open');
+    input.setAttribute('aria-expanded', 'false');
+    clearActive();
+  }
+
+  function isOpen() { return list.classList.contains('open'); }
+
+  function filterList(q) {
+    q = String(q || '').trim().toLowerCase();
+    var filtered = q ? all.filter(function(v){ return String(v).toLowerCase().includes(q); }) : all.slice();
+    buildList(filtered);
+  }
+
+  function clearActive() {
+    Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
+    activeIndex = -1;
+  }
+
+  function moveActive(delta) {
+    if (!isOpen()) openList(true);
+    var n = list.children.length;
+    if (!n) return;
+    activeIndex = (activeIndex + delta + n) % n;
+    Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
+    var el = list.children[activeIndex];
+    el.setAttribute('aria-selected','true');
+    el.scrollIntoView({ block: 'nearest' });
+  }
+
+  function selectValue(v) {
+    input.value = v;
+    dispatchInput(input);       // trigger your existing listeners
+    closeList();
+  }
+
+  function dispatchInput(el) {
+    var evt = new Event('input', { bubbles: true });
+    el.dispatchEvent(evt);
+  }
+
+  // Events
+  input.addEventListener('focus', function(){
+    // don’t auto-open on focus; click/toggle or typing will open
+  });
+
+  input.addEventListener('click', function(){
+    // Always show FULL list on click, regardless of current value
+    openList(true);
+  });
+
+  input.addEventListener('input', function(){
+    // Typing opens (or updates) filtered list immediately
+    if (!isOpen()) openList(false); else filterList(input.value);
+  });
+
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown') { e.preventDefault(); moveActive(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveActive(-1); }
+    else if (e.key === 'Enter') {
+      if (isOpen()) {
+        e.preventDefault();
+        if (activeIndex >= 0) {
+          var el = list.children[activeIndex];
+          if (el) selectValue(el.dataset.value);
+        } else {
+          // Enter with open list but no active: accept current text
+          closeList();
+          dispatchInput(input);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      if (isOpen()) { e.preventDefault(); closeList(); }
+    }
+  });
+
+  // Toggle button: always show full list
+  toggle.addEventListener('mousedown', function(e){
+    e.preventDefault(); // prevent focus loss
+    if (isOpen()) closeList(); else openList(true);
+  });
+
+  // Click outside to close
+  document.addEventListener('mousedown', function(e){
+    if (!root.contains(e.target)) closeList();
+  });
+
+  // Initial population
+  buildList(all);
+}
+
     /* ===== CSV parsing ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
@@ -300,18 +463,14 @@
           });
 
         // Build Block datalist (unique sorted)
-        var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
-        blocksList.innerHTML = blocks.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
-
+       initBlockCombo(blocks);
+        
         // Show filters
         filterWrap.style.display = 'flex';
 
         // Initialize gate options and first render
         populateGateDropdown();
         renderForFilters();
-
-        // Enable arrow-only datalist with typing-to-close behavior
-        enableShowAllOnClick(blockInput);
 
       } catch (err) {
         output.innerHTML = '<p class="error">Failed to load requests.csv: ' + escapeHtml(err.message) + '</p>';
