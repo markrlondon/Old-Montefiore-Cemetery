@@ -15,6 +15,7 @@
     .error { color: #b00; }
     .note { color: #666; font-size: 0.9em; }
 
+    /* Sort indicators */
     th .sort-ind { font-size: 0.8em; opacity: 0.8; margin-left: 6px; display: inline-block; min-width: 1.2em; text-align: center; }
     th[data-sort-dir="1"] .sort-ind::after  { content: "▲"; }
     th[data-sort-dir="-1"] .sort-ind::after { content: "▼"; }
@@ -22,39 +23,35 @@
       content: attr(data-sort-priority);
       font-size: 0.75em; border: 1px solid #aaa; border-radius: 999px; padding: 0 0.35em; margin-right: 4px; opacity: 0.8;
     }
-    .right {
-      text-align: right;
-    }
-    .center {
-      text-align: center;
-    }
+
+    /* dateCreated column: right align + padding + monospace */
+    .right { text-align: right; font-family: monospace; }
+    .center { text-align: center; font-family: monospace; }
   </style>
 </head>
 <body>
-  <h2>Old Montefiore Cemetery Photo Requests Viewer</h2>
+  <h2>Requests CSV Viewer</h2>
 
   <div class="controls" id="filterWrap" style="display:none;">
     <label for="blockInput">Block:</label>
-    <input id="blockInput" type="text" list="blocksList" autocomplete="off" />
+    <input id="blockInput" type="text" list="blocksList"
+           placeholder="Leave empty to show all Blocks…" autocomplete="off" />
     <datalist id="blocksList"></datalist>
 
     <span id="gateWrap">
       <label for="gateSelect">Gate:</label>
       <select id="gateSelect"></select>
     </span>
-
-    <span id="secWrap" style="display:none;">
-      <label for="secSelect">Section:</label>
-      <select id="secSelect"></select>
-    </span>
   </div>
-    <span class="note">
+
+  <span class="note">
     Click headers to sort; <b>Shift+Click</b> to add multi-column sorting.
   </span>
+
   <div id="output"></div>
 
   <script>
-    /* ===== CSV parsing and utilities (same as before) ===== */
+    /* ===== CSV parsing ===== */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -75,21 +72,22 @@
       }
       row.push(field);
       if (!(row.length === 1 && row[0] === '' && rows.length > 0)) rows.push(row);
-      while (rows.length && rows[rows.length-1].every(c => String(c).trim()==='')) rows.pop();
+      while (rows.length && rows[rows.length-1].every(function(c){return String(c).trim()==='';})) rows.pop();
       return rows;
     }
 
+    /* ===== Comparators ===== */
     function naturalCompare(a, b) {
-      var ax = String(a ?? '').trim();
-      var bx = String(b ?? '').trim();
+      var ax = String(a == null ? '' : a).trim();
+      var bx = String(b == null ? '' : b).trim();
       if (ax === bx) return 0;
       var re = /(\d+|\D+)/g;
       var ta = ax.match(re) || [];
       var tb = bx.match(re) || [];
       var len = Math.max(ta.length, tb.length);
       for (var i = 0; i < len; i++) {
-        var na = ta[i] ?? '';
-        var nb = tb[i] ?? '';
+        var na = ta[i] != null ? ta[i] : '';
+        var nb = tb[i] != null ? tb[i] : '';
         var ia = /^\d+$/.test(na);
         var ib = /^\d+$/.test(nb);
         if (ia && ib) {
@@ -103,6 +101,8 @@
     }
 
     function parseDateMs(s) {
+      if (s == null) return NaN;
+      s = String(s).trim();
       if (!s) return NaN;
       var t = Date.parse(s);
       if (!isNaN(t)) return t;
@@ -112,460 +112,370 @@
         if (yy < 100) yy += 2000;
         return new Date(yy, mm, dd).getTime();
       }
+      var m2 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+      if (m2) {
+        var day = parseInt(m2[1],10), monStr = m2[2].toLowerCase(), year = parseInt(m2[3],10);
+        var months = {"jan":0,"january":0,"feb":1,"february":1,"mar":2,"march":2,"apr":3,"april":3,"may":4,"jun":5,"june":5,"jul":6,"july":6,"aug":7,"august":7,"sep":8,"sept":8,"september":8,"oct":9,"october":9,"nov":10,"november":10,"dec":11,"december":11};
+        if (months.hasOwnProperty(monStr)) return new Date(year, months[monStr], day).getTime();
+      }
       return NaN;
     }
-
     function dateCompare(a, b) {
       var ta = parseDateMs(a), tb = parseDateMs(b);
-      if (isNaN(ta) && isNaN(tb)) return 0;
-      if (isNaN(ta)) return 1;
-      if (isNaN(tb)) return -1;
+      var aNaN = isNaN(ta), bNaN = isNaN(tb);
+      if (aNaN && bNaN) return 0;
+      if (aNaN) return 1;
+      if (bNaN) return -1;
       return ta - tb;
     }
-
-    function comparatorForColumn(col) {
-      return (col && col.toLowerCase() === 'created') ? dateCompare : naturalCompare;
+    function comparatorForColumn(colName) {
+      if (!colName) return naturalCompare;
+      var lc = String(colName).toLowerCase();
+      if (lc === 'datecreated') return dateCompare;
+      return naturalCompare;
     }
 
+    /* ===== Utilities ===== */
     function escapeHtml(s) {
-      return String(s ?? '').replace(/[&<>"']/g, c =>
-        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
-      );
+      return String(s).replace(/[&<>"']/g, function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+      });
     }
-
     function uniqueSorted(values) {
-      const seen = {};
-      values.forEach(v => { v = String(v ?? '').trim(); if (v) seen[v]=1; });
+      var seen = {};
+      for (var i=0;i<values.length;i++) {
+        var v = (values[i] == null ? '' : String(values[i]).trim());
+        if (v) seen[v] = true;
+      }
       return Object.keys(seen).sort(naturalCompare);
     }
 
     /* ===== State ===== */
-    let allRows=[], headers=[], sortState=[];
-    const ALWAYS_HIDE_LC=new Set(['birthdate','notes','problems','memorialid']);
-    const HIDE_EXACT=new Set(['plot']);
+    var allRows = [];
+    var headers = [];
+    var currentRows = [];
+    var currentHeaders = [];
+    var sortState = []; // [{col, dir}...]
 
-    const blockInput=document.getElementById('blockInput');
-    const blocksList=document.getElementById('blocksList');
-    const gateWrap=document.getElementById('gateWrap');
-    const gateSelect=document.getElementById('gateSelect');
-    const secWrap=document.getElementById('secWrap');
-    const secSelect=document.getElementById('secSelect');
-    const output=document.getElementById('output');
-    const filterWrap=document.getElementById('filterWrap');
+    // Always hide (case-insensitive)
+    var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid','section','sec.','sec']);
+    // Hide exact "plot" (lowercase); keep "Plot"
+    var HIDE_EXACT = new Set(['plot']);
 
-    let COL={};
+    var filterWrap = document.getElementById('filterWrap');
+    var blockInput = document.getElementById('blockInput');
+    var blocksList = document.getElementById('blocksList');
+    var gateWrap = document.getElementById('gateWrap');
+    var gateSelect = document.getElementById('gateSelect');
+    var output = document.getElementById('output');
 
-    /* ===== Table rendering ===== */
-function buildTable(container, headersToShow, rows) {
-  currentRows = rows.slice();
-  currentHeaders = headersToShow.slice();
+    var COL = {}; // resolved column names
 
-  let html = '<table><thead><tr>';
-  headersToShow.forEach(function(h){
-    const idx = sortState.findIndex(s => s.col === h);
-    const prio = idx >= 0 ? (idx + 1) : '';
-    const dir = idx >= 0 ? String(sortState[idx].dir) : '';
-    const cls = (h.toLowerCase() === 'created' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'section') ? ' class="right"' : (h.toLowerCase() === 'year') ? ' class="center"' : '';
-    html += `<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}>
-              ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span>
-            </th>`;
-  });
-  html += '</tr></thead><tbody>';
-  rows.forEach(function(r){
-    html += '<tr>';
-    headersToShow.forEach(function(h){
-      const cell = r[h];
-      const cls = (h.toLowerCase() === 'created'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'row'  || h.toLowerCase() === 'section') ? ' class="right"' : (h.toLowerCase() === 'year') ? ' class="center"' : '';
-      html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-      container.querySelectorAll("th").forEach(th=>{
-        const pr=th.getAttribute("data-sort-priority");
-        if(pr) th.querySelector(".sort-prio").textContent=pr;
+    /* ===== Table render & multi-sort ===== */
+    function buildTable(container, headersToShow, rows) {
+      currentRows = rows.slice();
+      currentHeaders = headersToShow.slice();
+
+      var html = '<table><thead><tr>';
+      headersToShow.forEach(function(h){
+        var idx = sortState.findIndex(function(s){ return s.col === h; });
+        var prio = idx >= 0 ? (idx + 1) : '';
+        var dir = idx >= 0 ? String(sortState[idx].dir) : '';
+        var cls = (String(h).toLowerCase() === 'datecreated') ? ' class="right"' : '';
+        html += '<th data-col="'+escapeHtml(h)+'"'
+             +  (dir ? ' data-sort-dir="'+dir+'"' : '')
+             +  (prio ? ' data-sort-priority="'+prio+'"' : '')
+             +  '>'
+             +  escapeHtml(h)
+             +  '<span class="sort-ind"><span class="sort-prio"></span></span>'
+             +  '</th>';
       });
+      html += '</tr></thead><tbody>';
+      rows.forEach(function(r){
+        html += '<tr>';
+        headersToShow.forEach(function(h){
+          var cell = r[h];
+          var cls = (String(h).toLowerCase() === 'datecreated') ? ' class="right"' : '';
+          var cls = (String(h).toLowerCase() === 'created'|| String(h).toLowerCase() === 'grave' || String(h).toLowerCase() === 'gate'|| String(h).toLowerCase() === 'block' || String(h).toLowerCase() === 'row') ? ' class="right"' : (String(h).toLowerCase() === 'year') ? ' class="center"' : '';
+          html += '<td'+cls+'>'+escapeHtml(cell == null ? '' : cell)+'</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+
+      // show priority numbers
+      var ths = container.querySelectorAll("th");
+      ths.forEach(function(th){
+        var pr = th.getAttribute("data-sort-priority");
+        if (pr) th.querySelector(".sort-prio").textContent = pr;
+      });
+
       attachHeaderSortHandlers(container);
     }
 
     function attachHeaderSortHandlers(container) {
-      container.querySelectorAll("th").forEach(th=>{
-        th.addEventListener("click",e=>{
-          const col=th.dataset.col;
-          const idx=sortState.findIndex(s=>s.col===col);
-          if(e.shiftKey){
-            if(idx===-1) sortState.push({col,dir:1});
-            else sortState[idx].dir=-sortState[idx].dir;
+      var ths = container.querySelectorAll("th");
+      ths.forEach(function(th){
+        th.addEventListener("click", function(e){
+          var col = th.getAttribute("data-col");
+          var idx = sortState.findIndex(function(s){ return s.col === col; });
+
+          if (e.shiftKey) {
+            if (idx === -1) sortState.push({ col: col, dir: 1 });
+            else sortState[idx].dir = -sortState[idx].dir;
           } else {
-            if(idx===0 && sortState.length) sortState[0].dir=-sortState[0].dir;
-            else sortState=[{col,dir:1}];
+            if (idx === 0 && sortState.length > 0) {
+              sortState[0].dir = -sortState[0].dir;
+            } else {
+              sortState = [{ col: col, dir: 1 }];
+            }
           }
-          applyMultiSort(); buildTable(container,headers,allRowsFiltered);
+
+          applyMultiSort();
+          // Rebuild with the same visible headers (no Section logic anymore)
+          buildTable(container, currentHeaders, currentRows);
         });
       });
     }
 
+    function comparatorChain() {
+      return sortState.map(function(s){
+        return { key: s.col, dir: s.dir, cmp: comparatorForColumn(s.col) };
+      });
+    }
     function applyMultiSort() {
-      if(!sortState.length) return;
-      const comps=sortState.map(s=>({key:s.col,dir:s.dir,cmp:comparatorForColumn(s.col)}));
-      allRowsFiltered.sort((a,b)=>{
-        for(const c of comps){
-          const res=c.cmp(a[c.key],b[c.key]);
-          if(res) return res*c.dir;
+      if (!sortState.length) return;
+      var comps = comparatorChain();
+      var decorated = currentRows.map(function(r, i){ return { r:r, i:i }; });
+      decorated.sort(function(A, B){
+        var a = A.r, b = B.r;
+        for (var k=0;k<comps.length;k++) {
+          var c = comps[k];
+          var res = c.cmp(a[c.key], b[c.key]);
+          if (res !== 0) return res * c.dir;
         }
-        return 0;
+        return A.i - B.i; // stable
       });
+      currentRows = decorated.map(function(x){ return x.r; });
     }
 
-    /* ===== Filtering ===== */
-    let allRowsFiltered=[];
+    /* ===== Load CSV & UI ===== */
+    async function loadCSV() {
+      try {
+        var res = await fetch('requests.csv', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var text = await res.text();
+        var data = parseCSV(text);
+        if (!data.length) { output.innerHTML = '<p class="error">No data found in requests.csv.</p>'; return; }
 
-    function populateDropdown(selectEl, values){
-      let html='<option value="All">All</option>';
-      values.forEach(v=>html+=`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`);
-      selectEl.innerHTML=html; selectEl.value='All';
+        headers = data[0].map(function(h){ return String(h).trim(); });
+
+        // Resolve columns we use
+        COL = {
+          Block: headers.find(function(h){ return h.toLowerCase() === 'block'; }),
+          Gate:  headers.find(function(h){ return h.toLowerCase() === 'gate'; }),
+          Plot:  headers.find(function(h){ return h === 'Plot'; }), // exact "Plot"
+          Row:   headers.find(function(h){ return h.toLowerCase() === 'row'; }),
+          Grave: headers.find(function(h){ return h.toLowerCase() === 'grave'; }),
+          DateCreated: headers.find(function(h){ return h.toLowerCase() === 'datecreated'; })
+        };
+
+        var missing = [];
+        if (!COL.Block) missing.push('Block');
+        if (!COL.Row)   missing.push('Row');
+        if (!COL.Grave) missing.push('Grave');
+        if (!COL.Gate)  missing.push('Gate');
+        if (missing.length) {
+          output.innerHTML = '<p class="error">Missing required column(s): ' + missing.join(', ') + '</p>';
+          return;
+        }
+
+        allRows = data.slice(1)
+          .filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
+          .map(function(r){
+            var obj = {};
+            headers.forEach(function(h, i){ obj[h] = (r[i] == null ? '' : String(r[i]).trim()); });
+            return obj;
+          });
+
+        // Build Block datalist (unique sorted)
+        var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+        blocksList.innerHTML = blocks.map(function(v){ return '<option value="'+escapeHtml(v)+'"></option>'; }).join('');
+
+        // Show filters
+        filterWrap.style.display = 'flex';
+
+        // Initialize gate options and first render
+        populateGateDropdown();
+        renderForFilters();
+
+        // Enable arrow-only datalist with typing-to-close behavior
+        enableShowAllOnClick(blockInput);
+
+      } catch (err) {
+        output.innerHTML = '<p class="error">Failed to load requests.csv: ' + escapeHtml(err.message) + '</p>';
+      }
     }
 
-    function updateGateOrSectionUI(){
-      if(blockInput.value.trim()==='84'){
-        gateWrap.style.display='none'; secWrap.style.display='inline';
+    /* ===== Gate dropdown ===== */
+    function setOptions(selectEl, values) {
+      var html = '<option value="All">All</option>';
+      for (var i=0;i<values.length;i++) {
+        var v = values[i];
+        html += '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
+      }
+      selectEl.innerHTML = html;
+      selectEl.value = 'All';
+    }
+
+    function populateGateDropdown() {
+      var bv = String(blockInput.value || '').trim();
+      var subset = allRows;
+      if (bv) subset = subset.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
+      var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
+      setOptions(gateSelect, gates);
+    }
+
+    /* ===== Filtering & sorting ===== */
+    var allRowsFiltered = [];
+
+    function renderForFilters(){
+      var bv = String(blockInput.value || '').trim();
+      var filtered = allRows.slice();
+
+      // Block filter (skip if empty => show all)
+      if (bv) {
+        filtered = filtered.filter(function(r){
+          return String(r[COL.Block] || '').trim() === bv;
+        });
+      }
+
+      // Optional Gate filter (applies also when Block is empty)
+      var gVal = String(gateSelect.value || 'All').trim();
+      if (gVal && gVal !== 'All') {
+        filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
+      }
+
+      // Initial sort:
+      if (!bv) {
+        // Block empty → default sort starts with Block
+        filtered.sort(function(a,b){
+          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+          return naturalCompare(a[COL.Grave],  b[COL.Grave]);
+        });
       } else {
-        secWrap.style.display='none'; gateWrap.style.display='inline';
+        // Any Block selected → Gate -> Plot -> Row -> Grave
+        filtered.sort(function(a,b){
+          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+          return naturalCompare(a[COL.Grave], b[COL.Grave]);
+        });
       }
-    }
 
-    function populateGateOrSectionDropdown(){
-      const bv=blockInput.value.trim();
-      let subset=allRows;
-      if(bv) subset=allRows.filter(r=>String(r[COL.Block]||'').trim()===bv);
-      if(bv==='84'){
-        const secs=uniqueSorted(subset.map(r=>r[COL.Sec]));
-        populateDropdown(secSelect,secs);
-      } else {
-        const gates=uniqueSorted(subset.map(r=>r[COL.Gate]));
-        populateDropdown(gateSelect,gates);
+      // Visible columns: base rules
+      var visible = headers.filter(function(h){
+        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
+        if (HIDE_EXACT.has(h)) return false; // hides exact lowercase 'plot'
+        return true;
+      });
+
+      // Plot is conditional: only show if any data present in filtered set
+      if (COL.Plot) {
+        var plotHasData = filtered.some(function(row){
+          var v = row[COL.Plot];
+          return v != null && String(v).trim() !== '';
+        });
+        if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
       }
+
+      sortState = []; // reset user sort on filter change
+      allRowsFiltered = filtered;
+      buildTable(output, visible, filtered);
     }
 
-  function renderForFilters() {
-  var bv = String(blockInput.value || '').trim();   // current Block input
-  var filtered = allRows.slice();
+    /* ===== Block datalist: arrow-only open, close on typing ===== */
+    function enableShowAllOnClick(inputEl) {
+      var ARROW_W = 28;
+      var realListId = inputEl.getAttribute('list') || '';
+      var emptyListId = realListId ? realListId + '__empty' : '';
 
-  // 1) Filter by Block (skip if empty = show all)
-  if (bv) {
-    filtered = filtered.filter(function(r){
-      return String(r[COL.Block] || '').trim() === bv;
-    });
-  }
-
-  // 2) Optional secondary filter (Section for 84, Gate otherwise — also when Block is empty)
-  if (bv === '84') {
-    var sVal = String((secSelect && secSelect.value) || 'All').trim();
-    if (sVal && sVal !== 'All') {
-      filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
-    }
-    // Initial sort for 84: Sec -> Row -> Grave
-    filtered.sort(function(a,b){
-      var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-      var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-      return naturalCompare(a[COL.Grave], b[COL.Grave]);
-    });
-
-  } else {
-    var gVal = String((gateSelect && gateSelect.value) || 'All').trim();
-    if (gVal && gVal !== 'All') {
-      filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-    }
-
-    if (!bv) {
-      // Block empty → default sort starts with Block
-      filtered.sort(function(a,b){
-        var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-        var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-        var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
-        var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-        var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
-        return naturalCompare(a[COL.Grave],  b[COL.Grave]);
-      });
-    } else {
-      // Non-84 block selected: Gate -> Sec -> Plot -> Row -> Grave
-      filtered.sort(function(a,b){
-        var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-        var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-        var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-        var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-        return naturalCompare(a[COL.Grave], b[COL.Grave]);
-      });
-    }
-  }
-
-  // 3) Compute visible columns from scratch every time (prevents Section/Gate popping in on sort)
-  var visible = headers.filter(function(h){
-    if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false; // birthDate, notes, problems, memorialId
-    if (HIDE_EXACT.has(h)) return false;                   // exact lowercase 'plot'
-    return true;
-  });
-
-  // Enforce Gate/Section rule strictly:
-  if (bv === '84') {
-    // Hide Gate
-    if (COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
-    // Ensure Section is visible (even if empty)
-    if (COL.Sec && !visible.includes(COL.Sec) && headers.includes(COL.Sec)) {
-      // Reinsert Section at its natural position based on original headers order
-      var out = [];
-      for (var i=0;i<headers.length;i++) {
-        var h = headers[i];
-        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) continue;
-        if (HIDE_EXACT.has(h)) continue;
-        if (h === COL.Gate) continue; // keep Gate hidden for 84
-        if (visible.includes(h) || h === COL.Sec) out.push(h);
+      // Create an empty datalist once
+      if (realListId && !document.getElementById(emptyListId)) {
+        var dl = document.createElement('datalist');
+        dl.id = emptyListId;
+        document.body.appendChild(dl);
       }
-      visible = out;
-    }
-  } else {
-    // Non-84 (including empty): hide Section, keep Gate
-    if (COL.Sec) visible = visible.filter(function(h){ return h !== COL.Sec; });
-  }
 
-  // Keep Plot conditional: only show if any data in the current filtered set
-  if (COL.Plot) {
-    var plotHasData = filtered.some(function(row){
-      var v = row[COL.Plot];
-      return v != null && String(v).trim() !== '';
-    });
-    if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
-  }
-
-  // 4) Reset user sort when filters change; header clicks will reapply user sort
-  sortState = [];
-  allRowsFiltered = filtered;
-
-  // 5) Build table with the freshly computed visible set
-  buildTable(output, visible, filtered);
-
-  // 6) (Optional) keep Gate/Section controls in sync with Block rule, if helper exists
-  if (typeof syncFilterControlsVisibility === 'function') {
-    syncFilterControlsVisibility();
-  }
-}
-
- function renderForFilters() {
-  var bv = String(blockInput.value || '').trim();   // current Block input
-  var filtered = allRows.slice();
-
-  // 1) Filter by Block (skip if empty = show all)
-  if (bv) {
-    filtered = filtered.filter(function(r){
-      return String(r[COL.Block] || '').trim() === bv;
-    });
-  }
-
-  // 2) Optional secondary filter (Section for 84, Gate otherwise — also when Block is empty)
-  if (bv === '84') {
-    var sVal = String((secSelect && secSelect.value) || 'All').trim();
-    if (sVal && sVal !== 'All') {
-      filtered = filtered.filter(function(r){ return String(r[COL.Sec] || '').trim() === sVal; });
-    }
-    // Initial sort for 84: Sec -> Row -> Grave
-    filtered.sort(function(a,b){
-      var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-      var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-      return naturalCompare(a[COL.Grave], b[COL.Grave]);
-    });
-
-  } else {
-    var gVal = String((gateSelect && gateSelect.value) || 'All').trim();
-    if (gVal && gVal !== 'All') {
-      filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-    }
-
-    if (!bv) {
-      // Block empty → default sort starts with Block
-      filtered.sort(function(a,b){
-        var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-        var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-        var s = naturalCompare(a[COL.Sec],   b[COL.Sec]);   if (s) return s;
-        var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-        var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
-        return naturalCompare(a[COL.Grave],  b[COL.Grave]);
-      });
-    } else {
-      // Non-84 block selected: Gate -> Sec -> Plot -> Row -> Grave
-      filtered.sort(function(a,b){
-        var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-        var s = naturalCompare(a[COL.Sec],  b[COL.Sec]);  if (s) return s;
-        var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-        var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-        return naturalCompare(a[COL.Grave], b[COL.Grave]);
-      });
-    }
-  }
-
-  // 3) Compute visible columns from scratch every time (prevents Section/Gate popping in on sort)
-  var visible = headers.filter(function(h){
-    if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false; // birthDate, notes, problems, memorialId
-    if (HIDE_EXACT.has(h)) return false;                   // exact lowercase 'plot'
-    return true;
-  });
-
-  // Enforce Gate/Section rule strictly:
-  if (bv === '84') {
-    // Hide Gate
-    if (COL.Gate) visible = visible.filter(function(h){ return h !== COL.Gate; });
-    // Ensure Section is visible (even if empty)
-    if (COL.Sec && !visible.includes(COL.Sec) && headers.includes(COL.Sec)) {
-      // Reinsert Section at its natural position based on original headers order
-      var out = [];
-      for (var i=0;i<headers.length;i++) {
-        var h = headers[i];
-        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) continue;
-        if (HIDE_EXACT.has(h)) continue;
-        if (h === COL.Gate) continue; // keep Gate hidden for 84
-        if (visible.includes(h) || h === COL.Sec) out.push(h);
+      function isArrowClick(e) {
+        if (e.button !== 0) return false; // left click
+        var rect = inputEl.getBoundingClientRect();
+        return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
+               e.clientY >= rect.top &&  e.clientY <= rect.bottom;
       }
-      visible = out;
-    }
-  } else {
-    // Non-84 (including empty): hide Section, keep Gate
-    if (COL.Sec) visible = visible.filter(function(h){ return h !== COL.Sec; });
-  }
 
-  // Keep Plot conditional: only show if any data in the current filtered set
-  if (COL.Plot) {
-    var plotHasData = filtered.some(function(row){
-      var v = row[COL.Plot];
-      return v != null && String(v).trim() !== '';
-    });
-    if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
-  }
+      function useEmptyList() { if (realListId) inputEl.setAttribute('list', emptyListId); }
+      function useRealList()  { if (realListId) inputEl.setAttribute('list', realListId);  }
 
-  // 4) Reset user sort when filters change; header clicks will reapply user sort
-  sortState = [];
-  allRowsFiltered = filtered;
-
-  // 5) Build table with the freshly computed visible set
-  buildTable(output, visible, filtered);
-
-  // 6) (Optional) keep Gate/Section controls in sync with Block rule, if helper exists
-  if (typeof syncFilterControlsVisibility === 'function') {
-    syncFilterControlsVisibility();
-  }
-}
-
-
-    /* ===== Load CSV ===== */
-    document.addEventListener('DOMContentLoaded',async()=>{
-      const res=await fetch('requests.csv',{cache:'no-store'});
-      const text=await res.text();
-      const data=parseCSV(text);
-      headers=data[0].map(h=>String(h).trim());
-      COL={
-        Block:headers.find(h=>h.toLowerCase()==='block'),
-        Gate: headers.find(h=>h.toLowerCase()==='gate'),
-        Sec:  headers.find(h=>['sec.','section','sec'].includes(h.toLowerCase())),
-        Plot: headers.find(h=>h==='Plot'),
-        Row:  headers.find(h=>h.toLowerCase()==='row'),
-        Grave:headers.find(h=>h.toLowerCase()==='grave'),
-        DateCreated:headers.find(h=>h.toLowerCase()==='created')
-      };
-      allRows=data.slice(1).map(r=>{
-        const obj={}; headers.forEach((h,i)=>obj[h]=r[i]??''); return obj;
+      // Arrow-only opening: restore real list and clear to show all options
+      inputEl.addEventListener('mousedown', function(e) {
+        if (!isArrowClick(e)) return;
+        useRealList();
+        if (inputEl.value) {
+          inputEl.dataset.prev = inputEl.value;
+          inputEl.value = '';                 // clearing forces full list
+          inputEl.dataset.justCleared = '1';
+        }
       });
 
-      const blocks=uniqueSorted(allRows.map(r=>r[COL.Block]));
-      blocksList.innerHTML=blocks.map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+      // Typing closes the menu immediately (and keeps arrow)
+      inputEl.addEventListener('keydown', function(e) {
+        var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
+        if (typing) useEmptyList();
 
-      filterWrap.style.display='flex';
-      updateGateOrSectionUI();
-      populateGateOrSectionDropdown();
-      renderForFilters();
+        // Enter should also close the menu
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var val = inputEl.value;
+          inputEl.blur(); // close if open
+          setTimeout(function() {
+            inputEl.focus();
+            inputEl.value = val;
+          }, 0);
+        }
+      });
+
+      // If user leaves without picking anything, restore previous value; also restore real list
+      inputEl.addEventListener('blur', function() {
+        if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
+          inputEl.value = inputEl.dataset.prev || '';
+        }
+        inputEl.dataset.justCleared = '';
+        useRealList();
+      });
+
+      // Input change cancels justCleared
+      inputEl.addEventListener('input', function() {
+        inputEl.dataset.justCleared = '';
+      });
+    }
+
+    /* ===== Wire up events ===== */
+    document.addEventListener('DOMContentLoaded', loadCSV);
+
+    var t1=null;
+    blockInput.addEventListener('input', function(){
+      clearTimeout(t1);
+      t1 = setTimeout(function(){
+        populateGateDropdown(); // refill list for the (new or empty) Block
+        renderForFilters();     // show rows per filters
+      }, 120);
     });
-
-    blockInput.addEventListener('input',()=>{
-      updateGateOrSectionUI();
-      populateGateOrSectionDropdown();
-      renderForFilters();
-    });
-    gateSelect.addEventListener('change',renderForFilters);
-    secSelect.addEventListener('change',renderForFilters);
-function enableShowAllOnClick(inputEl) {
-  var ARROW_W = 28;
-  var realListId = inputEl.getAttribute('list') || '';
-  var emptyListId = realListId ? realListId + '__empty' : '';
-
-  // Create an empty datalist once
-  if (realListId && !document.getElementById(emptyListId)) {
-    var dl = document.createElement('datalist');
-    dl.id = emptyListId;
-    document.body.appendChild(dl);
-  }
-
-  function isArrowClick(e) {
-    if (e.button !== 0) return false; // left click
-    var rect = inputEl.getBoundingClientRect();
-    return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
-           e.clientY >= rect.top &&  e.clientY <= rect.bottom;
-  }
-
-  // Switch to empty datalist (keeps arrow visible but menu has no items)
-  function closeDatalist() {
-    if (!realListId) return;
-    inputEl.setAttribute('list', emptyListId);
-  }
-  // Restore the real datalist (for arrow use)
-  function openableDatalist() {
-    if (!realListId) return;
-    inputEl.setAttribute('list', realListId);
-  }
-
-  // Arrow-only opening: restore real list and clear to show all options
-  inputEl.addEventListener('mousedown', function(e) {
-    if (!isArrowClick(e)) return;
-    openableDatalist();                     // ensure real list is attached
-    if (inputEl.value) {
-      inputEl.dataset.prev = inputEl.value; // remember prior value
-      inputEl.value = '';                   // clearing forces full list
-      inputEl.dataset.justCleared = '1';
-    }
-    // let native menu open
-  });
-
-  // Typing closes the menu immediately (and keeps arrow)
-  inputEl.addEventListener('keydown', function(e) {
-    var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
-    if (typing) closeDatalist();
-
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      var val = inputEl.value;
-      inputEl.blur();                       // close if still open
-      setTimeout(function() {
-        inputEl.focus();
-        inputEl.value = val;
-      }, 0);
-    }
-  });
-
-  // If user leaves without picking anything, restore previous value;
-  // also restore real list so arrow opens options next time.
-  inputEl.addEventListener('blur', function() {
-    if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
-      inputEl.value = inputEl.dataset.prev || '';
-    }
-    inputEl.dataset.justCleared = '';
-    openableDatalist();
-  });
-
-  // Any actual change cancels the justCleared state
-  inputEl.addEventListener('input', function() {
-    inputEl.dataset.justCleared = '';
-  });
-}
-  document.addEventListener('DOMContentLoaded', function() {
-    enableShowAllOnClick(document.getElementById('blockInput'));
-  });
+    gateSelect.addEventListener('change', renderForFilters);
   </script>
 </body>
 </html>
