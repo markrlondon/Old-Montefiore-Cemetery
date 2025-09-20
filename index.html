@@ -450,13 +450,13 @@ function enableShowAllOnClick(inputEl) {
           inputEl.value = '';
           inputEl.dataset.justCleared = '1';
         }
-
+        alert("just");
+        
         // Phase 2: blur and refocus to force the popup to recompute & open on this click
         // (preventScroll avoids page jumps)
         requestAnimationFrame(function() {
           inputEl.blur();
           inputEl.focus({ preventScroll: true });
-           alert("just");
           // Reset the guard so subsequent clicks behave normally
           justTyped = false;
         });
