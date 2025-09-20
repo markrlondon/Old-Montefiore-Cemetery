@@ -165,7 +165,7 @@ function buildTable(container, headersToShow, rows) {
     const idx = sortState.findIndex(s => s.col === h);
     const prio = idx >= 0 ? (idx + 1) : '';
     const dir = idx >= 0 ? String(sortState[idx].dir) : '';
-    const cls = (h.toLowerCase() === 'created' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'section') ? ' class="right"' : (h.toLowerCase() === 'year') ? ' class="center") : '';
+    const cls = (h.toLowerCase() === 'created' || h.toLowerCase() === 'grave' || h.toLowerCase() === 'row' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'section') ? ' class="right"' : (h.toLowerCase() === 'year') ? ' class="center"') : '';
     html += `<th data-col="${escapeHtml(h)}"${dir?` data-sort-dir="${dir}"`:''}${prio?` data-sort-priority="${prio}"`:''}${cls}>
               ${escapeHtml(h)}<span class="sort-ind"><span class="sort-prio"></span></span>
             </th>`;
