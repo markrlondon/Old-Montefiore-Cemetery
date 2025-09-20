@@ -398,71 +398,63 @@
       buildTable(output, visible, filtered);
     }
 
-    /* ===== Block datalist: arrow-only open, close on typing ===== */
-    function enableShowAllOnClick(inputEl) {
-      var ARROW_W = 28;
-      var realListId = inputEl.getAttribute('list') || '';
-      var emptyListId = realListId ? realListId + '__empty' : '';
+function enableShowAllOnClick(inputEl) {
+  var realListId  = inputEl.getAttribute('list') || '';
+  var emptyListId = realListId ? realListId + '__empty' : '';
 
-      // Create an empty datalist once
-      if (realListId && !document.getElementById(emptyListId)) {
-        var dl = document.createElement('datalist');
-        dl.id = emptyListId;
-        document.body.appendChild(dl);
-      }
+  // Create a single empty datalist to “close” the popup without hiding the arrow
+  if (realListId && !document.getElementById(emptyListId)) {
+    var dl = document.createElement('datalist');
+    dl.id = emptyListId;
+    document.body.appendChild(dl);
+  }
 
-      function isArrowClick(e) {
-        if (e.button !== 0) return false; // left click
-        var rect = inputEl.getBoundingClientRect();
-        return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
-               e.clientY >= rect.top &&  e.clientY <= rect.bottom;
-      }
+  function useEmptyList() { if (realListId) inputEl.setAttribute('list', emptyListId); }
+  function useRealList()  { if (realListId) inputEl.setAttribute('list', realListId);  }
 
-      function useEmptyList() { if (realListId) inputEl.setAttribute('list', emptyListId); }
-      function useRealList()  { if (realListId) inputEl.setAttribute('list', realListId);  }
-
-      // Arrow-only opening: restore real list and clear to show all options
-      inputEl.addEventListener('mousedown', function(e) {
-        if (!isArrowClick(e)) return;
-        useRealList();
-        if (inputEl.value) {
-          inputEl.dataset.prev = inputEl.value;
-          inputEl.value = '';                 // clearing forces full list
-          inputEl.dataset.justCleared = '1';
-        }
-      });
-
-      // Typing closes the menu immediately (and keeps arrow)
-      inputEl.addEventListener('keydown', function(e) {
-        var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
-        if (typing) useEmptyList();
-
-        // Enter should also close the menu
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          var val = inputEl.value;
-          inputEl.blur(); // close if open
-          setTimeout(function() {
-            inputEl.focus();
-            inputEl.value = val;
-          }, 0);
-        }
-      });
-
-      // If user leaves without picking anything, restore previous value; also restore real list
-      inputEl.addEventListener('blur', function() {
-        if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
-          inputEl.value = inputEl.dataset.prev || '';
-        }
-        inputEl.dataset.justCleared = '';
-        useRealList();
-      });
-
-      // Input change cancels justCleared
-      inputEl.addEventListener('input', function() {
-        inputEl.dataset.justCleared = '';
-      });
+  // ✅ NEW: On ANY click in the field, clear current value so ALL options show
+  inputEl.addEventListener('mousedown', function() {
+    // ensure the real list is attached so the menu has items
+    useRealList();
+    if (inputEl.value) {
+      inputEl.dataset.prev = inputEl.value; // remember previous value
+      inputEl.value = '';                   // clearing shows full list
+      inputEl.dataset.justCleared = '1';
     }
+    // let the browser open the datalist naturally
+  });
+
+  // Typing closes the menu immediately (but keeps the arrow)
+  inputEl.addEventListener('keydown', function(e) {
+    var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
+    if (typing) useEmptyList();
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var val = inputEl.value;
+      inputEl.blur(); // close popup if still open
+      setTimeout(function() {
+        inputEl.focus();
+        inputEl.value = val;
+      }, 0);
+    }
+  });
+
+  // If you clicked but didn’t choose anything, restore the original value
+  inputEl.addEventListener('blur', function() {
+    if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
+      inputEl.value = inputEl.dataset.prev || '';
+    }
+    inputEl.dataset.justCleared = '';
+    // restore real list so the next click shows options
+    useRealList();
+  });
+
+  // Any actual change cancels the “justCleared” restore
+  inputEl.addEventListener('input', function() {
+    inputEl.dataset.justCleared = '';
+  });
+}
 
     /* ===== Wire up events ===== */
     document.addEventListener('DOMContentLoaded', loadCSV);
