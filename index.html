@@ -398,7 +398,6 @@ function buildTable(container, headersToShow, rows) {
   inputEl.addEventListener('mousedown', function(e) {
     if (!isArrowClick(e)) {
       // Not the arrow: DO NOT clear; let it behave like a normal text field
-      alert("not arrow");
       return;
     }
     if (inputEl.value) {
