@@ -396,6 +396,7 @@ function enableShowAllOnClick(inputEl) {
   // Programmatically "close" datalist by temporarily detaching it
   function closeDatalist() {
     if (!originalListId) return;
+    alert("here");
     // Remove and restore the list attribute to force the popup to close
     inputEl.removeAttribute('list');
     // Force reflow so browsers register the change
