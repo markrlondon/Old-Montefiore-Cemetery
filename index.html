@@ -399,8 +399,7 @@ function enableShowAllOnClick(inputEl) {
     // Remove and restore the list attribute to force the popup to close
     inputEl.removeAttribute('list');
     // Force reflow so browsers register the change
-    void inputEl.offsetWidth; 
-    return;
+    void inputEl.offsetWidth;
     inputEl.setAttribute('list', originalListId);
   }
 
