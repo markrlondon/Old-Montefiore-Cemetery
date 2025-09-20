@@ -462,6 +462,9 @@
             return obj;
           });
 
+        // Build unique, sorted Block values for the combobox
+        var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+
         // Build Block datalist (unique sorted)
        initBlockCombo(blocks);
         
@@ -556,99 +559,6 @@
       allRowsFiltered = filtered;
       buildTable(output, visible, filtered);
     }
-
-function enableShowAllOnClick(inputEl) {
-  var realListId  = inputEl.getAttribute('list') || '';
-  var emptyListId = realListId ? realListId + '__empty' : '';
-  var justTyped = false;
-
-  // Create a single empty datalist to "close" popup without hiding the arrow
-  if (realListId && !document.getElementById(emptyListId)) {
-    var dl = document.createElement('datalist');
-    dl.id = emptyListId;
-    document.body.appendChild(dl);
-  }
-
-  function useEmptyList() { if (realListId) inputEl.setAttribute('list', emptyListId); }
-  function useRealList()  { if (realListId) inputEl.setAttribute('list', realListId);  }
-
-  // Close menu as soon as typing starts, but keep the arrow
-  inputEl.addEventListener('keydown', function(e) {
-    var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
-    if (typing) {
-      justTyped = true;
-      useEmptyList();
-    }
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      var val = inputEl.value;
-      inputEl.blur();
-      setTimeout(function () {
-        inputEl.focus();
-        inputEl.value = val;
-      }, 0);
-    }
-  });
-
-  // IMPORTANT: make the very next click (even if the input already has focus)
-  // reopen the full list immediately without needing a second click.
-  inputEl.addEventListener('mousedown', function(e) {
-    // We’ll take control of the first post-typing click so the popup opens now.
-    if (justTyped) {
-      e.preventDefault(); // stop the default (which wouldn't open it)
-      // Switch back to the real list and force a tiny "re-attach" cycle
-      // so the browser recomputes datalist availability before we refocus.
-      inputEl.setAttribute('list', emptyListId);
-      // Phase 1: next frame, reattach the real list
-      requestAnimationFrame(function() {
-        useRealList();
-
-        // Clear current value so ALL options show (and remember prior value)
-        if (inputEl.value) {
-          inputEl.dataset.prev = inputEl.value;
-          inputEl.value = '';
-          inputEl.dataset.justCleared = '1';
-        }
-        
-        // Phase 2: blur and refocus to force the popup to recompute & open on this click
-        // (preventScroll avoids page jumps)
-        requestAnimationFrame(function() {
-          inputEl.blur();
-          inputEl.focus({ preventScroll: true });
-          // Reset the guard so subsequent clicks behave normally
-          justTyped = false;
-        });
-      });
-      return; // we've handled this click; popup will open now
-    }
-
-    // Normal (non-just-typed) behavior: ensure real list is active and show ALL options
-    useRealList();
-    if (inputEl.value) {
-      inputEl.dataset.prev = inputEl.value;
-      inputEl.value = '';  // clearing shows full list
-      inputEl.dataset.justCleared = '1';
-    }
-    // allow the native click to proceed and open the menu
-  });
-
-  // If you clicked but didn’t choose anything, restore the original value
-  inputEl.addEventListener('blur', function() {
-    if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
-      inputEl.value = inputEl.dataset.prev || '';
-    }
-    inputEl.dataset.justCleared = '';
-    // Make sure the real list is ready for the next open
-    useRealList();
-    // Also clear 'justTyped' once we leave the field
-    justTyped = false;
-  });
-
-  // Any actual change cancels the “justCleared” restore
-  inputEl.addEventListener('input', function() {
-    inputEl.dataset.justCleared = '';
-  });
-}
 
     /* ===== Wire up events ===== */
     document.addEventListener('DOMContentLoaded', loadCSV);
