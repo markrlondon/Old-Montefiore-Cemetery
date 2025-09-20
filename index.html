@@ -176,7 +176,7 @@ function buildTable(container, headersToShow, rows) {
     headersToShow.forEach(function(h){
       const cell = r[h];
       const cls = (h.toLowerCase() === 'created'|| h.toLowerCase() === 'grave' || h.toLowerCase() === 'gate'|| h.toLowerCase() === 'block' || h.toLowerCase() === 'row'  || h.toLowerCase() === 'section') ? ' class="right"' : (h.toLowerCase() === 'year') ? ' class="center"' : '';
-      html += `<td}${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
+      html += `<td${cls}>${escapeHtml(cell == null ? '' : cell)}</td>`;
     });
     html += '</tr>';
   });
