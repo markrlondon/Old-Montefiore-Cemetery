@@ -396,11 +396,11 @@ function buildTable(container, headersToShow, rows) {
 
   // Only clear the value when the ARROW area is clicked
   inputEl.addEventListener('mousedown', function(e) {
-    //if (!isArrowClick(e)) {
+    if (!isArrowClick(e)) {
       // Not the arrow: DO NOT clear; let it behave like a normal text field
       alert("not arrow");
       return;
-    //}
+    }
     if (inputEl.value) {
       inputEl.dataset.prev = inputEl.value;
       inputEl.value = '';                 // clearing forces full list to show
