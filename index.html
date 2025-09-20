@@ -401,8 +401,9 @@
 function enableShowAllOnClick(inputEl) {
   var realListId  = inputEl.getAttribute('list') || '';
   var emptyListId = realListId ? realListId + '__empty' : '';
+  var justTyped = false;
 
-  // Create a single empty datalist to “close” the popup without hiding the arrow
+  // Create a single empty datalist to "close" popup without hiding the arrow
   if (realListId && !document.getElementById(emptyListId)) {
     var dl = document.createElement('datalist');
     dl.id = emptyListId;
@@ -412,32 +413,64 @@ function enableShowAllOnClick(inputEl) {
   function useEmptyList() { if (realListId) inputEl.setAttribute('list', emptyListId); }
   function useRealList()  { if (realListId) inputEl.setAttribute('list', realListId);  }
 
-  // ✅ NEW: On ANY click in the field, clear current value so ALL options show
-  inputEl.addEventListener('mousedown', function() {
-    // ensure the real list is attached so the menu has items
-    useRealList();
-    if (inputEl.value) {
-      inputEl.dataset.prev = inputEl.value; // remember previous value
-      inputEl.value = '';                   // clearing shows full list
-      inputEl.dataset.justCleared = '1';
-    }
-    // let the browser open the datalist naturally
-  });
-
-  // Typing closes the menu immediately (but keeps the arrow)
+  // Close menu as soon as typing starts, but keep the arrow
   inputEl.addEventListener('keydown', function(e) {
     var typing = (e.key && e.key.length === 1) || e.key === 'Backspace' || e.key === 'Delete';
-    if (typing) useEmptyList();
-
+    if (typing) {
+      justTyped = true;
+      useEmptyList();
+    }
     if (e.key === 'Enter') {
       e.preventDefault();
       var val = inputEl.value;
-      inputEl.blur(); // close popup if still open
-      setTimeout(function() {
+      inputEl.blur();
+      setTimeout(function () {
         inputEl.focus();
         inputEl.value = val;
       }, 0);
     }
+  });
+
+  // IMPORTANT: make the very next click (even if the input already has focus)
+  // reopen the full list immediately without needing a second click.
+  inputEl.addEventListener('mousedown', function(e) {
+    // We’ll take control of the first post-typing click so the popup opens now.
+    if (justTyped) {
+      e.preventDefault(); // stop the default (which wouldn't open it)
+      // Switch back to the real list and force a tiny "re-attach" cycle
+      // so the browser recomputes datalist availability before we refocus.
+      inputEl.setAttribute('list', emptyListId);
+      // Phase 1: next frame, reattach the real list
+      requestAnimationFrame(function() {
+        useRealList();
+
+        // Clear current value so ALL options show (and remember prior value)
+        if (inputEl.value) {
+          inputEl.dataset.prev = inputEl.value;
+          inputEl.value = '';
+          inputEl.dataset.justCleared = '1';
+        }
+
+        // Phase 2: blur and refocus to force the popup to recompute & open on this click
+        // (preventScroll avoids page jumps)
+        requestAnimationFrame(function() {
+          inputEl.blur();
+          inputEl.focus({ preventScroll: true });
+          // Reset the guard so subsequent clicks behave normally
+          justTyped = false;
+        });
+      });
+      return; // we've handled this click; popup will open now
+    }
+
+    // Normal (non-just-typed) behavior: ensure real list is active and show ALL options
+    useRealList();
+    if (inputEl.value) {
+      inputEl.dataset.prev = inputEl.value;
+      inputEl.value = '';  // clearing shows full list
+      inputEl.dataset.justCleared = '1';
+    }
+    // allow the native click to proceed and open the menu
   });
 
   // If you clicked but didn’t choose anything, restore the original value
@@ -446,8 +479,10 @@ function enableShowAllOnClick(inputEl) {
       inputEl.value = inputEl.dataset.prev || '';
     }
     inputEl.dataset.justCleared = '';
-    // restore real list so the next click shows options
+    // Make sure the real list is ready for the next open
     useRealList();
+    // Also clear 'justTyped' once we leave the field
+    justTyped = false;
   });
 
   // Any actual change cancels the “justCleared” restore
