@@ -381,48 +381,60 @@ function buildTable(container, headersToShow, rows) {
     });
     gateSelect.addEventListener('change',renderForFilters);
     secSelect.addEventListener('change',renderForFilters);
-      function enableShowAllOnClick(inputEl) {
-    // When clicking or pressing ↓, temporarily clear the value so datalist opens fully
-    inputEl.addEventListener('mousedown', function() {
-      if (inputEl.value) {
-        inputEl.dataset.prev = inputEl.value;
-        inputEl.value = '';
-        inputEl.dataset.justCleared = '1';
-      }
-    });
-    inputEl.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowDown' && inputEl.value) {
-        inputEl.dataset.prev = inputEl.value;
-        inputEl.value = '';
-        inputEl.dataset.justCleared = '1';
-      }
-    });
-    // If user leaves without picking anything, restore
-    inputEl.addEventListener('blur', function() {
-      if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
-        inputEl.value = inputEl.dataset.prev || '';
-      }
-      inputEl.dataset.justCleared = '';
-    });
-    // If they type/select something, don’t restore
-    inputEl.addEventListener('input', function() {
-      inputEl.dataset.justCleared = '';
-    });
-        
-   // Pressing Enter should hide menu
-    inputEl.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const val = inputEl.value;
-        inputEl.blur();
-        setTimeout(() => {
-          inputEl.focus();
-          inputEl.value = val;
-        }, 0);
-      }
-    });
+    function enableShowAllOnClick(inputEl) {
+  // Approximate width of the native datalist arrow area (in CSS px)
+  var ARROW_W = 28;
+
+  function isArrowClick(e) {
+    // Only left-clicks should count
+    if (e.button !== 0) return false;
+    var rect = inputEl.getBoundingClientRect();
+    // Click is within the rightmost ARROW_W pixels of the input
+    return e.clientX >= rect.right - ARROW_W && e.clientX <= rect.right &&
+           e.clientY >= rect.top && e.clientY <= rect.bottom;
   }
 
+  // Only clear the value when the ARROW area is clicked
+  inputEl.addEventListener('mousedown', function(e) {
+    if (!isArrowClick(e)) {
+      // Not the arrow: DO NOT clear; let it behave like a normal text field
+      return;
+    }
+    if (inputEl.value) {
+      inputEl.dataset.prev = inputEl.value;
+      inputEl.value = '';                 // clearing forces full list to show
+      inputEl.dataset.justCleared = '1';
+      // Don’t preventDefault; allow the native arrow to open the menu
+    }
+  });
+
+  // Do NOT open the menu on ArrowDown anymore (arrow-only rule)
+  inputEl.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      // Close the menu on Enter (if open)
+      e.preventDefault();
+      var val = inputEl.value;
+      inputEl.blur();
+      setTimeout(function() {
+        inputEl.focus();
+        inputEl.value = val;
+      }, 0);
+    }
+  });
+
+  // If user leaves without picking anything, restore
+  inputEl.addEventListener('blur', function() {
+    if (inputEl.dataset.justCleared === '1' && inputEl.value === '') {
+      inputEl.value = inputEl.dataset.prev || '';
+    }
+    inputEl.dataset.justCleared = '';
+  });
+
+  // If they type/select something, don’t restore
+  inputEl.addEventListener('input', function() {
+    inputEl.dataset.justCleared = '';
+  });
+}
   document.addEventListener('DOMContentLoaded', function() {
     enableShowAllOnClick(document.getElementById('blockInput'));
   });
