@@ -48,7 +48,14 @@
 .cb .cb-option:hover, .cb .cb-option[aria-selected="true"] {
   background: #eef3ff;
 }
-
+/* Hide sort arrows completely */
+th .sort-ind::after {
+  content: none !important;
+}
+/* Hide the entire sort indicator area */
+th .sort-ind {
+  display: none !important;
+}
   </style>
 </head>
 <body>
