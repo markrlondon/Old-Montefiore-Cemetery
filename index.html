@@ -77,6 +77,7 @@ th .sort-ind {
     <span id="gateWrap">
       <label for="gateSelect">Gate:</label>
       <select id="gateSelect"></select>
+       <span id="graveCount" style="margin-left:8px; font-weight:600; color:#555;"></span>
     </span>
   </div>
 
@@ -565,6 +566,9 @@ th .sort-ind {
       sortState = []; // reset user sort on filter change
       allRowsFiltered = filtered;
       buildTable(output, visible, filtered);
+      // Update grave count display
+      var graveCountEl = document.getElementById('graveCount');
+      graveCountEl.textContent = filtered.length + ' graves';
     }
 
     /* ===== Wire up events ===== */
