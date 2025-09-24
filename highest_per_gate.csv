@@ -247,7 +247,7 @@ block,gate,highest_row,highest_grave
 12,531/S Right,11,7
 12,532/S Left,12,3
 12,532/S Right,12,7
-12,535/SE Left,13,12
+12,535/SE Left,13,13
 12,535/SE Right,13,7
 12,nan Left,26,24
 12,nan Right,7,19
@@ -327,7 +327,7 @@ block,gate,highest_row,highest_grave
 15,642/N Left,12,7
 15,642/N Right,12,7
 15,643/N Left,12,9
-15,643/N Right,13,6
+15,643/N Right,13,8
 15,644/N Left,12,16
 15,644/N Right,12,13
 15,645/N Left,4,3
@@ -536,7 +536,7 @@ block,gate,highest_row,highest_grave
 28,504/N Left,9,13
 28,504/N Right,11,10
 28,507/N Left,11,23
-28,507/N Right,11,9
+28,507/N Right,11,10
 28,508/N Left,18,3
 28,508/N Right,19,3
 28,510/N Left,18,7
@@ -716,7 +716,7 @@ block,gate,highest_row,highest_grave
 53,469/E Left,14,10
 53,469/E Right,6,10
 53,470/E Left,13,16
-53,470/E Right,11,10
+53,470/E Right,11,13
 53,472/E Left,12,7
 53,472/E Right,12,11
 53,475/E Left,12,7
@@ -1093,8 +1093,8 @@ block,gate,highest_row,highest_grave
 84,Sec. 10,12,65
 84,Sec. 11,22,35
 84,Sec. 12,19,76
-84,Sec. 13 Right,6,22
-84,Sec. 14 Right,5,19
+84,Sec. 13,12,28
+84,Sec. 14,12,115
 84,Sec. 15,1,52
 84,Sec. 16,3,23
 84,Sec. 2,18,25
@@ -1146,7 +1146,7 @@ block,gate,highest_row,highest_grave
 86,115/N Left,14,11
 86,115/N Right,14,8
 86,116/N Left,11,6
-86,116/N Right,9,5
+86,116/N Right,9,6
 86,116A/N Left,11,4
 86,116A/N Right,12,3
 86,117/N Left,12,6
@@ -1349,7 +1349,7 @@ block,gate,highest_row,highest_grave
 92,126/S Left,12,10
 92,126/S Right,12,9
 92,127/S Left,17,6
-92,127/S Right,11,1
+92,127/S Right,11,2
 92,129/S Left,13,14
 92,129/S Right,14,9
 92,130/S Left,14,7
