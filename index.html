@@ -372,7 +372,9 @@ th .sort-ind {
             cell = 'unk';
           }
           if (h.toLowerCase() === 'first name' || h.toLowerCase() === 'last name') {
-            const numberRegex = /^-?\d+$/; // Matches integers 
+            const numberRegex = /^-?\d+$/; // Matches integers
+            alert(r['Memorial']);
+            alert(numberRegex.test(r['Memorial']));
             if (numberRegex.test(r['Memorial'])) {
             var memId = String(r['Memorial']).trim();
             alert(memId);
