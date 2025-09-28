@@ -371,12 +371,15 @@ th .sort-ind {
           if (h.toLowerCase() === 'year' && String(cell).trim() === '1900') {
             cell = 'unk';
           }
-          if ((h.toLowerCase() === 'first name' || h.toLowerCase() === 'last name') && r['Memorial']) {
+          if (h.toLowerCase() === 'first name' || h.toLowerCase() === 'last name') {
+            const numberRegex = /^-?\d+$/; // Matches integers 
+            if (numberRegex.test(r['Memorial']) {
             var memId = String(r['Memorial']).trim();
             alert(memId);
             if (memId) {
               var url = 'https://www.findagrave.com/memorial/' + encodeURIComponent(memId);
               cell = '<a href="' + url + '" target="_blank">' + escapeHtml(cell) + '</a>';
+            }
             }
           }
           html += '<td'+cls+'>'+escapeHtml(cell == null ? '' : cell)+'</td>';
