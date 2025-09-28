@@ -368,6 +368,9 @@ th .sort-ind {
           var cell = r[h];
           var cls = (String(h).toLowerCase() === 'created') ? ' class="right"' : '';
           var cls = (String(h).toLowerCase() === 'created'|| String(h).toLowerCase() === 'grave' || String(h).toLowerCase() === 'gate'|| String(h).toLowerCase() === 'block' || String(h).toLowerCase() === 'row') ? ' class="right"' : (String(h).toLowerCase() === 'year') ? ' class="center"' : '';
+          if (h.toLowerCase() === 'year' && String(cell).trim() === '1900') {
+            cell = 'unk';
+          }
           html += '<td'+cls+'>'+escapeHtml(cell == null ? '' : cell)+'</td>';
         });
         html += '</tr>';
