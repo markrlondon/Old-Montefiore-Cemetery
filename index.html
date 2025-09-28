@@ -403,6 +403,7 @@ th .sort-ind {
           var idx = sortState.findIndex(function(s){ return s.col === col; });
 
           if (e.shiftKey) {
+            alert(idx);
             if (idx === -1) sortState.push({ col: col, dir: 1 });
             else sortState[idx].dir = -sortState[idx].dir;
           } else {
