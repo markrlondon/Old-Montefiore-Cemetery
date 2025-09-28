@@ -371,7 +371,7 @@ th .sort-ind {
           if (h.toLowerCase() === 'year' && String(cell).trim() === '1900') {
             cell = 'unk';
           }
-          if ((h.toLowerCase() === 'first name' || h.toLowerCase() === 'last name') && r['Memorial']) {
+          if ((h.toLowerCase() === 'firstname' || h.toLowerCase() === 'lastname') && r['Memorial']) {
             var memId = String(r['Memorial']).trim();
             if (memId) {
               var url = 'https://www.findagrave.com/memorial/' + encodeURIComponent(memId);
