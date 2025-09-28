@@ -378,7 +378,7 @@ th .sort-ind {
               cell = '<a href="' + url + '" target="_blank">' + escapeHtml(cell) + '</a>';
             }
           }
-          html += '<td'+cls+'>'+escapeHtml(cell == null ? '' : cell)+'</td>';
+          html += '<td'+cls+'>'+ (cell == null ? '' : cell) +'</td>';
         });
         html += '</tr>';
       });
