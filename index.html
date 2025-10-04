@@ -432,12 +432,29 @@
         activeIndex = -1;
       }
 
+
       function openList(showAll) {
-        if (showAll) buildList(all);
-        else filterList(input.value);
-        list.classList.add('open');
-        input.setAttribute('aria-expanded', 'true');
-      }
+  if (showAll) buildList(all);
+  else filterList(input.value);
+
+  list.classList.add('open');
+  input.setAttribute('aria-expanded', 'true');
+
+  // ✅ ensure current value is highlighted and scrolled into view
+  var currentVal = String(input.value || '').trim();
+  if (currentVal) {
+    var children = Array.from(list.children);
+    var idx = children.findIndex(li => String(li.dataset.value) === currentVal);
+    if (idx >= 0) {
+      activeIndex = idx;
+      children.forEach(li => li.removeAttribute('aria-selected'));
+      var el = children[idx];
+      el.setAttribute('aria-selected','true');
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  }
+}
+
       function closeList() {
         list.classList.remove('open');
         input.setAttribute('aria-expanded', 'false');
