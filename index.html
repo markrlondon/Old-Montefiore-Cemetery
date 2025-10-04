@@ -205,19 +205,19 @@
         var prio = idx >= 0 ? (idx + 1) : '';
         var dir = idx >= 0 ? String(sortState[idx].dir) : '';
         var cls = (String(h).toLowerCase() === 'datecreated') ? ' class="right"' : '';
-// Pretty header labels
-var displayLabel = h;
-if (h.toLowerCase() === 'firstname' || h === 'firstName') displayLabel = 'First Name';
-if (h.toLowerCase() === 'lastname'  || h === 'lastName')  displayLabel = 'Last Name';
+        // Pretty header labels
+        var displayLabel = h;
+        if (h.toLowerCase() === 'firstname' || h === 'firstName') displayLabel = 'First Name';
+        if (h.toLowerCase() === 'lastname'  || h === 'lastName')  displayLabel = 'Last Name';
 
-html += '<th data-col="'+escapeHtml(h)+'"'
-     +  (dir ? ' data-sort-dir="'+dir+'"' : '')
-     +  (prio ? ' data-sort-priority="'+prio+'"' : '')
-     +  cls + '>'
-     +  escapeHtml(displayLabel)
-     +  '<span class="sort-ind"><span class="sort-prio"></span></span>'
-     +  '</th>';
-
+        html += '<th data-col="'+escapeHtml(h)+'"'
+         +  (dir ? ' data-sort-dir="'+dir+'"' : '')
+         +  (prio ? ' data-sort-priority="'+prio+'"' : '')
+         +  cls + '>'
+         +  escapeHtml(displayLabel)
+         +  '<span class="sort-ind"><span class="sort-prio"></span></span>'
+         +  '</th>';
+      );
       html += '</tr></thead><tbody>';
 
       rows.forEach(function(r){
