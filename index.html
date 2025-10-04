@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Old Montefiore Cemetery Photo Requests Viewer</title>
+  <title>Requests CSV Viewer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.35; padding: 18px; padding-top: 0px; }
+    body { font-family: system-ui, sans-serif; line-height: 1.35; padding: 18px; }
     label { font-weight: 600; }
     input[type="text"], select { margin-left: 6px; padding: 4px 6px; }
     table { border-collapse: collapse; margin-top: 16px; width: 100%; }
@@ -15,69 +15,53 @@
     .error { color: #b00; }
     .note { color: #666; font-size: 0.9em; }
 
-    /* Sort indicators */
-    th .sort-ind { font-size: 0.8em; opacity: 0.8; margin-left: 6px; display: inline-block; min-width: 1.2em; text-align: center; }
-    th[data-sort-dir="1"] .sort-ind::after  { content: "▲"; }
-    th[data-sort-dir="-1"] .sort-ind::after { content: "▼"; }
-    th[data-sort-priority] .sort-prio::before {
-      content: attr(data-sort-priority);
-      font-size: 0.75em; border: 1px solid #aaa; border-radius: 999px; padding: 0 0.35em; margin-right: 4px; opacity: 0.8;
-    }
+    /* Sort indicators (hidden to save width) */
+    th .sort-ind::after { content: none !important; }
+    th .sort-ind { display: none !important; }
 
-    /* Created column: right align + padding + monospace */
-    .right { text-align: right; }
-    .center { text-align: center; }
+    /* dateCreated column: right align + padding + monospace */
+    .right { text-align: right; padding-right: 2.5em; font-family: monospace; }
 
+    /* --- Block combobox styles --- */
     .cb { position: relative; display: inline-flex; align-items: stretch; }
-.cb input { padding-right: 2em; }
-.cb .cb-toggle {
-  position: absolute; right: 0; top: 0; height: 100%;
-  border: 0; background: transparent; padding: 0 6px; cursor: pointer;
-  font-size: 1rem; line-height: 1; color: #333;
-}
-.cb .cb-list {
-  position: absolute; z-index: 10; left: 0; right: 0; top: calc(100% + 2px);
-  list-style: none; margin: 0; padding: 4px 0; max-height: 240px; overflow: auto;
-  background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.08);
-  display: none;
-}
-.cb .cb-list.open { display: block; }
-.cb .cb-option {
-  padding: 6px 10px; cursor: pointer; white-space: nowrap;
-}
-.cb .cb-option:hover, .cb .cb-option[aria-selected="true"] {
-  background: #eef3ff;
-}
-/* Hide sort arrows completely */
-th .sort-ind::after {
-  content: none !important;
-}
-/* Hide the entire sort indicator area */
-th .sort-ind {
-  display: none !important;
-}
+    .cb input { padding-right: 2em; }
+    .cb .cb-toggle {
+      position: absolute; right: 0; top: 0; height: 100%;
+      border: 0; background: transparent; padding: 0 6px; cursor: pointer;
+      font-size: 1rem; line-height: 1; color: #333;
+    }
+    .cb .cb-list {
+      position: absolute; z-index: 10; left: 0; right: 0; top: calc(100% + 2px);
+      list-style: none; margin: 0; padding: 4px 0; max-height: 240px; overflow: auto;
+      background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      display: none;
+    }
+    .cb .cb-list.open { display: block; }
+    .cb .cb-option { padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+    .cb .cb-option:hover, .cb .cb-option[aria-selected="true"] { background: #eef3ff; }
   </style>
 </head>
 <body>
-  <h2>Old Montefiore Cemetery Photo Requests Viewer</h2>
+  <h2>Requests CSV Viewer</h2>
 
   <div class="controls" id="filterWrap" style="display:none;">
     <label for="blockInput">Block:</label>
-   <div class="cb" id="blockCombo">
-  <input id="blockInput"
-         type="text"
-         placeholder="Leave empty to show all Blocks…"
-         autocomplete="off"
-         aria-haspopup="listbox"
-         aria-expanded="false"
-         aria-controls="blockListbox" />
-  <button type="button" class="cb-toggle" aria-label="Open menu" tabindex="-1">▾</button>
-  <ul id="blockListbox" class="cb-list" role="listbox"></ul>
-</div>
+    <div class="cb" id="blockCombo">
+      <input id="blockInput"
+             type="text"
+             placeholder="Leave empty to show all Blocks…"
+             autocomplete="off"
+             aria-haspopup="listbox"
+             aria-expanded="false"
+             aria-controls="blockListbox" />
+      <button type="button" class="cb-toggle" aria-label="Open menu" tabindex="-1">▾</button>
+      <ul id="blockListbox" class="cb-list" role="listbox"></ul>
+    </div>
+
     <span id="gateWrap">
       <label for="gateSelect">Gate:</label>
       <select id="gateSelect"></select>
-       <span id="graveCount" style="margin-left:8px; font-weight:600; color:#555;"></span>
+      <span id="graveCount" style="margin-left:8px; font-weight:600; color:#555;"></span>
     </span>
   </div>
 
@@ -88,141 +72,7 @@ th .sort-ind {
   <div id="output"></div>
 
   <script>
-    function initBlockCombo(blockValues) {
-  var root = document.getElementById('blockCombo');
-  var input = document.getElementById('blockInput');
-  var list  = document.getElementById('blockListbox');
-  var toggle = root.querySelector('.cb-toggle');
-  var all = (blockValues || []).slice();
-  var activeIndex = -1;
-
-  function naturalCompare(a, b) {
-    // use your existing naturalCompare if in scope, otherwise a fallback:
-    try { return window.naturalCompare(a,b); } catch(_){ return String(a).localeCompare(String(b)); }
-  }
-
-  all.sort(naturalCompare);
-
-  function buildList(items) {
-    list.innerHTML = '';
-    items.forEach(function(v, i){
-      var li = document.createElement('li');
-      li.className = 'cb-option';
-      li.role = 'option';
-      li.textContent = v;
-      li.dataset.value = v;
-      li.addEventListener('mousedown', function(e){
-        // use mousedown so selection works before blur hides the list
-        e.preventDefault();
-        selectValue(v);
-      });
-      list.appendChild(li);
-    });
-    activeIndex = -1;
-  }
-
-  function openList(showAll) {
-    if (showAll) {
-      buildList(all);
-    } else {
-      filterList(input.value);
-    }
-    list.classList.add('open');
-    input.setAttribute('aria-expanded', 'true');
-  }
-
-  function closeList() {
-    list.classList.remove('open');
-    input.setAttribute('aria-expanded', 'false');
-    clearActive();
-  }
-
-  function isOpen() { return list.classList.contains('open'); }
-
-  function filterList(q) {
-    q = String(q || '').trim().toLowerCase();
-    var filtered = q ? all.filter(function(v){ return String(v).toLowerCase().includes(q); }) : all.slice();
-    buildList(filtered);
-  }
-
-  function clearActive() {
-    Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
-    activeIndex = -1;
-  }
-
-  function moveActive(delta) {
-    if (!isOpen()) openList(true);
-    var n = list.children.length;
-    if (!n) return;
-    activeIndex = (activeIndex + delta + n) % n;
-    Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
-    var el = list.children[activeIndex];
-    el.setAttribute('aria-selected','true');
-    el.scrollIntoView({ block: 'nearest' });
-  }
-
-  function selectValue(v) {
-    input.value = v;
-    dispatchInput(input);       // trigger your existing listeners
-    closeList();
-  }
-
-  function dispatchInput(el) {
-    var evt = new Event('input', { bubbles: true });
-    el.dispatchEvent(evt);
-  }
-
-  // Events
-  input.addEventListener('focus', function(){
-    // don’t auto-open on focus; click/toggle or typing will open
-  });
-
-  input.addEventListener('click', function(){
-    // Always show FULL list on click, regardless of current value
-    openList(true);
-  });
-
-  input.addEventListener('input', function(){
-    // Typing opens (or updates) filtered list immediately
-    if (!isOpen()) openList(false); else filterList(input.value);
-  });
-
-  input.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowDown') { e.preventDefault(); moveActive(1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); moveActive(-1); }
-    else if (e.key === 'Enter') {
-      if (isOpen()) {
-        e.preventDefault();
-        if (activeIndex >= 0) {
-          var el = list.children[activeIndex];
-          if (el) selectValue(el.dataset.value);
-        } else {
-          // Enter with open list but no active: accept current text
-          closeList();
-          dispatchInput(input);
-        }
-      }
-    } else if (e.key === 'Escape') {
-      if (isOpen()) { e.preventDefault(); closeList(); }
-    }
-  });
-
-  // Toggle button: always show full list
-  toggle.addEventListener('mousedown', function(e){
-    e.preventDefault(); // prevent focus loss
-    if (isOpen()) closeList(); else openList(true);
-  });
-
-  // Click outside to close
-  document.addEventListener('mousedown', function(e){
-    if (!root.contains(e.target)) closeList();
-  });
-
-  // Initial population
-  buildList(all);
-}
-
-    /* ===== CSV parsing ===== */
+    /* ================= CSV parser ================= */
     function parseCSV(text) {
       var rows = [], row = [], field = '', i = 0, inQuotes = false;
       while (i < text.length) {
@@ -247,7 +97,7 @@ th .sort-ind {
       return rows;
     }
 
-    /* ===== Comparators ===== */
+    /* ================= Comparators ================= */
     function naturalCompare(a, b) {
       var ax = String(a == null ? '' : a).trim();
       var bx = String(b == null ? '' : b).trim();
@@ -270,7 +120,6 @@ th .sort-ind {
       }
       return 0;
     }
-
     function parseDateMs(s) {
       if (s == null) return NaN;
       s = String(s).trim();
@@ -282,12 +131,6 @@ th .sort-ind {
         var mm = parseInt(m[1], 10)-1, dd = parseInt(m[2], 10), yy = parseInt(m[3], 10);
         if (yy < 100) yy += 2000;
         return new Date(yy, mm, dd).getTime();
-      }
-      var m2 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
-      if (m2) {
-        var day = parseInt(m2[1],10), monStr = m2[2].toLowerCase(), year = parseInt(m2[3],10);
-        var months = {"jan":0,"january":0,"feb":1,"february":1,"mar":2,"march":2,"apr":3,"april":3,"may":4,"jun":5,"june":5,"jul":6,"july":6,"aug":7,"august":7,"sep":8,"sept":8,"september":8,"oct":9,"october":9,"nov":10,"november":10,"dec":11,"december":11};
-        if (months.hasOwnProperty(monStr)) return new Date(year, months[monStr], day).getTime();
       }
       return NaN;
     }
@@ -302,13 +145,13 @@ th .sort-ind {
     function comparatorForColumn(colName) {
       if (!colName) return naturalCompare;
       var lc = String(colName).toLowerCase();
-      if (lc === 'created') return dateCompare;
+      if (lc === 'datecreated') return dateCompare;
       return naturalCompare;
     }
 
-    /* ===== Utilities ===== */
+    /* ================= Utilities ================= */
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, function(c){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
       });
     }
@@ -320,29 +163,38 @@ th .sort-ind {
       }
       return Object.keys(seen).sort(naturalCompare);
     }
+    function readFiltersFromURL() {
+      var p = new URLSearchParams(location.search);
+      return {
+        block: (p.get('block') || '').trim(),
+        gate:  (p.get('gate')  || 'All').trim()
+      };
+    }
+    function setFiltersAndReload(blockVal, gateVal) {
+      var p = new URLSearchParams();
+      if (blockVal) p.set('block', blockVal);
+      if (gateVal && gateVal !== 'All') p.set('gate', gateVal);
+      var qs = p.toString();
+      location.search = qs ? ('?' + qs) : location.pathname; // full refresh
+    }
 
-    /* ===== State ===== */
+    /* ================= State ================= */
     var allRows = [];
     var headers = [];
     var currentRows = [];
     var currentHeaders = [];
-    var sortState = []; // [{col, dir}...]
-
-    // Always hide (case-insensitive)
-    var ALWAYS_HIDE_LC = new Set(['birthdate','notes','problems','memorialid','memorial','section','sec.','sec']);
-    // Hide exact "plot" (lowercase); keep "Plot"
-    var HIDE_EXACT = new Set(['plot']);
+    var sortState = []; // [{col, dir}]
+    var ALL_HIDE_LC = new Set(['birthdate','notes','problems','memorialid','memorial','section','sec.','sec']);
+    var HIDE_EXACT = new Set(['plot']); // hide lowercase 'plot', keep 'Plot'
 
     var filterWrap = document.getElementById('filterWrap');
     var blockInput = document.getElementById('blockInput');
-    var blocksList = document.getElementById('blocksList');
-    var gateWrap = document.getElementById('gateWrap');
     var gateSelect = document.getElementById('gateSelect');
     var output = document.getElementById('output');
 
     var COL = {}; // resolved column names
 
-    /* ===== Table render & multi-sort ===== */
+    /* ================= Table render & sorting ================= */
     function buildTable(container, headersToShow, rows) {
       currentRows = rows.slice();
       currentHeaders = headersToShow.slice();
@@ -352,44 +204,56 @@ th .sort-ind {
         var idx = sortState.findIndex(function(s){ return s.col === h; });
         var prio = idx >= 0 ? (idx + 1) : '';
         var dir = idx >= 0 ? String(sortState[idx].dir) : '';
-        var cls = (String(h).toLowerCase() === 'created') ? ' class="right"' : '';
+        var cls = (String(h).toLowerCase() === 'datecreated') ? ' class="right"' : '';
         html += '<th data-col="'+escapeHtml(h)+'"'
              +  (dir ? ' data-sort-dir="'+dir+'"' : '')
              +  (prio ? ' data-sort-priority="'+prio+'"' : '')
-             +  '>'
+             +  cls + '>'
              +  escapeHtml(h)
              +  '<span class="sort-ind"><span class="sort-prio"></span></span>'
              +  '</th>';
       });
       html += '</tr></thead><tbody>';
+
       rows.forEach(function(r){
         html += '<tr>';
         headersToShow.forEach(function(h){
           var cell = r[h];
-          var cls = (String(h).toLowerCase() === 'created') ? ' class="right"' : '';
-          var cls = (String(h).toLowerCase() === 'created'|| String(h).toLowerCase() === 'grave' || String(h).toLowerCase() === 'gate'|| String(h).toLowerCase() === 'block' || String(h).toLowerCase() === 'row') ? ' class="right"' : (String(h).toLowerCase() === 'year') ? ' class="center"' : '';
+
+          // Year: 1900 -> "unk"
           if (h.toLowerCase() === 'year' && String(cell).trim() === '1900') {
             cell = 'unk';
           }
-          if (h.toLowerCase() === 'lastname' && r['Memorial']) {
-            var memId = String(r['Memorial']).trim();
+
+          // Link First Name / Last Name using hidden Memorial number
+          var memorialHeader = COL.Memorial; // resolved earlier
+          if ((h.toLowerCase() === 'first name' || h.toLowerCase() === 'lastname' || h.toLowerCase() === 'last name') && memorialHeader) {
+            var memId = String(r[memorialHeader] || '').trim();
             if (memId) {
               var url = 'https://www.findagrave.com/memorial/' + encodeURIComponent(memId);
-              cell = '<a href="' + url + '" target="_blank">' + escapeHtml(cell) + '</a>';
+              if (cell != null && String(cell).trim() !== '') {
+                cell = '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(cell) + '</a>';
+              }
             }
           }
+
+          var cls = (String(h).toLowerCase() === 'datecreated') ? ' class="right"' : '';
           html += '<td'+cls+'>'+ (cell == null ? '' : cell) +'</td>';
         });
         html += '</tr>';
       });
+
       html += '</tbody></table>';
       container.innerHTML = html;
 
-      // show priority numbers
+      // populate sort priority numbers (if you want to keep them; arrows are hidden)
       var ths = container.querySelectorAll("th");
       ths.forEach(function(th){
         var pr = th.getAttribute("data-sort-priority");
-        if (pr) th.querySelector(".sort-prio").textContent = pr;
+        if (pr) {
+          var prSpan = th.querySelector(".sort-prio");
+          if (prSpan) prSpan.textContent = pr;
+        }
       });
 
       attachHeaderSortHandlers(container);
@@ -414,7 +278,6 @@ th .sort-ind {
           }
 
           applyMultiSort();
-          // Rebuild with the same visible headers (no Section logic anymore)
           buildTable(container, currentHeaders, currentRows);
         });
       });
@@ -441,10 +304,230 @@ th .sort-ind {
       currentRows = decorated.map(function(x){ return x.r; });
     }
 
-    /* ===== Load CSV & UI ===== */
+    /* ================= Gate dropdown ================= */
+    function setOptions(selectEl, values) {
+      var html = '<option value="All">All</option>';
+      for (var i=0;i<values.length;i++) {
+        var v = values[i];
+        html += '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
+      }
+      selectEl.innerHTML = html;
+      selectEl.value = 'All';
+    }
+
+    // Populate using the CURRENT Block input (dynamic, no refresh)
+    function populateGateDropdown() {
+      var bv = String(blockInput.value || '').trim();
+      var subset = allRows;
+      if (bv) subset = subset.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
+      var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
+      setOptions(gateSelect, gates);
+      gateSelect.value = 'All';
+    }
+
+    /* ================= Filtering & rendering (reads URL) ================= */
+    var allRowsFiltered = [];
+
+    function renderForFilters(){
+      var params = readFiltersFromURL();
+      var bv  = params.block;             // from URL
+      var gVal = params.gate || 'All';    // from URL
+
+      // Reflect values into controls visually
+      blockInput.value = bv;
+      // Build Gates for this block, then set selected gate
+      (function(){
+        var subset = allRows;
+        if (bv) subset = subset.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
+        var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
+        setOptions(gateSelect, gates);
+        if ([].slice.call(gateSelect.options).some(function(o){ return o.value === gVal; })) {
+          gateSelect.value = gVal;
+        }
+      })();
+
+      // Filter rows
+      var filtered = allRows.slice();
+      if (bv) {
+        filtered = filtered.filter(function(r){
+          return String(r[COL.Block] || '').trim() === bv;
+        });
+      }
+      if (gVal && gVal !== 'All') {
+        filtered = filtered.filter(function(r){
+          return String(r[COL.Gate] || '').trim() === gVal;
+        });
+      }
+
+      // Initial sort
+      if (!bv) {
+        filtered.sort(function(a,b){
+          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+          return naturalCompare(a[COL.Grave],  b[COL.Grave]);
+        });
+      } else {
+        filtered.sort(function(a,b){
+          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+          return naturalCompare(a[COL.Grave], b[COL.Grave]);
+        });
+      }
+
+      // Visible columns baseline
+      var visible = headers.filter(function(h){
+        if (ALL_HIDE_LC.has(h.toLowerCase())) return false;
+        if (HIDE_EXACT.has(h)) return false; // exact lowercase 'plot'
+        return true;
+      });
+
+      // Plot conditional on data presence
+      if (COL.Plot) {
+        var plotHasData = filtered.some(function(row){
+          var v = row[COL.Plot];
+          return v != null && String(v).trim() !== '';
+        });
+        if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
+      }
+
+      sortState = []; // reset user sort on URL-based render
+      allRowsFiltered = filtered;
+      buildTable(output, visible, filtered);
+
+      // Grave count label
+      var graveCountEl = document.getElementById('graveCount');
+      if (graveCountEl) graveCountEl.textContent = filtered.length + ' graves';
+    }
+
+    /* ================= Block combobox (type or pick) ================= */
+    function initBlockCombo(blockValues, options) {
+      var onConfirm = options && typeof options.onConfirm === 'function' ? options.onConfirm : null;
+
+      var root = document.getElementById('blockCombo');
+      var input = document.getElementById('blockInput');
+      var list  = document.getElementById('blockListbox');
+      var toggle = root.querySelector('.cb-toggle');
+      var all = (blockValues || []).slice();
+      var activeIndex = -1;
+
+      all.sort(naturalCompare);
+
+      function buildList(items) {
+        list.innerHTML = '';
+        items.forEach(function(v){
+          var li = document.createElement('li');
+          li.className = 'cb-option';
+          li.role = 'option';
+          li.textContent = v;
+          li.dataset.value = v;
+          li.addEventListener('mousedown', function(e){
+            e.preventDefault();
+            selectValue(v);
+          });
+          list.appendChild(li);
+        });
+        activeIndex = -1;
+      }
+
+      function openList(showAll) {
+        if (showAll) buildList(all);
+        else filterList(input.value);
+        list.classList.add('open');
+        input.setAttribute('aria-expanded', 'true');
+      }
+      function closeList() {
+        list.classList.remove('open');
+        input.setAttribute('aria-expanded', 'false');
+        clearActive();
+      }
+      function isOpen(){ return list.classList.contains('open'); }
+
+      function filterList(q) {
+        q = String(q || '').trim().toLowerCase();
+        var filtered = q ? all.filter(function(v){ return String(v).toLowerCase().includes(q); }) : all.slice();
+        buildList(filtered);
+      }
+
+      function clearActive() {
+        Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
+        activeIndex = -1;
+      }
+      function moveActive(delta) {
+        if (!isOpen()) openList(true);
+        var n = list.children.length;
+        if (!n) return;
+        activeIndex = (activeIndex + delta + n) % n;
+        Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
+        var el = list.children[activeIndex];
+        el.setAttribute('aria-selected','true');
+        el.scrollIntoView({ block: 'nearest' });
+      }
+
+      function selectValue(v) {
+        input.value = v;
+        closeList();
+        if (onConfirm) onConfirm(v);
+      }
+
+      function dispatchInput(el) {
+        var evt = new Event('input', { bubbles: true });
+        el.dispatchEvent(evt);
+      }
+
+      // UX: click shows FULL list
+      input.addEventListener('click', function(){ openList(true); });
+      // Typing opens/filters
+      input.addEventListener('input', function(){
+        if (!isOpen()) openList(false); else filterList(input.value);
+      });
+
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'ArrowDown') { e.preventDefault(); moveActive(1); return; }
+        if (e.key === 'ArrowUp')   { e.preventDefault(); moveActive(-1); return; }
+        if (e.key === 'Escape')    { if (isOpen()) { e.preventDefault(); closeList(); } return; }
+        if (e.key === 'Enter' || e.key === 'NumpadEnter') {
+          e.preventDefault();
+          if (isOpen()) {
+            if (activeIndex >= 0) {
+              var el = list.children[activeIndex];
+              if (el) selectValue(el.dataset.value);
+            } else {
+              closeList();
+              if (onConfirm) onConfirm(input.value.trim());
+              else dispatchInput(input);
+            }
+          } else {
+            if (onConfirm) onConfirm(input.value.trim());
+            else dispatchInput(input);
+          }
+          return;
+        }
+      });
+
+      // Toggle button: always show full
+      toggle.addEventListener('mousedown', function(e){
+        e.preventDefault();
+        if (isOpen()) closeList(); else openList(true);
+      });
+
+      // Click outside closes
+      document.addEventListener('mousedown', function(e){
+        if (!root.contains(e.target)) closeList();
+      });
+
+      // Initial population
+      buildList(all);
+    }
+
+    /* ================= Load CSV & boot ================= */
+    document.addEventListener('DOMContentLoaded', loadCSV);
+
     async function loadCSV() {
       try {
-        var res = await fetch('requests_updated.csv', { cache: 'no-store' });
+        var res = await fetch('requests.csv', { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var text = await res.text();
         var data = parseCSV(text);
@@ -452,14 +535,15 @@ th .sort-ind {
 
         headers = data[0].map(function(h){ return String(h).trim(); });
 
-        // Resolve columns we use
+        // Resolve columns
         COL = {
           Block: headers.find(function(h){ return h.toLowerCase() === 'block'; }),
           Gate:  headers.find(function(h){ return h.toLowerCase() === 'gate'; }),
           Plot:  headers.find(function(h){ return h === 'Plot'; }), // exact "Plot"
           Row:   headers.find(function(h){ return h.toLowerCase() === 'row'; }),
           Grave: headers.find(function(h){ return h.toLowerCase() === 'grave'; }),
-          Created: headers.find(function(h){ return h.toLowerCase() === 'created'; })
+          DateCreated: headers.find(function(h){ return h.toLowerCase() === 'datecreated'; }),
+          Memorial: headers.find(function(h){ return h.toLowerCase() === 'memorial' || h.toLowerCase() === 'memorialid' || h.toLowerCase() === 'memorial id'; })
         };
 
         var missing = [];
@@ -480,119 +564,34 @@ th .sort-ind {
             return obj;
           });
 
-        // Build unique, sorted Block values for the combobox
+        // Build Block list for combobox
         var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+        initBlockCombo(blocks, {
+          onConfirm: function(newBlock){
+            // Block change: dynamically update Gate menu; no page refresh
+            blockInput.value = newBlock || '';
+            populateGateDropdown();
+          }
+        });
 
-        // Build Block datalist (unique sorted)
-       initBlockCombo(blocks);
-        
-        // Show filters
+        // Show controls
         filterWrap.style.display = 'flex';
 
-        // Initialize gate options and first render
-        populateGateDropdown();
+        // Populate Gate menu based on URL's block (render uses URL)
+        // and render the table from URL params
         renderForFilters();
+
+        // Gate change => full reload with block + gate
+        gateSelect.addEventListener('change', function(){
+          var bv = String(blockInput.value || '').trim();  // live Block
+          var gv = String(gateSelect.value || 'All').trim();
+          setFiltersAndReload(bv, gv);
+        });
 
       } catch (err) {
         output.innerHTML = '<p class="error">Failed to load requests.csv: ' + escapeHtml(err.message) + '</p>';
       }
     }
-
-    /* ===== Gate dropdown ===== */
-    function setOptions(selectEl, values) {
-      var html = '<option value="All">All</option>';
-      for (var i=0;i<values.length;i++) {
-        var v = values[i];
-        html += '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';
-      }
-      selectEl.innerHTML = html;
-      selectEl.value = 'All';
-    }
-
-    function populateGateDropdown() {
-      var bv = String(blockInput.value || '').trim();
-      var subset = allRows;
-      if (bv) subset = subset.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
-      var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
-      setOptions(gateSelect, gates);
-    }
-
-    /* ===== Filtering & sorting ===== */
-    var allRowsFiltered = [];
-
-    function renderForFilters(){
-      var bv = String(blockInput.value || '').trim();
-      var filtered = allRows.slice();
-
-      // Block filter (skip if empty => show all)
-      if (bv) {
-        filtered = filtered.filter(function(r){
-          return String(r[COL.Block] || '').trim() === bv;
-        });
-      }
-
-      // Optional Gate filter (applies also when Block is empty)
-      var gVal = String(gateSelect.value || 'All').trim();
-      if (gVal && gVal !== 'All') {
-        filtered = filtered.filter(function(r){ return String(r[COL.Gate] || '').trim() === gVal; });
-      }
-
-      // Initial sort:
-      if (!bv) {
-        // Block empty → default sort starts with Block
-        filtered.sort(function(a,b){
-          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
-          return naturalCompare(a[COL.Grave],  b[COL.Grave]);
-        });
-      } else {
-        // Any Block selected → Gate -> Plot -> Row -> Grave
-        filtered.sort(function(a,b){
-          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-          return naturalCompare(a[COL.Grave], b[COL.Grave]);
-        });
-      }
-
-      // Visible columns: base rules
-      var visible = headers.filter(function(h){
-        if (ALWAYS_HIDE_LC.has(h.toLowerCase())) return false;
-        if (HIDE_EXACT.has(h)) return false; // hides exact lowercase 'plot'
-        return true;
-      });
-
-      // Plot is conditional: only show if any data present in filtered set
-      if (COL.Plot) {
-        var plotHasData = filtered.some(function(row){
-          var v = row[COL.Plot];
-          return v != null && String(v).trim() !== '';
-        });
-        if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
-      }
-
-      sortState = []; // reset user sort on filter change
-      allRowsFiltered = filtered;
-      buildTable(output, visible, filtered);
-      // Update grave count display
-      var graveCountEl = document.getElementById('graveCount');
-      graveCountEl.textContent = filtered.length + ' graves';
-    }
-
-    /* ===== Wire up events ===== */
-    document.addEventListener('DOMContentLoaded', loadCSV);
-
-    var t1=null;
-    blockInput.addEventListener('input', function(){
-      clearTimeout(t1);
-      t1 = setTimeout(function(){
-        populateGateDropdown(); // refill list for the (new or empty) Block
-        renderForFilters();     // show rows per filters
-      }, 120);
-    });
-    gateSelect.addEventListener('change', renderForFilters);
   </script>
 </body>
 </html>
