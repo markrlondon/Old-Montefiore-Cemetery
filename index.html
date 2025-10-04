@@ -564,15 +564,15 @@
             return obj;
           });
 
-        // Build Block list for combobox
-        var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
-        initBlockCombo(blocks, {
-          onConfirm: function(newBlock){
-            // Block change: dynamically update Gate menu; no page refresh
-            blockInput.value = newBlock || '';
-            populateGateDropdown();
-          }
-        });
+// Build Block list for combobox
+var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+
+// ✅ Block change: reload page with new block; reset gate to All
+initBlockCombo(blocks, {
+  onConfirm: function(newBlock){
+    setFiltersAndReload(newBlock || '', 'All');
+  }
+});     
 
         // Show controls
         filterWrap.style.display = 'flex';
