@@ -121,19 +121,42 @@
       return 0;
     }
     function parseDateMs(s) {
-      if (s == null) return NaN;
-      s = String(s).trim();
-      if (!s) return NaN;
-      var t = Date.parse(s);
-      if (!isNaN(t)) return t;
-      var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-      if (m) {
-        var mm = parseInt(m[1], 10)-1, dd = parseInt(m[2], 10), yy = parseInt(m[3], 10);
-        if (yy < 100) yy += 2000;
-        return new Date(yy, mm, dd).getTime();
-      }
-      return NaN;
-    }
+  if (s == null) return NaN;
+  s = String(s).trim();
+  if (!s) return NaN;
+
+  // Native ISO/known formats first
+  var t = Date.parse(s);
+  if (!isNaN(t)) return t;
+
+  // MM/DD/YYYY, MM-DD-YY, etc.
+  var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    var mm = parseInt(m[1], 10)-1, dd = parseInt(m[2], 10), yy = parseInt(m[3], 10);
+    if (yy < 100) yy += 2000; // assume 20xx for 2-digit years
+    return new Date(yy, mm, dd).getTime();
+  }
+
+  // "1 Jan 2025"
+  var m2 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{2,4})$/);
+  if (m2) {
+    var day = parseInt(m2[1],10), monStr = m2[2].toLowerCase(), year = parseInt(m2[3],10);
+    if (year < 100) year += 2000;
+    var months = {"jan":0,"january":0,"feb":1,"february":1,"mar":2,"march":2,"apr":3,"april":3,"may":4,"jun":5,"june":5,"jul":6,"july":6,"aug":7,"august":7,"sep":8,"sept":8,"september":8,"oct":9,"october":9,"nov":10,"november":10,"dec":11,"december":11};
+    if (months.hasOwnProperty(monStr)) return new Date(year, months[monStr], day).getTime();
+  }
+
+  // ✅ "1-Jan-25" or "1-Jan-2025" (hyphen/space/ slash separators; 3-letter month)
+  var m3 = s.match(/^(\d{1,2})[\/\-\s]([A-Za-z]{3})[\/\-\s](\d{2,4})$/);
+  if (m3) {
+    var d3 = parseInt(m3[1],10), mon3 = m3[2].toLowerCase(), y3 = parseInt(m3[3],10);
+    if (y3 < 100) y3 += 2000;
+    var months3 = {"jan":0,"feb":1,"mar":2,"apr":3,"may":4,"jun":5,"jul":6,"aug":7,"sep":8,"oct":9,"nov":10,"dec":11};
+    if (months3.hasOwnProperty(mon3)) return new Date(y3, months3[mon3], d3).getTime();
+  }
+
+  return NaN;
+}
     function dateCompare(a, b) {
       var ta = parseDateMs(a), tb = parseDateMs(b);
       var aNaN = isNaN(ta), bNaN = isNaN(tb);
@@ -143,11 +166,12 @@
       return ta - tb;
     }
     function comparatorForColumn(colName) {
-      if (!colName) return naturalCompare;
-      var lc = String(colName).toLowerCase();
-      if (lc === 'datecreated') return dateCompare;
-      return naturalCompare;
-    }
+  if (!colName) return naturalCompare;
+  var lc = String(colName).toLowerCase();
+  if (lc === 'datecreated' || lc === 'created') return dateCompare; // ← add 'created'
+  return naturalCompare;
+}
+
 
     /* ================= Utilities ================= */
     function escapeHtml(s) {
