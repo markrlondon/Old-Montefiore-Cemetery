@@ -228,7 +228,8 @@
         var idx = sortState.findIndex(function(s){ return s.col === h; });
         var prio = idx >= 0 ? (idx + 1) : '';
         var dir = idx >= 0 ? String(sortState[idx].dir) : '';
-        var cls = (String(h).toLowerCase() === 'datecreated' || String(h).toLowerCase() === 'created') ? ' class="right"' : '';
+        var cls = (String(h)h.toLowerCase() !== 'first name' && h.toLowerCase() !== 'last name' && h.toLowerCase() !== 'lastname' && h.toLowerCase() !== 'last name')  ? ' class="right"' : '';
+/*        var cls = (String(h).toLowerCase() === 'datecreated' || String(h).toLowerCase() === 'created') ? ' class="right"' : ''; */
         // Pretty header labels
         var displayLabel = h;
         if (h.toLowerCase() === 'firstname' || h === 'firstName') displayLabel = 'First Name';
@@ -266,7 +267,8 @@
             }
           }
 
-          var cls = (String(h).toLowerCase() === 'datecreated' || String(h).toLowerCase() === 'created') ? ' class="right"' : '';
+/*          var cls = (String(h).toLowerCase() === 'datecreated' || String(h).toLowerCase() === 'created') ? ' class="right"' : ''; */
+          var cls = (String(h)h.toLowerCase() !== 'first name' && h.toLowerCase() !== 'last name' && h.toLowerCase() !== 'lastname' && h.toLowerCase() !== 'last name')  ? ' class="right"' : '';
           html += '<td'+cls+'>'+ (cell == null ? '' : cell) +'</td>';
         });
         html += '</tr>';
