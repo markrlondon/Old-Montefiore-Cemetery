@@ -257,7 +257,7 @@
 
           // Link First Name / Last Name using hidden Memorial number
           var memorialHeader = COL.Memorial; // resolved earlier
-          if ((h.toLowerCase() === 'first name' || h.toLowerCase() === 'lastname' || h.toLowerCase() === 'last name') && memorialHeader) {
+          if ((h.toLowerCase() === 'first name'  || h.toLowerCase() === 'firstname' || h.toLowerCase() === 'lastname' || h.toLowerCase() === 'last name') && memorialHeader) {
             var memId = String(r[memorialHeader] || '').trim();
             if (memId) {
               var url = 'https://www.findagrave.com/memorial/' + encodeURIComponent(memId);
