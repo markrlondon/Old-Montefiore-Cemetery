@@ -444,7 +444,12 @@
       var all = (blockValues || []).slice(); // already begins with 'All'
       var activeIndex = -1;
 
-      all.sort(naturalCompare);
+        // Force "All" to always be first, then sort the rest
+  all.sort(function(a, b) {
+    if (a === 'All' && b !== 'All') return -1;
+    if (b === 'All' && a !== 'All') return 1;
+    return naturalCompare(a, b);
+  });
 
       function buildList(items) {
         list.innerHTML = '';
