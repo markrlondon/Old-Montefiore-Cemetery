@@ -360,87 +360,111 @@
     var allRowsFiltered = [];
 
     function renderForFilters(){
-      var params = readFiltersFromURL();
-      var bv  = params.block;             // from URL
-      var gVal = params.gate || 'All';    // from URL
+  var params = readFiltersFromURL();
+  var bv  = params.block;             // Block from URL ('' = All)
+  var gVal = params.gate || 'All';    // Gate from URL
 
-      // === Hide Gate menu if Block = All ===
-var gateWrap = document.getElementById('gateWrap');
-if (!bv || bv === 'All') {
-  gateWrap.style.display = 'none';
-} else {
-  gateWrap.style.display = 'inline-flex';
+  // Hide Gate menu when Block = All (no block filter)
+  var gateWrapEl = document.getElementById('gateWrap');
+  if (!bv) {
+    gateWrapEl.style.display = 'none';
+  } else {
+    gateWrapEl.style.display = 'inline-flex';
+  }
+
+  // Reflect Block value into the combobox input
+  blockInput.value = bv || '';
+
+  // Rebuild Gate list for this Block and select current gate
+  (function(){
+    var subset = allRows;
+    if (bv) {
+      subset = subset.filter(function(r){
+        return String(r[COL.Block] || '').trim() === bv;
+      });
+    }
+    var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
+    setOptions(gateSelect, gates);
+    if ([].slice.call(gateSelect.options).some(function(o){ return o.value === gVal; })) {
+      gateSelect.value = gVal;
+    }
+  })();
+
+  // Filter rows by Block and Gate
+  var filtered = allRows.slice();
+  if (bv) {
+    filtered = filtered.filter(function(r){
+      return String(r[COL.Block] || '').trim() === bv;
+    });
+  }
+  if (gVal && gVal !== 'All') {
+    filtered = filtered.filter(function(r){
+      return String(r[COL.Gate] || '').trim() === gVal;
+    });
+  }
+
+  // Find the Created/dateCreated column name (if present)
+  var createdCol = headers.find(function(h){
+    var lc = h.toLowerCase();
+    return lc === 'created' || lc === 'datecreated';
+  });
+
+  // Initial sort:
+  if (!bv) {
+    // ✅ Block = All → sort by Created/dateCreated DESC if available
+    if (createdCol) {
+      filtered.sort(function(a, b){
+        return -dateCompare(a[createdCol], b[createdCol]);  // descending
+      });
+    } else {
+      // Fallback: old Block/Gate/Plot/Row/Grave sort
+      filtered.sort(function(a,b){
+        var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
+        var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
+        var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
+        var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
+        return naturalCompare(a[COL.Grave],  b[COL.Grave]);
+      });
+    }
+  } else {
+    // Block is selected → Gate → Plot → Row → Grave (as before)
+    filtered.sort(function(a,b){
+      var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
+      var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
+      var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
+      return naturalCompare(a[COL.Grave], b[COL.Grave]);
+    });
+  }
+
+  // Visible columns baseline
+  var visible = headers.filter(function(h){
+    if (ALL_HIDE_LC.has(h.toLowerCase())) return false;
+    if (HIDE_EXACT.has(h)) return false; // exact lowercase 'plot'
+    return true;
+  });
+
+  // Plot: show only if any data in filtered set
+  if (COL.Plot) {
+    var plotHasData = filtered.some(function(row){
+      var v = row[COL.Plot];
+      return v != null && String(v).trim() !== '';
+    });
+    if (!plotHasData) {
+      visible = visible.filter(function(h){ return h !== COL.Plot; });
+    }
+  }
+
+  // Reset user sort when filters (URL) change
+  sortState = [];
+  allRowsFiltered = filtered;
+  buildTable(output, visible, filtered);
+
+  // Update grave count
+  var graveCountEl = document.getElementById('graveCount');
+  if (graveCountEl) graveCountEl.textContent = filtered.length + ' graves';
 }
 
 
-      // Reflect values into controls visuall
-      blockInput.value = bv ? bv : 'All';
-      // Build Gates for this block, then set selected gate
-      (function(){
-        var subset = allRows;
-        if (bv) subset = subset.filter(function(r){ return String(r[COL.Block] || '').trim() === bv; });
-        var gates = uniqueSorted(subset.map(function(r){ return r[COL.Gate]; }));
-        setOptions(gateSelect, gates);
-        if ([].slice.call(gateSelect.options).some(function(o){ return o.value === gVal; })) {
-          gateSelect.value = gVal;
-        }
-      })();
-
-      // Filter rows
-      var filtered = allRows.slice();
-      if (bv) {
-        filtered = filtered.filter(function(r){
-          return String(r[COL.Block] || '').trim() === bv;
-        });
-      }
-      if (gVal && gVal !== 'All') {
-        filtered = filtered.filter(function(r){
-          return String(r[COL.Gate] || '').trim() === gVal;
-        });
-      }
-
-      // Initial sort
-      if (!bv) {
-        filtered.sort(function(a,b){
-          var B = naturalCompare(a[COL.Block], b[COL.Block]); if (B) return B;
-          var g = naturalCompare(a[COL.Gate],  b[COL.Gate]);  if (g) return g;
-          var p = naturalCompare(a[COL.Plot],  b[COL.Plot]);  if (p) return p;
-          var r = naturalCompare(a[COL.Row],   b[COL.Row]);   if (r) return r;
-          return naturalCompare(a[COL.Grave],  b[COL.Grave]);
-        });
-      } else {
-        filtered.sort(function(a,b){
-          var g = naturalCompare(a[COL.Gate], b[COL.Gate]); if (g) return g;
-          var p = naturalCompare(a[COL.Plot], b[COL.Plot]); if (p) return p;
-          var r = naturalCompare(a[COL.Row],  b[COL.Row]);  if (r) return r;
-          return naturalCompare(a[COL.Grave], b[COL.Grave]);
-        });
-      }
-
-      // Visible columns baseline
-      var visible = headers.filter(function(h){
-        if (ALL_HIDE_LC.has(h.toLowerCase())) return false;
-        if (HIDE_EXACT.has(h)) return false; // exact lowercase 'plot'
-        return true;
-      });
-
-      // Plot conditional on data presence
-      if (COL.Plot) {
-        var plotHasData = filtered.some(function(row){
-          var v = row[COL.Plot];
-          return v != null && String(v).trim() !== '';
-        });
-        if (!plotHasData) visible = visible.filter(function(h){ return h !== COL.Plot; });
-      }
-
-      sortState = []; // reset user sort on URL-based render
-      allRowsFiltered = filtered;
-      buildTable(output, visible, filtered);
-
-      // Grave count label
-      var graveCountEl = document.getElementById('graveCount');
-      if (graveCountEl) graveCountEl.textContent = filtered.length + ' graves';
-    }
 
     /* ================= Block combobox (type or pick) ================= */
     function initBlockCombo(blockValues, options) {
