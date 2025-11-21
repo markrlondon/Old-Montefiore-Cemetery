@@ -373,7 +373,7 @@
   }
 
   // Reflect Block value into the combobox input
-  blockInput.value = bv || '';
+  blockInput.value = bv ? bv : 'All';
 
   // Rebuild Gate list for this Block and select current gate
   (function(){
