@@ -441,7 +441,7 @@
       var input = document.getElementById('blockInput');
       var list  = document.getElementById('blockListbox');
       var toggle = root.querySelector('.cb-toggle');
-      var all = (blockValues || []).slice();
+      var all = (blockValues || []).slice(); // already begins with 'All'
       var activeIndex = -1;
 
       all.sort(naturalCompare);
@@ -494,10 +494,21 @@
       function isOpen(){ return list.classList.contains('open'); }
 
       function filterList(q) {
-        q = String(q || '').trim().toLowerCase();
-        var filtered = q ? all.filter(function(v){ return String(v).toLowerCase().includes(q); }) : all.slice();
-        buildList(filtered);
-      }
+  q = String(q || '').trim().toLowerCase();
+  var filtered;
+  if (!q) {
+    filtered = all.slice(); // 'All' already first
+  } else {
+    filtered = all.filter(function(v){
+      return v === 'All' || String(v).toLowerCase().includes(q);
+    });
+    // keep 'All' first if present
+    if (filtered.includes('All')) {
+      filtered = ['All'].concat(filtered.filter(function(v){ return v !== 'All'; }));
+    }
+  }
+  buildList(filtered);
+}
 
       function clearActive() {
         Array.from(list.children).forEach(function(li){ li.removeAttribute('aria-selected'); });
@@ -612,15 +623,22 @@
             return obj;
           });
 
-// Build Block list for combobox
-var blocks = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+ 
 
-// ✅ Block change: reload page with new block; reset gate to All
+        var blocksCore = uniqueSorted(allRows.map(function(r){ return r[COL.Block]; }));
+var blocks = ['All'].concat(blocksCore);
+
+// Block change: reload page (Block -> value or empty, Gate -> All)
 initBlockCombo(blocks, {
   onConfirm: function(newBlock){
-    setFiltersAndReload(newBlock || '', 'All');
+    if (!newBlock || newBlock === 'All') {
+      setFiltersAndReload('', 'All');      // no block filter
+    } else {
+      setFiltersAndReload(newBlock, 'All');
+    }
   }
-});     
+});
+
 
         // Show controls
         filterWrap.style.display = 'flex';
