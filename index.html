@@ -364,6 +364,15 @@
       var bv  = params.block;             // from URL
       var gVal = params.gate || 'All';    // from URL
 
+      // === Hide Gate menu if Block = All ===
+var gateWrap = document.getElementById('gateWrap');
+if (!bv || bv === 'All') {
+  gateWrap.style.display = 'none';
+} else {
+  gateWrap.style.display = 'inline-flex';
+}
+
+
       // Reflect values into controls visuall
       blockInput.value = bv ? bv : 'All';
       // Build Gates for this block, then set selected gate
@@ -636,13 +645,14 @@ var blocks = ['All'].concat(blocksCore);
 // Block change: reload page (Block -> value or empty, Gate -> All)
 initBlockCombo(blocks, {
   onConfirm: function(newBlock){
-    if (!newBlock || newBlock === 'All') {
-      setFiltersAndReload('', 'All');      // no block filter
+    if (newBlock === 'All' || !newBlock.trim()) {
+      setFiltersAndReload('', 'All');   // Block = All → no block param
     } else {
       setFiltersAndReload(newBlock, 'All');
     }
   }
 });
+
 
 
         // Show controls
