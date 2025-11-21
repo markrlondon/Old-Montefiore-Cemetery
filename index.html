@@ -364,8 +364,8 @@
       var bv  = params.block;             // from URL
       var gVal = params.gate || 'All';    // from URL
 
-      // Reflect values into controls visually
-      blockInput.value = bv;
+      // Reflect values into controls visuall
+      blockInput.value = bv ? bv : 'All';
       // Build Gates for this block, then set selected gate
       (function(){
         var subset = allRows;
